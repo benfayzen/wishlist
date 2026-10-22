@@ -1,27 +1,8 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { cubicOut } from "svelte/easing";
-    import { Tween } from "svelte/motion";
-
-    const delay = 100;
-    const progress = new Tween(0, {
-        duration: 1000,
-        easing: cubicOut
-    });
-
-    onMount(() => {
-        const timer = setTimeout(() => {
-            progress.set(90);
-        }, delay);
-        return () => clearTimeout(timer);
-    });
+    import { getFormatter } from "$lib/i18n";
+    const t = getFormatter();
 </script>
 
-{#if progress.current}
-    <div class="bg-surface-50/50 dark:bg-surface-950/50 absolute top-0 left-0 z-999999999 h-0.75 w-screen">
-        <span
-            style:width={`${progress.current}%`}
-            class="bg-surface-950/50 dark:bg-surface-50/50 absolute h-0.75"
-        ></span>
-    </div>
-{/if}
+<div class="m3-navigation-progress" aria-label={$t("general.processing")} role="progressbar">
+    <span class="m3-linear-progress" aria-hidden="true"><span></span></span>
+</div>

@@ -38,7 +38,7 @@
     <div class="flex flex-wrap gap-2 py-4">
         <AddUserModal excludedUserIds={data.group.users.map(({ id }) => id)} groupId={data.group.id}>
             {#snippet trigger(props)}
-                <button class="preset-filled-primary-500 btn" type="button" {...props}>
+                <button class="m3-primary m3-button" type="button" {...props}>
                     <iconify-icon icon="ion:person-add"></iconify-icon>
                     <span>{$t("admin.add-member")}</span>
                 </button>
@@ -87,7 +87,7 @@
                                     {$t("admin.add-remove-manager-message", { values: { isManager } })}
                                 {/snippet}
                                 {#snippet trigger(props)}
-                                    <button class="btn-icon" {...props}>
+                                    <button class="m3-icon-button" {...props}>
                                         <iconify-icon
                                             class="text-primary-500"
                                             icon="ion:sparkles{!isManager ? '' : '-outline'}"
@@ -106,7 +106,7 @@
                                 {/snippet}
                                 {#snippet trigger(props)}
                                     <button
-                                        class="btn-icon"
+                                        class="m3-icon-button"
                                         aria-label={$t("a11y.remove-user-from-group", { values: { user: user.name } })}
                                         {...props}
                                     >

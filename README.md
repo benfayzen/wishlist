@@ -37,6 +37,55 @@ Create a wish from a URL, or manually fill in the details
 
 ## Getting Started
 
+### Material 3 Expressive fork
+
+This fork publishes `ghcr.io/benfayzen/wishlist:material-3-expressive` from the
+`feat/material-3-expressive` branch using GitHub Actions. Images support
+`linux/amd64` and `linux/arm64`. Each build also has an immutable `sha-<full commit SHA>` tag.
+Publication uses the repository's built-in `GITHUB_TOKEN`; no Docker Hub secrets are needed.
+The first image must finish building before it can be pulled. GitHub may require enabling
+Actions in a fork. If anonymous pulls are denied, set the package's visibility to public
+in GitHub Packages, or authenticate Docker to GHCR with a token that can read the package.
+
+For an existing installation, keep its volumes, network and environment variables and
+replace only the `image:` line. Back up the existing data and uploads before upgrading;
+the normal application startup applies any pending upstream database migrations.
+
+```yaml
+name: wishlist
+services:
+    wishlist:
+        container_name: wishlist
+        networks:
+            - proxy
+        image: ghcr.io/benfayzen/wishlist:material-3-expressive
+        volumes:
+            - /srv/docker/appdata/uploads:/usr/src/app/uploads
+            - /srv/docker/appdata/wishlist/data:/usr/src/app/data
+        environment:
+            - ORIGIN=https://wishlist.digital-void.xyz
+            - DEFAULT_CURRENCY=EUR
+        restart: unless-stopped
+
+networks:
+    proxy:
+        external: true
+```
+
+Keep an existing `networks:` definition if it differs from this example. Apply the
+new image on the server from the directory containing the Compose file:
+
+```sh
+docker compose pull wishlist
+docker compose up -d wishlist
+docker compose logs --tail=100 wishlist
+```
+
+For subsequent updates, repeat these commands after the image build succeeds.
+The `main` branch publishes `latest` and `edge` under this fork's GHCR namespace.
+
+### Original project
+
 Getting started is simple with Docker Compose.
 
 > [!NOTE]

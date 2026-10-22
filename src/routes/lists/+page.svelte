@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData, PageProps } from "./$types";
-    import { fade } from "svelte/transition";
+    import { fade } from "$lib/motion";
     import { hash, hashItems, viewedItems } from "$lib/stores/viewed-items";
     import ListCard from "$lib/components/ListCard.svelte";
     import { goto } from "$app/navigation";
@@ -25,10 +25,10 @@
     };
 </script>
 
-<div class="flex flex-wrap-reverse items-start justify-between gap-2 pb-4 print:hidden">
+<div class="m3-toolbar print:hidden">
     <ListFilterChip {users} />
     <button
-        class="preset-tonal-secondary inset-ring-secondary-500 btn btn-xs h-fit items-center inset-ring"
+        class="m3-secondary m3-button m3-button-small h-fit items-center"
         onclick={() => goto(resolve("/lists/create"))}
     >
         <iconify-icon icon="ion:add"></iconify-icon>
@@ -42,7 +42,7 @@
         <p class="text-2xl">{$t("wishes.no-lists-yet")}</p>
     </div>
 {:else}
-    <div class="flex flex-col space-y-4" data-testid="list-container" in:fade>
+    <div class="m3-list-grid" data-testid="list-container" in:fade>
         {#each data.myLists as list (list.id)}
             <ListCard hideCount {list} />
         {/each}

@@ -14,12 +14,12 @@
 </script>
 
 <div class="flex flex-col gap-4">
-    <h3 class="h3">{$t("general.oauth")}</h3>
+    <h3 class="m3-title">{$t("general.oauth")}</h3>
 
     {#if oauthId}
         <form class="flex flex-col gap-4" action="?/unlinkoauth" method="POST" use:enhance>
             <span>{$t("auth.your-account-is-currently-linked-with-oauth", { values: { providerName } })}</span>
-            <button class="preset-filled-primary-500 btn w-fit">
+            <button class="m3-primary m3-button w-fit">
                 {$t("auth.unlink-oauth", { values: { providerName } })}
             </button>
         </form>

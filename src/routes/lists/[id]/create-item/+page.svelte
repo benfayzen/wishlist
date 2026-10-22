@@ -5,47 +5,33 @@
     import type { PageProps } from "./$types";
     import { getFormatter } from "$lib/i18n";
     import { toaster } from "$lib/components/toaster";
-    import { goto } from "$app/navigation";
+    import { goto, replaceState } from "$app/navigation";
+    import { page } from "$app/state";
     import Alert from "$lib/components/Alert.svelte";
 
     const { data }: PageProps = $props();
     const t = getFormatter();
 
-    let itemData: Pick<Item, "name" | "price" | "url" | "note" | "imageUrl"> = {
+    let itemData: Pick<Item, "name" | "price" | "url" | "note" | "imageUrl"> = $state({
         name: "",
         price: null,
         url: null,
         note: null,
         imageUrl: null
-    };
+    });
+
+    let formVersion = $state(0);
 
     let warningHidden = $state(false);
     let saving = $state(false);
+    let createdAnother = $state(false);
 
     const clearFields = () => {
-        const fieldIds = [
-            "url",
-            "name",
-            "price",
-            "formatted-price",
-            "quantity",
-            "image",
-            "imageUrl",
-            "note",
-            "unlimited"
-        ];
-        fieldIds.forEach((id) => {
-            const field = document.getElementById(id) as HTMLInputElement;
-            if (field) {
-                if (id === "quantity") {
-                    field.value = "1";
-                } else if (id === "unlimited") {
-                    field.checked = false;
-                } else {
-                    field.value = "";
-                }
-            }
-        });
+        const nextUrl = new URL(page.url);
+        nextUrl.searchParams.delete("productUrl");
+        replaceState(nextUrl, page.state);
+        itemData = { name: "", price: null, url: null, note: null, imageUrl: null };
+        formVersion += 1;
     };
 </script>
 
@@ -53,18 +39,23 @@
     <Alert title={$t("wishes.heads-up")} type="info">
         {$t("wishes.approval-required", { values: { listOwner: data.list.owner.name } })}
         {#snippet actions(variant)}
-            <button class={["btn btn-sm", variant]} onclick={() => (warningHidden = true)}>
+            <button class={["m3-button m3-button-small", variant]} onclick={() => (warningHidden = true)}>
                 {$t("general.ok")}
             </button>
         {/snippet}
     </Alert>
 {/if}
 
+<p role="status">
+    {#if createdAnother}{$t("wishes.item-created")}{/if}
+</p>
+
 <form
     enctype="multipart/form-data"
     method="POST"
     use:enhance={({ submitter }) => {
         saving = true;
+        createdAnother = false;
         return async ({ result }) => {
             saving = false;
             if (result.type === "error") {
@@ -76,7 +67,8 @@
 
                 if (submitter?.id === "submit-stay") {
                     clearFields();
-                    window.scrollTo({ top: 0 });
+                    createdAnother = true;
+                    document.getElementById("main")?.scrollTo({ top: 0 });
                     return;
                 }
                 return goto(result.location, { invalidateAll: true, replaceState: true });
@@ -85,14 +77,17 @@
         };
     }}
 >
-    <ItemForm
-        buttonText={$t("wishes.add-item")}
-        currentList={data.list.id}
-        item={itemData}
-        lists={data.lists}
-        {saving}
-        userId={data.user.id}
-    />
+    {#key formVersion}
+        <ItemForm
+            buttonText={$t("wishes.add-item")}
+            currentList={data.list.id}
+            item={itemData}
+            lists={data.lists}
+            productUrl={formVersion === 0 ? page.url.searchParams.get("productUrl") : null}
+            {saving}
+            userId={data.user.id}
+        />
+    {/key}
 </form>
 
 <svelte:head>

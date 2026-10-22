@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from "$app/state";
     import { goto } from "$app/navigation";
     import { Tabs } from "@skeletonlabs/skeleton-svelte";
     import type { LayoutProps, Snapshot } from "./$types";
@@ -18,7 +19,9 @@
 
     type TabOption = keyof typeof tabs;
 
-    let selectedTab: TabOption = $state("users");
+    let selectedTab: TabOption = $derived(
+        (Object.keys(tabs) as TabOption[]).find((key) => page.url.pathname.startsWith(tabs[key].href)) ?? "users"
+    );
 
     async function onValueChange(value: TabOption) {
         selectedTab = value;

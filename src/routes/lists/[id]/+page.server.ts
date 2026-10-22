@@ -54,6 +54,7 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
     const viewPreference = cookies.get("listViewPreference") as "list" | "tile" | undefined;
 
     return {
+        themeSeed: list.iconColor,
         list: {
             ...list,
             isSelfClaimable,

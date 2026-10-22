@@ -59,13 +59,10 @@
     <div></div>
 {:else if userClaim}
     {#if isClaimOnList}
-        <div class="flex flex-row items-center gap-2">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
             <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
                 {#snippet trigger(props)}
-                    <button
-                        {...props}
-                        class="preset-tonal-secondary inset-ring-secondary-500 btn btn-sm md:btn inset-ring"
-                    >
+                    <button {...props} class="m3-secondary m3-button m3-button-small md:m3-button">
                         {item.quantity === 1 && userClaim.quantity === 1
                             ? $t("wishes.unclaim")
                             : $t("wishes.update-claim")}
@@ -74,11 +71,12 @@
             </ClaimItemModal>
             <button
                 class={[
-                    "btn btn-icon btn-icon-sm md:btn-icon-base",
+                    "m3-button m3-icon-button",
                     userClaim.purchased && "preset-tonal-secondary inset-ring-secondary-500 inset-ring",
                     !userClaim.purchased && "inset-ring-secondary-500 inset-ring"
                 ]}
                 aria-label={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
+                aria-pressed={userClaim.purchased}
                 onclick={(e) => {
                     e.stopPropagation();
                     handlePurchased?.(!userClaim.purchased);
@@ -95,7 +93,7 @@
     <div class="flex flex-row items-center gap-x-2">
         <ClaimItemModal {groupId} {item} {requireClaimEmail} userId={user?.id}>
             {#snippet trigger(props)}
-                <button {...props} class="btn btn-sm md:btn preset-filled-secondary-300-700">
+                <button {...props} class="m3-button m3-button-small md:m3-button m3-primary">
                     {$t("wishes.claim")}
                 </button>
             {/snippet}

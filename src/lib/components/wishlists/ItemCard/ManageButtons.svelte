@@ -51,18 +51,20 @@
         {#snippet trigger(props)}
             <button
                 {...props}
-                class={[
-                    "btn btn-icon btn-icon-sm md:btn-icon-base",
-                    approve ? "preset-filled-success-600-400" : "preset-filled-error-500"
-                ]}
+                class="m3-action-pill"
                 aria-label={approve ? $t("wishes.approve") : $t("wishes.deny")}
+                data-tone={approve ? undefined : "danger"}
                 onclick={(e) => {
                     e.stopPropagation();
                     props.onclick?.(e);
                 }}
                 title={approve ? $t("wishes.approve") : $t("wishes.deny")}
+                type="button"
             >
-                <iconify-icon icon={approve ? "ion:checkmark" : "ion:close"}></iconify-icon>
+                <span class="m3-action-pill-surface">
+                    <iconify-icon aria-hidden="true" icon={approve ? "ion:checkmark" : "ion:close"}></iconify-icon>
+                    <span>{approve ? $t("wishes.approve") : $t("wishes.deny")}</span>
+                </span>
             </button>
         {/snippet}
     </ConfirmModal>
@@ -73,35 +75,44 @@
         {#snippet trigger(props)}
             <button
                 {...props}
-                class="preset-filled-error-500 btn btn-icon btn-icon-sm md:btn-icon-base"
+                class="m3-action-pill"
                 aria-label={$t("wishes.delete")}
+                data-tone="danger"
                 onclick={(e) => {
                     e.stopPropagation();
                     props.onclick?.(e);
                 }}
                 title={$t("wishes.delete")}
+                type="button"
             >
-                <iconify-icon icon="ion:trash"></iconify-icon>
+                <span class="m3-action-pill-surface">
+                    <iconify-icon aria-hidden="true" icon="ion:trash"></iconify-icon>
+                    <span>{$t("wishes.delete")}</span>
+                </span>
             </button>
         {/snippet}
     </DeleteItemModal>
 {/snippet}
 
-<div class="flex flex-row gap-2">
+<div class="flex min-w-0 flex-wrap justify-end gap-x-2">
     {#if !item.approved}
         {@render approvalButton(true)}
         {@render approvalButton(false)}
     {:else if userCanEdit(item, user?.id)}
         <button
-            class="preset-tonal-primary inset-ring-primary-500 btn btn-icon btn-icon-sm md:btn-icon-base inset-ring"
+            class="m3-action-pill"
             aria-label={$t("wishes.edit")}
             onclick={(e) => {
                 e.stopPropagation();
                 handleEdit();
             }}
             title={$t("wishes.edit")}
+            type="button"
         >
-            <iconify-icon icon="ion:edit"></iconify-icon>
+            <span class="m3-action-pill-surface">
+                <iconify-icon aria-hidden="true" icon="ion:edit"></iconify-icon>
+                <span>{$t("wishes.edit")}</span>
+            </span>
         </button>
         {@render deleteButton()}
     {:else if userCanManage}

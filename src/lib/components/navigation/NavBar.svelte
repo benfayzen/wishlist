@@ -1,79 +1,42 @@
 <script lang="ts">
-    import logo from "$lib/assets/logo.png";
-    import { page } from "$app/state";
+    import AppLogo from "./AppLogo.svelte";
     import NavMenu from "./NavMenu/NavMenu.svelte";
     import { isInstalled } from "$lib/stores/is-installed";
     import BackButton from "../BackButton.svelte";
-    import { getFormatter } from "$lib/i18n";
-    import NavigationDrawer from "./NavigationDrawer.svelte";
 
     interface Props {
-        navItems: NavItem[];
         user: LocalUser | null;
         groups: GroupInformation[] | null;
         isProxyUser: boolean;
+        title?: string;
     }
 
-    const { navItems, user, groups, isProxyUser }: Props = $props();
-    const t = getFormatter();
+    const { user, groups, isProxyUser, title }: Props = $props();
 </script>
 
 {#snippet wishlistHeader()}
-    <a class="flex flex-row items-center gap-x-2" href="/">
-        <img class="size:h-12 aspect-square size-10 object-scale-down" alt="Wishlist Logo" src={logo} />
-        <span
-            class={[
-                "text-primary-950-50 text-2xl font-bold md:text-3xl",
-                groups && groups.length > 1 ? "hidden sm:block" : "block"
-            ]}
-        >
-            Wishlist
-        </span>
-    </a>
+    <div class="m3-header-logo"><AppLogo /></div>
 {/snippet}
 
-<div class="bg-surface-200-800 flex gap-4 px-4 py-2 md:py-4">
+<div class="m3-nav">
     <!-- Header -->
-    <div class="flex shrink-0 grow content-center items-center gap-x-2 md:grow-0">
+    <div class="m3-header-leading">
         {#if user}
             {#if !$isInstalled}
-                <NavigationDrawer {navItems} {user}>
-                    {#snippet trigger(props)}
-                        <button {...props} class="btn btn-sm p-0! md:hidden" aria-label={$t("a11y.menu")}>
-                            <iconify-icon class="mt-1 text-2xl" icon="ion:menu"></iconify-icon>
-                        </button>
-                    {/snippet}
-                </NavigationDrawer>
-
                 {@render wishlistHeader()}
             {:else}
-                <BackButton header={wishlistHeader} />
+                <BackButton header={wishlistHeader} iconOnly={!!title} />
             {/if}
         {:else}
             {@render wishlistHeader()}
         {/if}
+        {#if title}
+            <h1 class="m3-header-title" {title}><span>{title}</span></h1>
+        {/if}
     </div>
 
-    <!-- Nav items -->
-    {#if user}
-        <div class="hidden flex-row items-center pt-0.5 pl-4 md:flex md:grow">
-            {#each navItems as navItem}
-                <a
-                    class={[
-                        "list-option font-bold",
-                        page.url.pathname + page.url.search === navItem.href(user) && "preset-filled-primary-500"
-                    ]}
-                    data-sveltekit-preload-data
-                    href={navItem.href(user)}
-                >
-                    {$t(navItem.labelKey)}
-                </a>
-            {/each}
-        </div>
-    {:else}
-        <div class="md:flex md:grow"></div>
-    {/if}
-
     <!-- Trail -->
-    <NavMenu {groups} {isProxyUser} {user} />
+    <div class="m3-header-actions">
+        <NavMenu {groups} {isProxyUser} {user} />
+    </div>
 </div>

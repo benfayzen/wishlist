@@ -5,7 +5,9 @@ import { sveltePreprocess } from "svelte-preprocess";
 const config = {
     // Consult https://github.com/sveltejs/svelte-preprocess
     // for more information about preprocessors
-    preprocess: [sveltePreprocess()],
+    preprocess: [
+        sveltePreprocess({ typescript: { compilerOptions: { verbatimModuleSyntax: true, target: "ESNext" } } })
+    ],
 
     kit: {
         adapter: adapter()

@@ -15,3 +15,14 @@ yarn.lock
 
 # Ignore the template files
 templates
+
+# Generated local runtime and browser artifacts
+/data/
+/test-results/
+/playwright-report/
+/blob-report/
+/src/lib/generated/
+/output/
+
+# Upstream font license and attribution files
+/static/fonts/google-sans-flex/

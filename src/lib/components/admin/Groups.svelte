@@ -55,7 +55,7 @@
         title={$t("general.enter-group-name")}
     >
         {#snippet trigger(props)}
-            <button class="preset-filled-primary-500 btn" {...props}>
+            <button class="m3-primary m3-button" {...props}>
                 <iconify-icon icon="ion:add"></iconify-icon>
                 <p>{$t("general.create-group")}</p>
             </button>
@@ -75,7 +75,15 @@
         <tbody>
             {#each groupsFiltered as group}
                 <tr onclick={() => selectionHandler(group)}>
-                    <td>{group.name}</td>
+                    <td>
+                        <a
+                            class="anchor"
+                            href={`/admin/groups/${group.id}`}
+                            onclick={(event) => event.stopPropagation()}
+                        >
+                            {group.name}
+                        </a>
+                    </td>
                     <td>{group.userCount}</td>
                 </tr>
             {/each}

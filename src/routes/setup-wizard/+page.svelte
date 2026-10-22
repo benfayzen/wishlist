@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { fade } from "svelte/transition";
+    import { fade } from "$lib/motion";
     import { getFormatter } from "$lib/i18n";
     import { resolve } from "$app/paths";
 
@@ -28,12 +28,12 @@
         class="fixed top-0 right-0 bottom-0 left-0 flex h-screen w-full flex-col items-center justify-center space-y-4 overflow-hidden"
     >
         {#key statements[introStep]}
-            <h1 class="h1" in:fade>
+            <h1 class="m3-page-title" in:fade>
                 {statements[introStep]}
             </h1>
             <button
                 style:visibility={introStep < 2 ? "hidden" : ""}
-                class="preset-filled-primary-500 btn"
+                class="m3-primary m3-button"
                 onclick={() => goto(resolve("/setup-wizard/step/1"))}
                 type="button"
                 in:fade={{ delay: 1200 }}
@@ -45,7 +45,7 @@
 {:else}
     <div transition:fade>
         <div class="flex flex-col items-center space-y-4">
-            <h1 class="h1">{$t("setup.create-your-account")}</h1>
+            <h1 class="m3-page-title">{$t("setup.create-your-account")}</h1>
             <span>{$t("setup.first-account-admin")}</span>
         </div>
     </div>

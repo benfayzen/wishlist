@@ -36,10 +36,10 @@
 </script>
 
 <div class="flex flex-col items-center space-y-4">
-    <h1 class="h1 capitalize">{$t("auth.sign-in")}</h1>
+    <h1 class="m3-page-title capitalize">{$t("auth.sign-in")}</h1>
 
     <form
-        class="w-80"
+        class="w-full max-w-md"
         method="POST"
         use:enhance={(form) => {
             signingIn = true;
@@ -55,9 +55,7 @@
             };
         }}
     >
-        <div
-            class="rounded-container card preset-filled-surface-100-900 border-surface-200-800 flex flex-col space-y-4 border p-4"
-        >
+        <div class="rounded-container m3-card flex flex-col space-y-4 p-4">
             {#if data.isCallback}
                 <div class="flex flex-col items-center justify-center space-y-4">
                     <span class="loading loading-spinner w-8 md:w-12"></span>
@@ -65,12 +63,12 @@
                 </div>
             {:else}
                 {#if data.enableLogin}
-                    <label class="label" for="username">
+                    <label class="m3-label" for="username">
                         <span>{$t("auth.username")}</span>
                         <input
                             id="username"
                             name="username"
-                            class={["input", (form?.incorrect || form?.error) && "input-invalid"]}
+                            class={["m3-input", (form?.incorrect || form?.error) && "m3-invalid"]}
                             autocapitalize="off"
                             autocomplete="username"
                             required
@@ -103,8 +101,8 @@
                             </span>
                         {/if}
 
-                        <div class="flex items-center justify-center gap-x-4">
-                            <button class="preset-filled-primary-500 btn w-min" disabled={signingIn}>
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <button class="m3-primary m3-button" disabled={signingIn}>
                                 {#if signingIn}
                                     <span class="loading loading-spinner loading-xs"></span>
                                 {/if}
@@ -115,10 +113,7 @@
                             {/if}
                         </div>
 
-                        <a
-                            class="anchor absolute top-0 mt-0! pt-0.5 text-sm ltr:right-0 rtl:left-0"
-                            href="/forgot-password"
-                        >
+                        <a class="anchor text-sm" href="/forgot-password">
                             {$t("auth.forgot-password")}
                         </a>
                     </div>
@@ -134,7 +129,7 @@
                     {/if}
                     <div class="flex justify-center">
                         <button
-                            class="preset-filled-primary-500 btn"
+                            class="m3-primary m3-button"
                             disabled={signingIn}
                             onclick={() => window.location.assign(`/login/oidc${page.url.search}`)}
                             type="button"
@@ -147,7 +142,7 @@
         </div>
     </form>
     {#if data.error}
-        <Alert class="w-80 md:w-1/2" noicon title={$t("errors.oidc-error")} type="error">
+        <Alert class="w-full md:w-1/2" noicon title={$t("errors.oidc-error")} type="error">
             <pre class="text-wrap">{data.error}</pre>
         </Alert>
     {/if}

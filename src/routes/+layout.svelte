@@ -1,7 +1,7 @@
 <script lang="ts">
     import "../app.css";
 
-    import { afterNavigate, beforeNavigate } from "$app/navigation";
+    import { afterNavigate, beforeNavigate, replaceState } from "$app/navigation";
     import { page } from "$app/state";
     import { pwaInfo } from "virtual:pwa-info";
 
@@ -9,14 +9,18 @@
     import NavigationLoadingBar from "$lib/components/navigation/NavigationLoadingBar.svelte";
     import type { LayoutProps } from "./$types";
     import { onMount } from "svelte";
+    import NavigationRail from "$lib/components/navigation/NavigationRail.svelte";
     import BottomTabs from "$lib/components/navigation/BottomTabs.svelte";
     import { isInstalled } from "$lib/stores/is-installed";
     import PullToRefresh from "pulltorefreshjs";
     import { navItems } from "$lib/components/navigation/navigation";
     import { setFormatter, setLocale } from "$lib/i18n";
+    import { themeStyleTag } from "$lib/theme";
     import Toaster from "$lib/components/toaster/Toaster.svelte";
 
     const { data, children }: LayoutProps = $props();
+
+    const contextTheme = $derived(themeStyleTag(page.data.themeSeed));
 
     let showNavigationLoadingBar = $state(false);
     let documentTitle: string | undefined = $state();
@@ -35,7 +39,14 @@
     setFormatter(data.t);
     setLocale(data.locale);
 
+    const scrollPositions = new Map<string, { top: number; left: number }>();
+    let scrollId = "";
+
     beforeNavigate(() => {
+        const content = document.getElementById("main");
+        if (scrollId && content) {
+            scrollPositions.set(scrollId, { top: content.scrollTop, left: content.scrollLeft });
+        }
         showNavigationLoadingBar = true;
     });
 
@@ -43,9 +54,20 @@
         showNavigationLoadingBar = false;
         documentTitle = document?.title;
         disabled = titleDisabledUrls.find((url) => page.url.pathname.match(url)) !== undefined;
-        if (params.type !== "popstate" && params.to?.url.pathname !== params.from?.url.pathname) {
-            const elemPage = document.querySelector("#page");
-            if (elemPage) elemPage.scrollTop = 0;
+        const content = document.getElementById("main");
+        scrollId = page.state.wishlistScrollId || crypto.randomUUID();
+        if (!page.state.wishlistScrollId) {
+            replaceState(page.url, { ...page.state, wishlistScrollId: scrollId });
+        }
+        const saved = scrollPositions.get(scrollId);
+        if (params.type === "popstate" && saved) {
+            content?.scrollTo({ ...saved, behavior: "instant" });
+        } else if (params.type !== "popstate" && params.to?.url.pathname !== params.from?.url.pathname) {
+            if (page.url.hash) {
+                document.getElementById(decodeURIComponent(page.url.hash.slice(1)))?.scrollIntoView();
+            } else {
+                content?.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            }
         }
     });
 
@@ -71,14 +93,15 @@
             document.body.addEventListener("touchend", () => {
                 shouldPullToRefresh = true;
             });
+            const content = document.getElementById("main")!;
             const ptr = PullToRefresh.init({
-                mainElement: document.getElementById("main") as unknown as string,
+                mainElement: content as unknown as string,
                 distThreshold: 70,
                 resistanceFunction: (t) => Math.min(1, t / 4.5),
                 onRefresh() {
                     window.location.reload();
                 },
-                shouldPullToRefresh: () => !window.scrollY && shouldPullToRefresh
+                shouldPullToRefresh: () => content.scrollTop === 0 && shouldPullToRefresh
             });
             return () => ptr.destroy();
         }
@@ -99,28 +122,51 @@
         }
     });
 
+    // Keep the header in sync when a list name or the language changes without navigation.
+    onMount(() => {
+        const updateTitle = () => (documentTitle = document.title);
+        const observer = new MutationObserver(updateTitle);
+        observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+        updateTitle();
+        return () => observer.disconnect();
+    });
+
     const webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : "");
 
+    let railExpanded = $state(false);
     let footerHeight: number | undefined = $state();
-    let toasterYShift: number | undefined = $derived(footerHeight && footerHeight + 12);
+    const hasListFab = $derived(/^\/lists\/[^/]+$/.test(page.url.pathname) && !!data.user);
+    let toasterYShift: number | undefined = $derived((footerHeight || 0) + (hasListFab ? 112 : 16));
 </script>
 
-<div class="min-h-screen">
-    <header class="sticky top-0 z-15 print:hidden">
+<div class="m3-app-shell" class:has-navigation={!!data.user} class:rail-expanded={railExpanded}>
+    {#if data.user}
+        <NavigationRail {navItems} user={data.user} bind:expanded={railExpanded} />
+    {/if}
+    <header class="m3-app-header z-15 print:hidden">
         {#if showNavigationLoadingBar}
             <NavigationLoadingBar />
         {/if}
-        <NavBar groups={data.groups} isProxyUser={data.isProxyUser} {navItems} user={data.user} />
+        <NavBar
+            groups={data.groups}
+            isProxyUser={data.isProxyUser}
+            title={disabled ? undefined : documentTitle}
+            user={data.user}
+        />
     </header>
 
-    <main id="main" class="h-full min-h-screen px-4 py-4 md:px-12 lg:px-32 xl:px-56">
-        {#if !disabled && documentTitle}
-            <h1 class="h1 pb-2 md:pb-4">{documentTitle}</h1>
-        {/if}
-        {@render children?.()}
-    </main>
+    <div class="m3-content-pane">
+        <main id="main" class="m3-pane-scroll" tabindex="-1">
+            <div class="app-main">
+                {#if !disabled && documentTitle}
+                    <h1 class="m3-page-title hidden pb-2 print:block">{documentTitle}</h1>
+                {/if}
+                {@render children?.()}
+            </div>
+        </main>
+    </div>
 
-    <footer class="sticky bottom-0 z-10 print:hidden" bind:clientHeight={footerHeight}>
+    <footer class="m3-navigation-footer print:hidden" bind:clientHeight={footerHeight}>
         <BottomTabs {navItems} user={data.user} />
     </footer>
 </div>
@@ -129,4 +175,5 @@
 
 <svelte:head>
     {@html webManifestLink}
+    {@html contextTheme}
 </svelte:head>

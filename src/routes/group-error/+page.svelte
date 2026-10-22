@@ -6,7 +6,7 @@
 </script>
 
 <div class="flex flex-col items-center justify-center space-y-4 pt-4">
-    <h1 class="h1">{$t("errors.cant-find-your-group")}</h1>
+    <h1 class="m3-page-title">{$t("errors.cant-find-your-group")}</h1>
     <img class="w-3/4 pt-4 md:w-1/3" alt={$t("a11y.a-person-looking-at-an-empty-board")} src={noGroup} />
     <p class="text-center">{$t("errors.no-group-friendly-msg")}</p>
 </div>

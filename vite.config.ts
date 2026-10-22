@@ -20,12 +20,15 @@ const config: UserConfig = {
         tailwindcss(),
         sveltekit(),
         SvelteKitPWA({
+            base: "/",
+            scope: "/",
+            workbox: { navigateFallback: null },
             registerType: "autoUpdate",
             manifest: {
                 name: "Wishlist",
                 short_name: "Wishlist",
                 description: "Christmas wishlist you can share with the whole family.",
-                theme_color: "#423654",
+                theme_color: "#8b1fea",
                 icons: [
                     {
                         src: "/android-chrome-192x192.png",
@@ -61,6 +64,9 @@ const config: UserConfig = {
             }
         })
     ],
+    ssr: {
+        noExternal: ["@material/material-color-utilities"]
+    },
     server: {
         fs: {
             // Allow serving files from one level up to the project root

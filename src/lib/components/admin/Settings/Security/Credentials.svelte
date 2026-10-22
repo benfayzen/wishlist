@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import Tooltip from "$lib/components/Tooltip.svelte";
     import { getFormatter } from "$lib/i18n";
     import { strengthOptions } from "$lib/zxcvbn";
@@ -28,7 +29,7 @@
     </Setting>
 
     <Setting>
-        <label class="label flex flex-col" for="passwordStrength">
+        <label class="m3-label flex flex-col" for="passwordStrength">
             <Tooltip>
                 {#snippet label()}
                     <span>{$t("admin.password-strength-requirement")}</span>
@@ -41,16 +42,16 @@
                 {/snippet}
             </Tooltip>
 
-            <select
+            <Select
                 id="passwordStrength"
                 name="passwordStrength"
-                class="select w-fit min-w-64"
+                class="m3-select w-full max-w-md"
                 value={config.security.passwordStrength}
             >
                 {#each strengthOptions as label, idx}
                     <option value={idx - 1}>{$t(label)}</option>
                 {/each}
-            </select>
+            </Select>
         </label>
         {#snippet description()}
             {$t("admin.password-strength-requirement-tooltip")}

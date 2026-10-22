@@ -11,7 +11,7 @@
 </script>
 
 <div>
-    <button class="preset-filled-primary-500 chip" {onclick}>
+    <button class="m3-text-button m3-button m3-button-small" {onclick}>
         <iconify-icon icon="ion:build"></iconify-icon>
         <span>{$t("wishes.manage")}</span>
     </button>

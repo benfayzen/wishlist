@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { invalidateAll } from "$app/navigation";
     import { Role } from "$lib/schema";
     import Avatar from "../../Avatar.svelte";
@@ -19,6 +20,10 @@
     const t = getFormatter();
 
     let open = $state(false);
+    let interactive = $state(false);
+    onMount(() => {
+        interactive = true;
+    });
 
     const closeMenu = () => {
         open = false;
@@ -32,17 +37,14 @@
         {/if}
         <Popup zIndex="z-20!" bind:open>
             {#snippet trigger(props)}
-                <button class="size-10 md:size-12" {...props}>
-                    <Avatar class="size-10 text-xs md:size-12 md:text-sm" {user} />
+                <button class="m3-avatar-trigger" {...props} disabled={!interactive}>
+                    <Avatar class="size-10 text-xs" {user} />
                     <span class="sr-only">User Menu</span>
                 </button>
             {/snippet}
             {#snippet content(props)}
                 <div {...props}>
-                    <nav
-                        class="card preset-filled-surface-100-900 list-nav p-4 shadow-xl"
-                        data-testid="user menu navigation"
-                    >
+                    <nav class="m3-card list-nav p-4 shadow-xl" data-testid="user menu navigation">
                         <ul>
                             <li>
                                 <a href="/account" onclick={closeMenu}>
@@ -108,5 +110,5 @@
         </Popup>
     </div>
 {:else}
-    <LightSwitch sizeClass="w-10" />
+    <LightSwitch showLabel={false} />
 {/if}

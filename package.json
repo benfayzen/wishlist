@@ -12,9 +12,12 @@
         "lint": "prettier --check . --experimental-cli && eslint .",
         "format": "prettier --write . --experimental-cli",
         "db:patch": "tsx prisma/patches/index.ts",
+        "db:seed:dev": "tsx prisma/seed-dev.ts",
         "test": "playwright test",
         "test:build": "docker compose -f tests/docker/docker-compose.yaml build",
-        "test:setup": "playwright install --with-deps chromium"
+        "test:setup": "playwright install --with-deps chromium",
+        "preview:native": "node scripts/native-server.mjs",
+        "test:native": "playwright test --config playwright.native.config.ts"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.0",
@@ -61,6 +64,7 @@
     },
     "type": "module",
     "dependencies": {
+        "@material/material-color-utilities": "^0.4.0",
         "@metascraper/helpers": "^5.49.1",
         "@noble/hashes": "^2.0.0",
         "@oslojs/crypto": "^1.0.1",

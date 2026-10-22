@@ -36,7 +36,7 @@
 
 <ConfirmModal {description} {onConfirm} title={$t("general.please-confirm")}>
     {#snippet trigger(props)}
-        <button class="preset-filled-error-500 btn w-fit" {...props} type="button">
+        <button class="m3-danger m3-button w-fit" {...props} type="button">
             {$t("admin.clear-lists", { values: { claimedOnly: claimed, groupSpecific: groupId !== undefined } })}
         </button>
     {/snippet}

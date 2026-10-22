@@ -34,50 +34,57 @@
             await goto(page.url.pathname, { replaceState: true, noScroll: true });
         }
     };
-
-    const transitionIn =
-        "data-[state=open]:translate-y-0 starting:data-[state=open]:translate-y-1/2 md:starting:data-[state=open]:translate-y-0 md:data-[state=open]:scale-100 md:starting:data-[state=open]:scale-90";
-    const transitionOut =
-        "data-[state=closed]:translate-y-1/2 starting:data-[state=closed]:translate-y-0 md:data-[state=closed]:translate-y-0 md:data-[state=closed]:scale-90 md:starting:data-[state=closed]:scale-100";
 </script>
 
 <Dialog {onOpenChange} {open}>
     <Portal>
-        <ModalBackdrop class="duration-250"></ModalBackdrop>
-        <Dialog.Positioner class="fixed inset-0 z-50 flex items-end justify-center sm:mx-4 sm:items-center">
-            <ModalContent
-                class="md:rounded-b-container max-h-3/4 translate-x-0 rounded-b-none duration-250 {transitionIn} {transitionOut}"
-            >
-                <div class="grid grid-cols-[1fr_auto] justify-between gap-2 pb-2">
-                    <Dialog.Title class="truncate text-xl font-bold text-wrap wrap-break-word md:text-2xl">
-                        {item.name}
-                    </Dialog.Title>
-                    <Dialog.CloseTrigger
-                        class="preset-tonal-surface border-surface-500 btn-icon border"
-                        aria-label={$t("a11y.close")}
-                        onclick={closeDialog}
-                    >
-                        <iconify-icon icon="ion:close"></iconify-icon>
-                    </Dialog.CloseTrigger>
+        <ModalBackdrop class="m3-item-dialog-scrim" />
+        <Dialog.Positioner class="m3-item-dialog-positioner">
+            <ModalContent class="m3-item-dialog">
+                <div class="m3-item-dialog-layout">
+                    <header class="m3-item-dialog-header">
+                        <Dialog.Title class="m3-item-dialog-title">
+                            {item.name}
+                        </Dialog.Title>
+                        <Dialog.CloseTrigger
+                            class="m3-icon-button m3-item-dialog-close"
+                            aria-label={$t("a11y.close")}
+                            onclick={closeDialog}
+                        >
+                            <iconify-icon aria-hidden="true" icon="ion:close"></iconify-icon>
+                        </Dialog.CloseTrigger>
+                    </header>
+
+                    <div class="m3-item-dialog-body">
+                        <div class="m3-item-dialog-media">
+                            <ItemImage class="m3-item-dialog-image" {item}>
+                                {#snippet defaultImage(t)}
+                                    {@render _defaultImage(t, "m3-item-dialog-placeholder")}
+                                {/snippet}
+                            </ItemImage>
+                        </div>
+
+                        <div class="m3-item-dialog-details">
+                            <ItemAttributes {...props} fullNotes {item} showDetail />
+                        </div>
+
+                        {#if item.url}
+                            <a
+                                class="m3-button m3-outlined m3-item-dialog-link"
+                                href={item.url}
+                                rel="noreferrer"
+                                target="_blank"
+                            >
+                                <span>{$t("wishes.view-item")}</span>
+                                <iconify-icon aria-hidden="true" icon="ion:open-outline"></iconify-icon>
+                            </a>
+                        {/if}
+                    </div>
+
+                    <div class="m3-item-dialog-actions [&>footer]:flex-wrap [&>footer]:p-0">
+                        <ItemFooter {...props} {item} noPadding onEdit={() => (open = false)} />
+                    </div>
                 </div>
-
-                <div class="flex max-h-[40dvh] justify-center">
-                    <ItemImage class="max-h-full object-scale-down" {item}>
-                        {#snippet defaultImage(t)}
-                            {@render _defaultImage(t, "w-40 md:w-48 aspect-square rounded")}
-                        {/snippet}
-                    </ItemImage>
-                </div>
-
-                {#if item.url}
-                    <a class="anchor dark:text-primary-200!" href={item.url} rel="noreferrer" target="_blank">
-                        {$t("wishes.view-item")}
-                    </a>
-                {/if}
-
-                <ItemAttributes {...props} fullNotes {item} showDetail />
-
-                <ItemFooter {...props} {item} noPadding onEdit={() => (open = false)}></ItemFooter>
             </ModalContent>
         </Dialog.Positioner>
     </Portal>
