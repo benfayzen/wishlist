@@ -74,7 +74,7 @@
         onIncreasePriority = undefined,
         onDecreasePriority = undefined,
         onPriorityChange,
-        isTileView = false,
+        isTileView = true,
         isSelfClaimable = false
     }: ItemCardProps = $props();
 

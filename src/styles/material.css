@@ -79,6 +79,9 @@
     .m3-label > span:first-child {
         color: var(--md-on-surface);
     }
+    .m3-label > [data-scope="combobox"][data-part="label"] {
+        font: inherit;
+    }
     .m3-field,
     .m3-input,
     .m3-select,
@@ -644,7 +647,69 @@
     .m3-tile-media img {
         inline-size: 100%;
         block-size: 100%;
-        object-fit: contain;
+        object-fit: cover;
+    }
+    /* Product choice: decorative rosette + tonal label, rather than a notification badge. */
+    .m3-item-image {
+        container: item-image / inline-size;
+    }
+    .m3-wish-badge {
+        position: absolute;
+        z-index: 1;
+        inset-block-start: 0.625rem;
+        inset-inline-start: 0.625rem;
+        display: inline-flex;
+        align-items: center;
+        max-inline-size: calc(100% - 1.25rem);
+        color: var(--md-on-tertiary-container);
+        pointer-events: none;
+    }
+    .m3-wish-badge-emblem {
+        position: relative;
+        z-index: 1;
+        flex: 0 0 2.5rem;
+        inline-size: 2.5rem;
+        block-size: 2.5rem;
+    }
+    .m3-wish-badge-emblem svg {
+        display: block;
+        inline-size: 100%;
+        block-size: 100%;
+        filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.16));
+    }
+    .m3-wish-badge-label {
+        min-inline-size: 0;
+        margin-inline-start: -0.875rem;
+        border-radius: var(--md-shape-full);
+        padding: 0.375rem 0.875rem 0.375rem 1.125rem;
+        background: var(--md-tertiary-container);
+        font-size: 0.75rem;
+        line-height: 1rem;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+    .m3-wish-badge--compact .m3-wish-badge-label {
+        position: absolute;
+        inline-size: 1px;
+        block-size: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    @container item-image (min-width: 12rem) {
+        .m3-wish-badge--compact .m3-wish-badge-label {
+            position: static;
+            inline-size: auto;
+            block-size: auto;
+            overflow: visible;
+            clip-path: none;
+            white-space: normal;
+        }
+    }
+    @media print {
+        .m3-wish-badge-emblem svg {
+            filter: none;
+        }
     }
     .m3-item-title {
         min-inline-size: 0;
