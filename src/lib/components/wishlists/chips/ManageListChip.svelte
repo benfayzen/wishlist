@@ -10,9 +10,9 @@
     const t = getFormatter();
 </script>
 
-<div>
-    <button class="m3-text-button m3-button m3-button-small" {onclick}>
-        <iconify-icon icon="ion:build"></iconify-icon>
+<button class="m3-action-pill" {onclick} type="button">
+    <span class="m3-action-pill-surface">
+        <iconify-icon aria-hidden="true" icon="material-symbols:settings-rounded"></iconify-icon>
         <span>{$t("wishes.manage")}</span>
-    </button>
-</div>
+    </span>
+</button>
