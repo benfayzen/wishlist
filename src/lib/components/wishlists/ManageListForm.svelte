@@ -13,6 +13,7 @@
     import SelectListManagerModal from "../modals/SelectListManagerModal.svelte";
     import { validSeed, DEFAULT_SEED } from "$lib/theme";
     import Checkbox from "../Checkbox.svelte";
+    import FieldShell from "../FieldShell.svelte";
 
     interface ListProps extends Partial<
         Pick<
@@ -99,32 +100,37 @@
                     </label>
                 </div>
 
-                <label class="m3-label col-span-full flex flex-col md:col-span-4" for="iconColor">
-                    <span>{$t("general.icon-bg-color")}</span>
-                    <div class="grid grid-cols-[auto_1fr] gap-2">
-                        <input
-                            id="iconColor"
-                            name="iconColor"
-                            onchange={(e) => (list.iconColor = e.currentTarget?.value)}
-                            type="color"
-                            bind:value={colorValue}
-                        />
-                        <ClearableInput
-                            aria-label={$t("general.icon-bg-color")}
-                            clearButtonLabel={$t("a11y.clear-color-field")}
-                            disabled
-                            onValueClear={() => {
-                                colorValue = defaultColor;
-                                list.iconColor = defaultColor;
-                            }}
-                            readonly
-                            showClearButton={() => colorValue !== defaultColor}
-                            tabindex={-1}
-                            type="text"
-                            value={colorValue}
-                        />
-                    </div>
-                </label>
+                <div class="m3-label col-span-full md:col-span-4">
+                    <label for="iconColor">{$t("general.icon-bg-color")}</label>
+                    <FieldShell class="m3-color-field">
+                        {#snippet leading()}
+                            <input
+                                id="iconColor"
+                                name="iconColor"
+                                class="m3-color-swatch"
+                                oninput={(e) => (list.iconColor = e.currentTarget.value)}
+                                type="color"
+                                bind:value={colorValue}
+                            />
+                        {/snippet}
+                        <output class="m3-field-input" for="iconColor">{colorValue}</output>
+                        {#snippet trailing()}
+                            {#if colorValue !== defaultColor}
+                                <button
+                                    class="m3-field-slot"
+                                    aria-label={$t("a11y.clear-color-field")}
+                                    onclick={() => {
+                                        colorValue = defaultColor;
+                                        list.iconColor = defaultColor;
+                                    }}
+                                    type="button"
+                                >
+                                    <iconify-icon aria-hidden="true" icon="ion:close-circle"></iconify-icon>
+                                </button>
+                            {/if}
+                        {/snippet}
+                    </FieldShell>
+                </div>
                 <div class="col-span-full md:col-span-8">
                     <IconSelector id="icon" icon={list.icon} onIconSelected={(icon) => (list.icon = icon)} />
                 </div>
@@ -276,11 +282,11 @@
         </FormSection>
     </div>
 
-    <div class="m3-form-actions">
-        <button class="m3-secondary m3-button" onclick={() => history.back()} type="button">
+    <div class="m3-form-actions m3-form-surface">
+        <button class="m3-text-button m3-button" onclick={() => history.back()} type="button">
             {$t("general.cancel")}
         </button>
-        <div class="flex flex-row gap-x-4">
+        <div>
             {#if editing}
                 <ConfirmModal
                     confirmButtonProps={{ type: "submit", form: formId, formaction: "?/delete" }}

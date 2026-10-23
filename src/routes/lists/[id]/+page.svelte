@@ -274,23 +274,28 @@
     </div>
 {/if}
 
-<!-- chips -->
-<div class="flex flex-wrap items-end justify-between gap-2 pb-4 print:hidden">
-    <div class="flex flex-row flex-wrap items-end gap-2">
+<div class="m3-wishlist-toolbar print:hidden">
+    <div class="m3-wishlist-filters">
         {#if !data.list.owner.isMe || data.list.isSelfClaimable}
-            <ClaimFilterChip />
+            <div class="m3-wishlist-claim-filter">
+                <ClaimFilterChip />
+            </div>
         {/if}
-        <SortBy />
+        <div class="m3-wishlist-sort">
+            <SortBy />
+        </div>
     </div>
-    <div class="flex flex-row flex-wrap items-end gap-2">
-        {#if data.list.owner.isMe || data.list.isManager}
+    {#if !reordering}
+        <div class="m3-wishlist-view">
+            <ListViewModeChip {isTileView} />
+        </div>
+    {/if}
+    {#if data.list.owner.isMe || data.list.isManager}
+        <div class="m3-wishlist-actions">
             <ManageListChip onclick={() => goto(`${new URL(page.url).pathname}/manage`)} />
             <ReorderChip onFinalize={handleReorderFinalize} bind:reordering />
-        {/if}
-        {#if !reordering}
-            <ListViewModeChip {isTileView} />
-        {/if}
-    </div>
+        </div>
+    {/if}
 </div>
 
 {#if data.list.owner.isMe || data.list.isManager}

@@ -146,6 +146,32 @@
     .m3-field-slot iconify-icon {
         font-size: 1.25rem;
     }
+    /* Product choice: a native color picker in the shared M3 field, with a full touch target. */
+    .m3-color-field > .m3-field-slot {
+        padding: 0.125rem 0.1875rem;
+    }
+    .m3-color-swatch {
+        display: block;
+        inline-size: var(--md-target-size);
+        block-size: var(--md-target-size);
+        border: 1px solid var(--md-outline);
+        border-radius: var(--md-shape-small);
+        padding: 0;
+        overflow: hidden;
+        background: transparent;
+        cursor: pointer;
+    }
+    .m3-color-swatch::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+    .m3-color-swatch::-webkit-color-swatch {
+        border: 0;
+        border-radius: inherit;
+    }
+    .m3-color-swatch::-moz-color-swatch {
+        border: 0;
+        border-radius: inherit;
+    }
     .m3-field:focus-within,
     .m3-input:focus,
     .m3-select:focus,
@@ -1037,6 +1063,10 @@
         }
         .m3-form-actions > div {
             flex-direction: column-reverse;
+        }
+        .m3-form-actions > .m3-button,
+        .m3-form-actions > div {
+            inline-size: 100%;
         }
         .m3-item-content {
             padding: 0.75rem;

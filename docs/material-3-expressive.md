@@ -60,6 +60,9 @@ Product decisions (not official Material templates):
   the bottom-navigation layout has no logo. The content title is retained for printing.
 - 12px field corners (M3 outlined fields use 4px), 48px minimum button hit boxes, static labels
   above fields, responsive form grouping, 80rem content width and compact spacing.
+- List icon colors use a native color picker inside the shared outlined field, with a 48px
+  swatch, readable hex output and a reset action. This composition and the 8px gap above the
+  icon combobox are product decisions; Material Web has no official color picker component.
 - Image occupying one third of item rows, cropped with a fade/blur confined to its edge;
   contain-fit tiles, full wrapping titles, adaptive content height, grid-aligned list cards.
 - The form sections and product/login card layouts are Wishlist layouts, not M3 templates.

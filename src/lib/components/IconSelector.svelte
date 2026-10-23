@@ -86,7 +86,7 @@
 
 <Combobox
     name={id || "name"}
-    class="w-full gap-0"
+    class="m3-label w-full"
     {collection}
     defaultInputValue={iconValue}
     inputBehavior="autohighlight"
@@ -95,7 +95,7 @@
     openOnClick
     placeholder="gift"
 >
-    <Combobox.Label class="text-base">{title ?? $t("general.icon")}</Combobox.Label>
+    <Combobox.Label>{title ?? $t("general.icon")}</Combobox.Label>
     <Combobox.Control>
         <Combobox.Input>
             {#snippet element(props)}

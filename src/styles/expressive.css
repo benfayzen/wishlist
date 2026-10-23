@@ -235,6 +235,10 @@
         --m3-pill-background: var(--md-error-container);
         --m3-pill-foreground: var(--md-on-error-container);
     }
+    .m3-action-pill[aria-pressed="true"] {
+        --m3-pill-background: var(--md-primary);
+        --m3-pill-foreground: var(--md-on-primary);
+    }
     .m3-filter-chip[data-active="true"]:hover .m3-filter-chip-surface {
         background: color-mix(in srgb, var(--md-secondary), var(--md-on-secondary) 8%);
     }
@@ -244,7 +248,63 @@
     }
     .m3-filter-chip iconify-icon,
     .m3-action-pill iconify-icon {
+        flex-shrink: 0;
         font-size: 1.25rem;
+    }
+    /* Product layout: view controls share a row; list actions occupy the next on compact screens. */
+    .m3-wishlist-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.25rem 0.5rem;
+        padding-block-end: 0.75rem;
+    }
+    .m3-wishlist-filters {
+        display: contents;
+    }
+    .m3-wishlist-sort {
+        grid-column: 1;
+        grid-row: 1;
+        min-inline-size: 0;
+    }
+    .m3-wishlist-view {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+    .m3-wishlist-claim-filter,
+    .m3-wishlist-actions {
+        grid-column: 1 / -1;
+        min-inline-size: 0;
+    }
+    .m3-wishlist-actions {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        gap: 0.5rem;
+    }
+    .m3-wishlist-actions .m3-action-pill-surface {
+        padding-block: 0.5rem;
+    }
+    @media (min-width: 768px) {
+        .m3-wishlist-toolbar {
+            grid-template-columns: minmax(0, 1fr) auto auto;
+        }
+        .m3-wishlist-filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            min-inline-size: 0;
+        }
+        .m3-wishlist-actions {
+            display: flex;
+            flex-wrap: wrap;
+            grid-column: 2;
+            grid-row: 1;
+        }
+        .m3-wishlist-view {
+            grid-column: 3;
+        }
     }
     @media (max-width: 599px) {
         .m3-filter-chip-surface,
@@ -398,6 +458,12 @@
         border-start-start-radius: var(--md-shape-small);
         border-end-start-radius: var(--md-shape-small);
         padding: 0.75rem;
+        flex-shrink: 0;
+    }
+    @media (max-width: 639px) {
+        .m3-form-actions .m3-split-leading {
+            flex-grow: 1;
+        }
     }
     .m3-split-trailing iconify-icon {
         font-size: 1.375rem;
