@@ -21,3 +21,6 @@ src/lib/generated/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Local image generation originals (the application asset lives in src/lib/assets)
+/output/

@@ -38,24 +38,18 @@
 
 <form class="mt-4 flex flex-col flex-wrap gap-4" method="POST" use:enhance>
     <div class="flex flex-wrap gap-4">
-        <button class="preset-filled-primary-500 btn w-full sm:w-fit" formaction="?/reset-password">
+        <button class="m3-primary m3-button w-full sm:w-fit" formaction="?/reset-password">
             {$t("admin.generate-reset-password-link")}
         </button>
         {#if form?.success && form?.url}
             <TokenCopy url={form.url}>{$t("admin.password-reset-link")}</TokenCopy>
         {/if}
         {#if data.editingUser.role.name == "ADMIN"}
-            <button
-                class="preset-tonal-secondary inset-ring-secondary-500 btn w-full inset-ring sm:w-fit"
-                formaction="?/remove-admin"
-            >
+            <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/remove-admin">
                 {$t("admin.remove-admin")}
             </button>
         {:else}
-            <button
-                class="preset-tonal-secondary inset-ring-secondary-500 btn w-full inset-ring sm:w-fit"
-                formaction="?/make-admin"
-            >
+            <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/make-admin">
                 {$t("admin.make-admin")}
             </button>
         {/if}
@@ -63,7 +57,7 @@
 
     <div class="flex flex-wrap gap-4">
         {#if data.editingUser.oauthId}
-            <button class="preset-filled-primary-500 btn w-fit" formaction="?/unlinkoauth">
+            <button class="m3-primary m3-button w-fit" formaction="?/unlinkoauth">
                 {$t("auth.unlink-oauth", { values: { providerName: data.oidcConfig.providerName } })}
             </button>
         {/if}
@@ -74,7 +68,7 @@
             title={$t("general.please-confirm")}
         >
             {#snippet trigger(props)}
-                <button class="preset-tonal-error inset-ring-error-500 btn w-full inset-ring sm:w-fit" {...props}>
+                <button class="m3-danger-tonal m3-button w-full sm:w-fit" {...props}>
                     {$t("admin.clear-sessions")}
                 </button>
             {/snippet}
@@ -86,7 +80,7 @@
             title={$t("general.please-confirm")}
         >
             {#snippet trigger(props)}
-                <button class="preset-filled-error-400-600 btn w-full sm:w-fit" {...props}>
+                <button class="m3-danger m3-button w-full sm:w-fit" {...props}>
                     {$t("admin.delete-user")}
                 </button>
             {/snippet}

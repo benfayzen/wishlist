@@ -11,7 +11,7 @@
 
 <Toast.Group style={yShift ? `bottom: ${yShift}px;` : undefined} {toaster}>
     {#snippet children(toast)}
-        <Toast class="rounded-container" {toast}>
+        <Toast {toast}>
             <Toast.Message>
                 {#if toast.title}
                     <Toast.Title>{toast.title}</Toast.Title>

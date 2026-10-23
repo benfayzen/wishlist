@@ -1,14 +1,17 @@
 [data-scope="toast"][data-part="root"] {
-    &[data-type="info"],
-    &[data-type="loading"] {
-        @apply preset-tonal-secondary preset-outlined-secondary-500;
-    }
-
-    &[data-type="success"] {
-        @apply preset-tonal-success preset-outlined-success-500;
-    }
-
-    &[data-type="error"] {
-        @apply preset-tonal-error preset-outlined-error-500;
-    }
+    background: var(--md-inverse-surface);
+    color: var(--md-inverse-on-surface);
+    border: 0;
+    border-radius: 4px;
+    min-block-size: 3rem;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
+    max-inline-size: min(35rem, calc(100vw - 2rem));
+}
+[data-scope="toast"][data-part="close-trigger"] {
+    color: var(--md-inverse-on-surface);
+    min-inline-size: 3rem;
+    min-block-size: 3rem;
+}
+[data-scope="toast"][data-part="action-trigger"] {
+    color: var(--md-inverse-primary);
 }

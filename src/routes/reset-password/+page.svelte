@@ -20,10 +20,10 @@
 </script>
 
 <div class="flex flex-col items-center space-y-4">
-    <h1 class="h1">{$t("auth.reset-password")}</h1>
+    <h1 class="m3-page-title">{$t("auth.reset-password")}</h1>
 
     <form
-        class="w-80"
+        class="w-full max-w-md"
         method="POST"
         use:enhance={({ formData }) => {
             loading = true;
@@ -66,7 +66,7 @@
             {/if}
 
             <button
-                class="preset-filled-primary-500 btn w-full"
+                class="m3-primary m3-button w-full"
                 disabled={newPassword === "" || newPassword !== confirmPassword || loading}
                 type="submit"
             >

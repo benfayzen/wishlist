@@ -39,7 +39,7 @@ export class UserMenu {
 
     async close() {
         if (await this.navList.isVisible()) {
-            await this.avatarButton.click();
+            await this.page.keyboard.press("Escape");
             await expect(this.navList).not.toBeVisible();
         }
     }

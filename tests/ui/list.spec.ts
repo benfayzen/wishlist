@@ -58,6 +58,12 @@ test("public registry list", async ({ page, userData, anonymousPage }) => {
 });
 
 test("create item via url", async ({ page }) => {
+    const productUrl = "https://example.test/classic-clogs";
+    await page.route("**/api/product?*", async (route) => {
+        // Exercise the import UI without depending on a shop's availability or bot protection.
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        await route.fulfill({ json: { url: productUrl, title: "Classic clogs", price: 39.95, currency: "EUR" } });
+    });
     const listsPage = new ListsPage(page);
     await listsPage.goto();
 
@@ -66,14 +72,13 @@ test("create item via url", async ({ page }) => {
     await listPage.assertNoItems();
 
     const createItemPage = await listPage.createItem();
-    await createItemPage
-        .getForm()
-        .then((f) => f.fillViaUrl("https://www.amazon.com/crocs-Unisex-Classic-Black-Women/dp/B0014C0LSY/"));
+    await createItemPage.getForm().then((f) => f.fillViaUrl(productUrl));
     await createItemPage.create();
 
     await listPage.at();
     await new Toast(page).waitForToastWithText("Item created");
     await listPage.getItemAt(0).then((item) => item.assertHasLink());
+    await expect(page.getByRole("link", { name: "Classic clogs", exact: true })).toHaveAttribute("href", productUrl);
 });
 
 test("create full item", async ({ page, userData }) => {

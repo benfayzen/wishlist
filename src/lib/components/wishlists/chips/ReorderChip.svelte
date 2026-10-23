@@ -12,12 +12,12 @@
 
 <div>
     {#if reordering}
-        <button class="preset-tonal-secondary border-secondary-500 chip border" onclick={onFinalize}>
+        <button class="m3-primary m3-button m3-button-small" onclick={onFinalize}>
             <iconify-icon icon="ion:checkmark"></iconify-icon>
             <span>{$t("wishes.finish")}</span>
         </button>
     {:else}
-        <button class="preset-filled-primary-500 chip" onclick={() => (reordering = true)}>
+        <button class="m3-outlined m3-button m3-button-small" onclick={() => (reordering = true)}>
             <iconify-icon icon="ion:reorder-four"></iconify-icon>
             <span>{$t("wishes.reorder")}</span>
         </button>

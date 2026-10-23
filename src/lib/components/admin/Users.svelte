@@ -54,7 +54,15 @@
         <tbody>
             {#each usersFiltered as user}
                 <tr onclick={() => selectionHandler(user)}>
-                    <td class="text-nowrap">{user.name}</td>
+                    <td>
+                        <a
+                            class="anchor"
+                            href={user.username === currentUser.username ? "/account" : `/admin/users/${user.id}`}
+                            onclick={(event) => event.stopPropagation()}
+                        >
+                            {user.name}
+                        </a>
+                    </td>
                     <td>{user.username}</td>
                     <td>{user.email}</td>
                     <td class="text-center">

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import { enhance } from "$app/forms";
     import { goto } from "$app/navigation";
     import { page } from "$app/state";
@@ -21,20 +22,24 @@
     let { config, groups } = $derived(data);
     let sending = $state(false);
     let saving = $state(false);
+    let saved = $state(false);
 </script>
 
 <form
     action="?/settings"
     method="POST"
+    oninput={() => (saved = false)}
     use:enhance={({ action }) => {
         if (action.search.endsWith("?/send-test")) {
             sending = true;
         } else {
+            saved = false;
             saving = true;
         }
         return ({ action, result }) => {
             if (action.search.endsWith("?/settings") && result.type === "success") {
                 saving = false;
+                saved = true;
                 toaster.info({ description: $t("admin.settings-saved-toast") });
             }
             if (action.search.endsWith("?/send-test") && result.type === "success") {
@@ -68,11 +73,11 @@
         </aside>
         <!-- Select nav for small screens -->
         <aside class="w-full md:hidden">
-            <select class="select w-full" onchange={(e) => goto(e.currentTarget.value)} value={currentHash}>
+            <Select class="m3-select w-full" onchange={(e) => goto(e.currentTarget.value)} value={currentHash}>
                 {#each options as option}
                     <option value={option.hash}>{option.label($t)}</option>
                 {/each}
-            </select>
+            </Select>
         </aside>
         <!-- Settings -->
         <div class="w-full">
@@ -85,8 +90,11 @@
             {/if}
 
             <!-- Save buttons -->
-            <div class="flex w-full flex-row justify-end pt-5">
-                <button class="preset-filled-primary-500 btn" disabled={saving} type="submit">
+            <div class="flex w-full flex-wrap items-center justify-end gap-3 pt-5">
+                <span role="status">
+                    {#if saved}{$t("admin.settings-saved-toast")}{/if}
+                </span>
+                <button class="m3-primary m3-button" disabled={saving} type="submit">
                     {#if saving}
                         <span class="loading loading-spinner loading-xs"></span>
                     {/if}

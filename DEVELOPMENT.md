@@ -67,6 +67,42 @@ pnpm format --write
 pnpm run build
 ```
 
+## Demo data for the native preview
+
+After starting `pnpm preview:native` once, run `pnpm db:seed:dev` to add demo data
+to `data/m3-preview/wishlist.db`. This command ignores `DATABASE_URL` and only
+targets that local preview database. Existing data and subsequent edits to demo
+lists, reservations, passwords and active groups are preserved on repeated runs.
+
+The seed adds six accounts, three groups, thirteen lists (one empty), 74 wishes,
+and reservations covering single items, partial quantities, multiple reserving
+users, purchased items and unlimited quantities. It also includes a public list
+with a guest reservation, pending suggestions, a delegated list manager, an item
+shared across two groups' lists and a shared planning list allowing owner claims.
+
+Log in at `http://localhost:4173` with any of `demo.anna`, `demo.ben`, `demo.clara`,
+`demo.david`, `demo.emma` or `demo.felix`. Their initial password is
+`Wunschliste2026!`. Anna manages the family group, Clara the friends group and
+Emma the team group. These are group roles; the demo users are regular users
+globally.
+
+The existing `preview` account also joins all three demo groups, keeping its
+current active group and password. Switch to **Demo · Familie**,
+**Demo · Freundeskreis** or **Demo · Team** in the group selector to see the lists.
+The preview user has reservations to edit immediately under **My Claims**.
+
+For example, open **Annas Geburtstag** as `demo.ben`: the backpack is free, the
+bottle is reserved, the headlamp is purchased, and the socks have two of four
+units reserved. **Teamfeier · gemeinsam planen** also allows its owner Emma to
+reserve items. Open `/lists/dev-demo-list-emma-public` in a private browser window
+to test guest reservations.
+
+## App icons
+
+After replacing `src/lib/assets/wishlist-logo.png`, run `pnpm icons:generate` to
+regenerate the PNG icons and multi-size favicon. Safari uses the simplified
+monochrome list and star in `static/safari-pinned-tab.svg`.
+
 ## Building Docker
 
 ```sh

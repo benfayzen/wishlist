@@ -28,8 +28,8 @@
     {#snippet trigger(props)}
         <button
             {...props}
-            class="preset-tonal-primary border-primary-500 chip flex min-w-0 shrink border"
-            data-testid="group-select-chip"
+            class="preset-tonal-primary border-primary-500 m3-button m3-button-small flex min-w-0 shrink border"
+            data-testid="group-select-m3-button m3-button-small"
         >
             <iconify-icon icon="ion:people"></iconify-icon>
             <div class="truncate">{activeGroup.name}</div>
@@ -41,7 +41,7 @@
     {/snippet}
     {#snippet content(props)}
         <div {...props}>
-            <nav class="card preset-filled-surface-100-900 list-nav max-h-96 max-w-full p-4 shadow-xl">
+            <nav class="m3-card list-nav max-h-96 max-w-full p-4 shadow-xl">
                 <ul class="max-h-72 overflow-auto">
                     {#each groups as group (group.id)}
                         <li>

@@ -18,13 +18,13 @@
         {@const isLastStep = api().value === api().count - 1}
         <div class="flex items-center justify-between gap-2 pt-4">
             <!-- Previous -->
-            <Steps.PrevTrigger class="btn preset-tonal inset-ring-surface-500 inset-ring" {...prevButton}>
+            <Steps.PrevTrigger class="m3-button m3-secondary  " {...prevButton}>
                 <iconify-icon icon="ion:arrow-back"></iconify-icon>
                 <span>{$t("setup.back")}</span>
             </Steps.PrevTrigger>
 
             <!-- Next / Complete -->
-            <button class={["btn", isLastStep ? "preset-filled-primary-500" : "preset-filled"]} {...nextButton}>
+            <button class={["m3-button", isLastStep ? "preset-filled-primary-500" : "preset-filled"]} {...nextButton}>
                 {#if submitting}
                     <span class="loading loading-spinner loading-xs"></span>
                 {/if}

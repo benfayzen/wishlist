@@ -13,11 +13,11 @@
 </script>
 
 <div class="flex flex-col items-center space-y-4">
-    <h1 class="h1">{$t("setup.create-your-account")}</h1>
+    <h1 class="m3-page-title">{$t("setup.create-your-account")}</h1>
     <span>{$t("setup.first-account-admin")}</span>
     <form
         id={formId}
-        class="w-80 max-w-lg md:w-2/3 lg:w-1/2 xl:w-2/5"
+        class="w-full max-w-lg max-w-md md:w-2/3 lg:w-1/2 xl:w-2/5"
         action="/signup"
         method="POST"
         use:enhance={() => {

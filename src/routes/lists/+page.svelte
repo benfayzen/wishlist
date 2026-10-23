@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData, PageProps } from "./$types";
-    import { fade } from "svelte/transition";
+    import { fade } from "$lib/motion";
     import { hash, hashItems, viewedItems } from "$lib/stores/viewed-items";
     import ListCard from "$lib/components/ListCard.svelte";
     import { goto } from "$app/navigation";
@@ -25,15 +25,8 @@
     };
 </script>
 
-<div class="flex flex-wrap-reverse items-start justify-between gap-2 pb-4 print:hidden">
+<div class="m3-toolbar print:hidden">
     <ListFilterChip {users} />
-    <button
-        class="preset-tonal-secondary inset-ring-secondary-500 btn btn-xs h-fit items-center inset-ring"
-        onclick={() => goto(resolve("/lists/create"))}
-    >
-        <iconify-icon icon="ion:add"></iconify-icon>
-        <span>{$t("wishes.create-list")}</span>
-    </button>
 </div>
 
 {#if data.myLists.length + data.otherLists.length === 0}
@@ -42,7 +35,7 @@
         <p class="text-2xl">{$t("wishes.no-lists-yet")}</p>
     </div>
 {:else}
-    <div class="flex flex-col space-y-4" data-testid="list-container" in:fade>
+    <div class="m3-list-grid" data-testid="list-container" in:fade>
         {#each data.myLists as list (list.id)}
             <ListCard hideCount {list} />
         {/each}
@@ -56,6 +49,20 @@
         {/each}
     </div>
 {/if}
+
+<footer class="print:hidden">
+    <div class="h-16"></div>
+</footer>
+
+<button
+    class="m3-fab m3-page-fab print:hidden"
+    aria-label={$t("wishes.create-list")}
+    onclick={() => goto(resolve("/lists/create"))}
+    title={$t("wishes.create-list")}
+>
+    <iconify-icon aria-hidden="true" icon="material-symbols:add-rounded"></iconify-icon>
+    <span class="m3-fab-label">{$t("wishes.create-list")}</span>
+</button>
 
 <svelte:head>
     <title>{$t("wishes.lists")}</title>

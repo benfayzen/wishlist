@@ -20,7 +20,7 @@ export class CreateItemPage extends BasePage {
         this.header = page.getByRole("heading", { name: "Create Wish" });
         this.itemForm = new ItemForm(page);
         this.createButton = page.getByRole("button", { name: "Create item" });
-        this.createAndStayButton = page.getByRole("button", { name: "Create and add another" });
+        this.createAndStayButton = page.getByRole("menuitem", { name: "Create and add another" });
         this.approvalRequiredAlert = page.getByText("Heads up!");
     }
 
@@ -36,9 +36,11 @@ export class CreateItemPage extends BasePage {
     async create() {
         await this.createButton.click();
         await new Toast(this.page).waitForToastWithText("Item created");
+        await this.page.waitForURL((url) => !url.pathname.endsWith("/create-item"));
     }
 
     async createAndStay() {
+        await this.page.getByRole("button", { name: "More create options" }).click();
         await this.createAndStayButton.click();
     }
 

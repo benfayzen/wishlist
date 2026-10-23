@@ -16,9 +16,9 @@
     }
 
     const actionProps: ActionProps = {
-        neutralStyle: "preset-tonal-surface inset-ring inset-ring-surface-500 btn btn-sm md:btn-base",
-        negativeStyle: "preset-tonal-error inset-ring inset-ring-error-500 btn btn-sm md:btn-base",
-        positiveStyle: "preset-filled btn btn-sm md:btn-base"
+        neutralStyle: "m3-secondary  m3-button m3-button-small md:m3-button",
+        negativeStyle: "m3-danger-tonal  m3-button m3-button-small md:m3-button",
+        positiveStyle: "m3-primary m3-button m3-button-small md:m3-button"
     };
 </script>
 
@@ -37,10 +37,8 @@
         <ModalBackdrop />
 
         <Dialog.Positioner class="fixed inset-0 z-50 mx-4 flex items-center justify-center">
-            <ModalContent
-                class="max-h-3/4 data-[state=closed]:scale-90 data-[state=open]:scale-100 starting:data-[state=closed]:scale-100 starting:data-[state=open]:scale-90"
-            >
-                <Dialog.Title class="text-xl font-bold capitalize md:text-2xl">
+            <ModalContent class="">
+                <Dialog.Title class="m3-headline">
                     {title}
                 </Dialog.Title>
                 <Dialog.Description>
@@ -53,7 +51,7 @@
 
                 {@render content?.()}
 
-                <div class="flex flex-wrap justify-between gap-y-2">
+                <div class="m3-dialog-actions">
                     {@render actions(actionProps)}
                 </div>
             </ModalContent>

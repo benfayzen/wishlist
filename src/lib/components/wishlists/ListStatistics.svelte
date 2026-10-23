@@ -38,7 +38,11 @@
             <span>·</span>
             <span>{formatNumberAsPrice(highestTotal.currency, highestTotal.total)}</span>
             {#if totalCostByCurrency.length > 1 && !seePrices}
-                <button onclick={() => (seePrices = !seePrices)}>
+                <button
+                    class="m3-button m3-text-button m3-button-small"
+                    aria-expanded={seePrices}
+                    onclick={() => (seePrices = !seePrices)}
+                >
                     <span class="text-surface-900/70 dark:text-surface-50/50 text-xs">
                         {$t("wishes.show-all-currencies")}
                     </span>
@@ -60,7 +64,11 @@
                     </li>
                 {/each}
             </ul>
-            <button class="w-fit" onclick={() => (seePrices = !seePrices)}>
+            <button
+                class="m3-button m3-text-button m3-button-small w-fit"
+                aria-expanded={seePrices}
+                onclick={() => (seePrices = !seePrices)}
+            >
                 <span class="text-surface-900/70 dark:text-surface-50/50 text-xs">
                     {$t("wishes.hide-all-currencies")}
                 </span>

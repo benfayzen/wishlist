@@ -1,31 +1,29 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
     import type { HTMLInputAttributes } from "svelte/elements";
-
+    import FieldShell from "./FieldShell.svelte";
     interface Props extends HTMLInputAttributes {
         onValueClear: () => void;
         showClearButton: () => boolean;
         clearButtonLabel: string;
         lead?: Snippet;
     }
-
     let { value = $bindable(), onValueClear, showClearButton, clearButtonLabel, lead, ...props }: Props = $props();
 </script>
 
-<div class="input-group grid" class:grid-cols-[1fr_auto]={!lead} class:grid-cols-[auto_1fr_auto]={lead}>
-    {@render lead?.()}
-    <input bind:value {...props} class={["ig-input", props.class]} />
-    {#if showClearButton()}
-        <button
-            id="reset-{props.id}"
-            class="ig-cell items-center border-l-0! px-2"
-            aria-label={clearButtonLabel}
-            onclick={onValueClear}
-            onkeypress={(e) => e.preventDefault()}
-            tabindex="-1"
-            type="button"
-        >
-            <iconify-icon class="text-xl" icon="ion:close-circle"></iconify-icon>
-        </button>
-    {/if}
-</div>
+<FieldShell leading={lead}>
+    <input {...props} class="m3-field-input" bind:value />
+    {#snippet trailing()}
+        {#if showClearButton()}
+            <button
+                id="reset-{props.id}"
+                class="m3-field-slot"
+                aria-label={clearButtonLabel}
+                onclick={onValueClear}
+                type="button"
+            >
+                <iconify-icon aria-hidden="true" icon="ion:close-circle"></iconify-icon>
+            </button>
+        {/if}
+    {/snippet}
+</FieldShell>

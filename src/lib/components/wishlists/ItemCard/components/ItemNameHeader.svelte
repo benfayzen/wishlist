@@ -4,11 +4,11 @@
     const { id, item }: Pick<InternalItemCardProps, "id" | "item"> = $props();
 </script>
 
-<header class="card-header line-clamp-1 flex w-full px-4 pt-4 text-lg font-bold md:text-xl print:line-clamp-none">
+<header class="m3-item-title px-4 pt-4">
     {#if item.url}
         <a
             id={`${id}-name`}
-            class="anchor text-primary-800-200 line-clamp-1 print:no-underline!"
+            class="anchor print:no-underline!"
             data-testid="name"
             href={item.url}
             onclick={(e) => e.stopPropagation()}

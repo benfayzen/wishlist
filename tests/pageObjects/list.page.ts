@@ -32,7 +32,7 @@ export class ListPage extends BasePage {
         this.shareListButton = page.getByRole("button", { name: "Share List" });
         this.copyToClipboardButton = page.getByRole("button", { name: "Copy to clipboard" });
         this.publicUrlLink = page.getByRole("link", { name: "Public URL" });
-        this.createItemButton = page.getByRole("button", { name: "add item" });
+        this.createItemButton = page.getByRole("button", { name: "Create item" });
         this.noItemsText = page.getByText("No wishes yet");
         this.approvalsContainer = page.getByTestId("approvals-container");
         this.itemsContainer = page.getByTestId("items-container");
@@ -88,10 +88,10 @@ export class ListPage extends BasePage {
     }
 
     async getItemAt(index: number) {
-        return new ItemCard(this.itemsContainer.locator("div.card").nth(index));
+        return new ItemCard(this.itemsContainer.getByTestId("item-card").nth(index));
     }
 
     async getItemForApprovalAt(index: number) {
-        return new ItemCard(this.approvalsContainer.locator("div.card").nth(index));
+        return new ItemCard(this.approvalsContainer.getByTestId("item-card").nth(index));
     }
 }

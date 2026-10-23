@@ -5,6 +5,7 @@
     import { onMount } from "svelte";
     import { getFormatter } from "$lib/i18n";
     import type { HTMLInputAttributes } from "svelte/elements";
+    import FieldShell from "./FieldShell.svelte";
     import Popup from "./Popup.svelte";
 
     interface Props extends HTMLInputAttributes {
@@ -53,13 +54,14 @@
 </script>
 
 <div class="flex w-full flex-col gap-y-1">
-    <label class="label" for={id}>
-        <span>{label}</span>
-        <div class="input-group grid-cols-[1fr_auto]">
+    <div class="m3-label">
+        <label for={id}>{label}</label>
+        <FieldShell>
             <input
                 {id}
                 {name}
-                class={["ig-input", error && "input-invalid"]}
+                class={["m3-field-input", error && "m3-invalid"]}
+                aria-invalid={!!error}
                 {autocomplete}
                 oninput={(e) => (value = e.currentTarget.value)}
                 {required}
@@ -67,19 +69,21 @@
                 {value}
                 {...restProps}
             />
-            <button
-                id="showpassword"
-                class="ig-cell border-l-0!"
-                aria-label={$t("a11y.toggle-password-visibility")}
-                onclick={handleClick}
-                onkeypress={(e) => e.preventDefault()}
-                tabindex="-1"
-                type="button"
-            >
-                <iconify-icon class="-mb-0.5" icon="ion:{visible ? 'eye-off' : 'eye'}"></iconify-icon>
-            </button>
-        </div>
-    </label>
+            {#snippet trailing()}
+                <button
+                    id={`${id}-visibility`}
+                    class="m3-field-slot"
+                    aria-label={$t("a11y.toggle-password-visibility")}
+                    aria-pressed={visible}
+                    disabled={restProps.disabled}
+                    onclick={handleClick}
+                    type="button"
+                >
+                    <iconify-icon class="-mb-0.5" icon="ion:{visible ? 'eye-off' : 'eye'}"></iconify-icon>
+                </button>
+            {/snippet}
+        </FieldShell>
+    </div>
 
     {#if strengthMeter && value !== ""}
         {@const strength = checkStrength()}
@@ -104,7 +108,7 @@
                             </button>
                         {/snippet}
                         {#snippet content(props)}
-                            <div {...props} class={["card preset-filled p-4", props?.class]}>
+                            <div {...props} class={["m3-card preset-filled p-4", props?.class]}>
                                 {#if strength.feedback.warning}
                                     <div class="flex flex-row items-center gap-x-4 pb-1">
                                         <iconify-icon icon="ion:alert-circle"></iconify-icon>

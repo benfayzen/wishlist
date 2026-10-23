@@ -17,8 +17,8 @@
 
     const users = $state(props.users);
 
-    const label = $t("wishes.filter");
-    const prefix = "ion:people";
+    const label = $derived($t("general.people"));
+    const prefix = "material-symbols:group-outline-rounded";
     const searchParam = "users";
     const defaultOption: Option = {
         value: "",
@@ -47,5 +47,6 @@
     {options}
     {prefix}
     {searchParam}
+    showLabel
     testId="list-filter"
 />

@@ -24,7 +24,7 @@
 </script>
 
 <div class={{ hidden, "flex flex-col gap-4": !hidden }}>
-    <h2 class="h2">{$t("admin.general")}</h2>
+    <h2 class="m3-headline">{$t("admin.general")}</h2>
 
     {#if forGroup}
         <WishlistMode {config} {groupUserCount} {listCount} />

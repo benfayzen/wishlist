@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { List, User } from "$lib/generated/prisma/client";
     import { Progress } from "@skeletonlabs/skeleton-svelte";
+    import { validSeed, createTheme } from "$lib/theme";
+    import { hexFromArgb } from "@material/material-color-utilities";
     import Avatar from "./Avatar.svelte";
     import { getFormatter } from "$lib/i18n";
 
@@ -28,24 +30,16 @@
             ? Math.min(100, Math.round(((list.claimedCount ?? 0) / list.itemCount) * 100))
             : 0
     );
-    let iconColor = $derived(list.iconColor);
+    let iconColor = $derived(hexFromArgb(createTheme(validSeed(list.iconColor)).light.primaryContainer));
+    let onIconColor = $derived(hexFromArgb(createTheme(validSeed(list.iconColor)).light.onPrimaryContainer));
     let elementTag = $derived(preventNavigate ? "div" : "a");
-    let element: HTMLElement | undefined = $state();
-
-    $effect(() => {
-        if (element && !preventNavigate) {
-            (element as unknown as HTMLLinkElement).href = `/lists/${list.id}`;
-        }
-    });
 </script>
 
 <svelte:element
     this={elementTag}
-    bind:this={element}
-    class={[
-        "card preset-filled-surface-100-900 inset-ring-surface-200-800 inset-ring",
-        !preventNavigate && "card-hover"
-    ]}
+    {...!preventNavigate ? { href: `/lists/${list.id}` } : {}}
+    class={["m3-card m3-list-card   ", !preventNavigate && "card-hover"]}
+    data-testid="list-card"
 >
     {#if list.unapprovedCount && list.unapprovedCount > 0}
         <div
@@ -58,9 +52,10 @@
         </div>
     {/if}
 
-    <div class="grid grid-cols-[auto_1fr] items-center gap-4 p-4">
+    <div class="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 p-4">
         <div
-            style="background-color: {iconColor};"
+            style:background-color={iconColor}
+            style:color={onIconColor}
             class="text-surface-50 flex aspect-square w-12 items-center justify-center overflow-hidden rounded-full font-semibold md:w-14"
             class:bg-primary-500={!iconColor}
         >

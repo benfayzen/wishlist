@@ -27,7 +27,7 @@
 {#if isDefaultGroup}
     <AlertModal title={$t("errors.cannot-delete-default-group")}>
         {#snippet trigger(props)}
-            <button {...props} class="preset-filled-error-500 btn w-fit">{$t("admin.delete-group-title")}</button>
+            <button {...props} class="m3-danger m3-button w-fit">{$t("admin.delete-group-title")}</button>
         {/snippet}
         {#snippet description()}
             {$t("general.cannot-delete-default-group-msg")}
@@ -36,7 +36,7 @@
 {:else}
     <ConfirmModal {onConfirm} title={$t("admin.delete-group-title")}>
         {#snippet trigger(props)}
-            <button {...props} class="preset-filled-error-500 btn w-fit">{$t("admin.delete-group-title")}</button>
+            <button {...props} class="m3-danger m3-button w-fit">{$t("admin.delete-group-title")}</button>
         {/snippet}
         {#snippet description()}
             {@html $t("admin.delete-group-message")}

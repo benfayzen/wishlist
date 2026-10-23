@@ -21,7 +21,7 @@
 </script>
 
 <div class={{ hidden, "flex flex-col gap-4": !hidden }}>
-    <h2 class="h2">{$t("auth.email")}</h2>
+    <h2 class="m3-headline">{$t("auth.email")}</h2>
 
     <SmtpAlert smtpEnable={enabled} />
 
@@ -32,36 +32,36 @@
         </label>
         {#if enabled}
             <div class="grid grid-cols-1 gap-x-4 gap-y-2 pb-1 md:grid-cols-2">
-                <label class="label" for="smtpHost">
+                <label class="m3-label" for="smtpHost">
                     <span>{$t("admin.smtp-host")}</span>
                     <input
                         id="smtpHost"
                         name="smtpHost"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         required
                         type="text"
                         bind:value={config.smtp.host}
                     />
                 </label>
-                <label class="label" for="smtpPort">
+                <label class="m3-label" for="smtpPort">
                     <span>{$t("admin.smtp-port")}</span>
                     <input
                         id="smtpPort"
                         name="smtpPort"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         required
                         type="text"
                         bind:value={config.smtp.port}
                     />
                 </label>
-                <label class="label" for="smtpUser">
+                <label class="m3-label" for="smtpUser">
                     <span>{$t("general.user")}</span>
                     <input
                         id="smtpUser"
                         name="smtpUser"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         type="text"
                         bind:value={config.smtp.user}
@@ -73,24 +73,24 @@
                     label={$t("auth.password")}
                     bind:value={config.smtp.pass}
                 />
-                <label class="label" for="smtpFrom">
+                <label class="m3-label" for="smtpFrom">
                     <span>{$t("admin.smtp-from-email")}</span>
                     <input
                         id="smtpFrom"
                         name="smtpFrom"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         required
                         type="text"
                         bind:value={config.smtp.from}
                     />
                 </label>
-                <label class="label" for="smtpFromName">
+                <label class="m3-label" for="smtpFromName">
                     <span>{$t("admin.smtp-from-name")}</span>
                     <input
                         id="smtpFromName"
                         name="smtpFromName"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         required
                         type="text"
@@ -135,7 +135,7 @@
             </div>
             <div class="flex w-full flex-row justify-end">
                 <button
-                    class="preset-tonal-primary border-primary-500 btn mt-2 h-min w-fit border"
+                    class="m3-secondary m3-button mt-2 h-min w-fit"
                     disabled={!allFilled || sending}
                     formaction="/admin/settings?/send-test"
                     type="submit"

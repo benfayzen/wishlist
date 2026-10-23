@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import Tooltip from "$lib/components/Tooltip.svelte";
     import SettingsGroup from "../SettingsGroup.svelte";
     import Setting from "../Setting.svelte";
@@ -33,7 +34,7 @@
 
     {#if enabled}
         <Setting>
-            <label class="label" for="suggestionMethod">
+            <label class="m3-label" for="suggestionMethod">
                 <Tooltip>
                     {#snippet label()}
                         <span>{$t("admin.suggestions-method")}</span>
@@ -64,16 +65,16 @@
                     {/snippet}
                 </Tooltip>
 
-                <select
+                <Select
                     id="suggestionMethod"
                     name="suggestionMethod"
-                    class="select w-full max-w-64"
+                    class="m3-select w-full max-w-md"
                     value={config.suggestions.method}
                 >
                     <option value="surprise">{$t("admin.suggestions-surprise-me")}</option>
                     <option value="auto-approval">{$t("admin.suggestions-auto-approve")}</option>
                     <option value="approval">{$t("admin.suggestions-approval-required")}</option>
-                </select>
+                </Select>
             </label>
         </Setting>
     {/if}

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { fade, scale } from "svelte/transition";
+    import { fade, scale, motionDuration } from "$lib/motion";
     import { flip } from "svelte/animate";
     import type { PageProps } from "./$types";
     import ItemCard from "$lib/components/wishlists/ItemCard/ItemCard.svelte";
@@ -51,13 +51,18 @@
     let users = $derived(items.map((item) => item.user));
 </script>
 
-<!-- View mode toggle -->
-<div class="flex flex-wrap items-end justify-between gap-2 pb-4 print:hidden">
-    <div class="flex items-end gap-2">
+<div class="claims-toolbar print:hidden">
+    <div class="claims-filter m3-mode-control">
+        <span class="m3-mode-label">{$t("wishes.filter")}</span>
         <ListFilterChip {users} />
+    </div>
+    <div class="claims-grouping">
         <ClaimsGroupBy bind:groupBy />
     </div>
-    <ListViewModeChip {isTileView} />
+    <div class="claims-view m3-mode-control">
+        <span class="m3-mode-label">{$t("wishes.view-layout")}</span>
+        <ListViewModeChip {isTileView} />
+    </div>
 </div>
 
 {#if data.items.length === 0}
@@ -83,7 +88,7 @@
                 transition:scale
             >
                 {#each sortedItems as item (item.id)}
-                    <div transition:fade animate:flip={{ duration: 200 }}>
+                    <div transition:fade animate:flip={{ duration: motionDuration(200) }}>
                         <ItemCard
                             groupId={data.user.activeGroupId}
                             {isTileView}
@@ -104,3 +109,51 @@
 <svelte:head>
     <title>{$t("app.my-claims")}</title>
 </svelte:head>
+
+<style>
+    /* Product layout: give each control its own space and keep grouping together. */
+    .claims-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 1.5rem 2rem;
+        padding-block-end: 1.75rem;
+    }
+    .claims-toolbar :global(.m3-mode-control) {
+        gap: 0.5rem;
+    }
+    .claims-filter {
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+    .claims-grouping {
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+    .claims-grouping :global(.m3-connected-group) {
+        inline-size: 100%;
+    }
+    .claims-grouping :global(.m3-connected-button-surface) {
+        padding-inline: 1.25rem;
+    }
+    .claims-view {
+        margin-inline-start: auto;
+    }
+    @media (max-width: 599px) {
+        .claims-toolbar {
+            column-gap: 0.5rem;
+        }
+        .claims-filter {
+            flex: 1;
+        }
+        .claims-grouping {
+            order: 1;
+            flex-basis: 100%;
+        }
+    }
+    @media print {
+        .claims-toolbar {
+            display: none;
+        }
+    }
+</style>

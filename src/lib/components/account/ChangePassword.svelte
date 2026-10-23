@@ -30,7 +30,7 @@
     }}
 >
     <div class="flex w-full flex-col items-start space-y-4 md:w-11/12 md:max-w-96">
-        <h3 class="h3">{$t("admin.credentials")}</h3>
+        <h3 class="m3-title">{$t("admin.credentials")}</h3>
         <div class="flex w-full space-y-1">
             <PasswordInput
                 id="oldpassword"
@@ -73,7 +73,7 @@
         </label>
 
         <button
-            class="preset-filled-primary-500 btn w-fit"
+            class="m3-primary m3-button w-fit"
             disabled={passwordReset.current === "" ||
                 passwordReset.new === "" ||
                 passwordReset.new !== passwordReset.confirm}

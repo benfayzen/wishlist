@@ -67,6 +67,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 
     return {
+        themeSeed: list.iconColor,
         list: {
             ...list,
             managers: list.managers.map(({ user }) => ({ ...user }))

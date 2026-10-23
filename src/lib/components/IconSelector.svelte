@@ -99,11 +99,11 @@
     <Combobox.Control>
         <Combobox.Input>
             {#snippet element(props)}
-                <div class="input-group grid grid-cols-[auto_1fr]">
-                    <div class="ig-cell preset-tonal items-center">
+                <div class="m3-field grid grid-cols-[auto_1fr]">
+                    <div class="m3-field-slot items-center">
                         <iconify-icon icon={"ion:" + (iconValue || "gift")}></iconify-icon>
                     </div>
-                    <input {...props} class="ig-input" />
+                    <input {...props} class="m3-field-input" />
                 </div>
             {/snippet}
         </Combobox.Input>
