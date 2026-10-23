@@ -32,31 +32,31 @@
     });
 </script>
 
-<div class={[props.class, "relative"]}>
+<div class={[props.class, "m3-item-image relative"]}>
     {#if item.mostWanted}
         <div
-            class={[
-                "glow preset-filled-primary-500 badge absolute inset-s-1 top-1 print:inset-s-0 print:top-0 print:-ml-3",
-                badgeClass
-            ]}
+            class={["m3-wish-badge", shrinkBadge && "m3-wish-badge--compact", badgeClass]}
+            data-testid="most-wanted-badge"
+            title={$t("wishes.most-wanted")}
         >
-            <iconify-icon icon="ion:star"></iconify-icon>
-            <span class={[shrinkBadge ? "hidden md:block" : "block", "print:inline"]}>{$t("wishes.most-wanted")}</span>
+            <span class="m3-wish-badge-emblem" aria-hidden="true">
+                <svg focusable="false" viewBox="0 0 40 40">
+                    <g fill="var(--md-tertiary)">
+                        <circle cx="20" cy="20" r="15" />
+                        {#each Array(12) as _, i}
+                            <circle cx="20" cy="7" r="6" transform={`rotate(${i * 30} 20 20)`} />
+                        {/each}
+                    </g>
+                    <path
+                        d="m20 10 3.05 6.18 6.82 1-4.94 4.81 1.17 6.8L20 25.58l-6.1 3.21 1.17-6.8-4.94-4.81 6.82-1Z"
+                        fill="var(--md-on-tertiary)"
+                    />
+                </svg>
+            </span>
+            <span class="m3-wish-badge-label">{$t("wishes.most-wanted")}</span>
         </div>
     {/if}
     <Image class={props.class} alt={item.name} data-testid="image" referrerpolicy="no-referrer" src={imageUrl}>
         {@render defaultImage($t)}
     </Image>
 </div>
-
-<style>
-    .glow {
-        box-shadow: 0px 0px 8px 1px var(--color-primary-500);
-    }
-
-    @media print {
-        .glow {
-            box-shadow: none;
-        }
-    }
-</style>
