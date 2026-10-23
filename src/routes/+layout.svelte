@@ -8,7 +8,7 @@
     import NavBar from "$lib/components/navigation/NavBar.svelte";
     import NavigationLoadingBar from "$lib/components/navigation/NavigationLoadingBar.svelte";
     import type { LayoutProps } from "./$types";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import NavigationRail from "$lib/components/navigation/NavigationRail.svelte";
     import BottomTabs from "$lib/components/navigation/BottomTabs.svelte";
     import { isInstalled } from "$lib/stores/is-installed";
@@ -21,6 +21,26 @@
     const { data, children }: LayoutProps = $props();
 
     const contextTheme = $derived(themeStyleTag(page.data.themeSeed));
+
+    function updateBrowserThemeColor() {
+        const color = getComputedStyle(document.documentElement).getPropertyValue("--md-surface-container").trim();
+        const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+        if (color && meta && meta.content !== color) meta.content = color;
+    }
+
+    // The app preference can differ from the OS; follow the resolved mode used by the UI.
+    onMount(() => {
+        const observer = new MutationObserver(updateBrowserThemeColor);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-mode"] });
+        updateBrowserThemeColor();
+        return () => observer.disconnect();
+    });
+
+    $effect(() => {
+        // Wait for the contextual stylesheet to update when navigating between lists.
+        void contextTheme;
+        void tick().then(updateBrowserThemeColor);
+    });
 
     let showNavigationLoadingBar = $state(false);
     let documentTitle: string | undefined = $state();

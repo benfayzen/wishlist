@@ -27,13 +27,6 @@
 
 <div class="m3-toolbar print:hidden">
     <ListFilterChip {users} />
-    <button
-        class="m3-secondary m3-button m3-button-small h-fit items-center"
-        onclick={() => goto(resolve("/lists/create"))}
-    >
-        <iconify-icon icon="ion:add"></iconify-icon>
-        <span>{$t("wishes.create-list")}</span>
-    </button>
 </div>
 
 {#if data.myLists.length + data.otherLists.length === 0}
@@ -56,6 +49,20 @@
         {/each}
     </div>
 {/if}
+
+<footer class="print:hidden">
+    <div class="h-16"></div>
+</footer>
+
+<button
+    class="m3-fab m3-page-fab print:hidden"
+    aria-label={$t("wishes.create-list")}
+    onclick={() => goto(resolve("/lists/create"))}
+    title={$t("wishes.create-list")}
+>
+    <iconify-icon aria-hidden="true" icon="material-symbols:add-rounded"></iconify-icon>
+    <span class="m3-fab-label">{$t("wishes.create-list")}</span>
+</button>
 
 <svelte:head>
     <title>{$t("wishes.lists")}</title>

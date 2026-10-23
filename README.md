@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./src/lib/assets/logo.png" width="200" />
+<img src="./src/lib/assets/wishlist-logo.png" width="200" />
 <h1>Wishlist</h1>
 <p> A sharable wishlist for your friends and family </p>
 </div>

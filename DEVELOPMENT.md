@@ -97,6 +97,12 @@ units reserved. **Teamfeier · gemeinsam planen** also allows its owner Emma to
 reserve items. Open `/lists/dev-demo-list-emma-public` in a private browser window
 to test guest reservations.
 
+## App icons
+
+After replacing `src/lib/assets/wishlist-logo.png`, run `pnpm icons:generate` to
+regenerate the PNG icons and multi-size favicon. Safari uses the simplified
+monochrome list and star in `static/safari-pinned-tab.svg`.
+
 ## Building Docker
 
 ```sh

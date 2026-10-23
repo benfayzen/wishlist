@@ -41,40 +41,40 @@
     };
 </script>
 
+{#if activeGroup}
+    <li>
+        <div class="m3-account-group">
+            <iconify-icon aria-hidden="true" icon="material-symbols:group-outline-rounded"></iconify-icon>
+            <span>{activeGroup.name}</span>
+        </div>
+    </li>
+    {#if activeGroup.isManager}
+        <li>
+            <a
+                class="m3-account-action"
+                href={resolve("/admin/groups/[groupId]", { groupId: activeGroup.id })}
+                onclick={onSelect}
+            >
+                <iconify-icon aria-hidden="true" icon="material-symbols:settings-outline-rounded"></iconify-icon>
+                <span>{$t("general.manage-group")}</span>
+            </a>
+        </li>
+    {/if}
+{/if}
 {#if groups}
-    {#each groups as group}
-        {#if group.active}
-            {#if groups.length > 1}
-                <li>
-                    <div class="flex w-full max-w-[24ch] flex-row items-center gap-x-4 px-4 py-2 md:max-w-full">
-                        <iconify-icon icon="ion:people"></iconify-icon>
-                        <span class="truncate">{group.name}</span>
-                    </div>
-                </li>
-            {/if}
-            {#if group.isManager}
-                <li>
-                    <a href={resolve("/admin/groups/[groupId]", { groupId: group.id })} onclick={onSelect}>
-                        <iconify-icon icon="ion:settings"></iconify-icon>
-                        <span>{$t("general.manage-group")}</span>
-                    </a>
-                </li>
-            {/if}
-        {/if}
-    {/each}
     {#if groups.length > 1}
         <li>
             <GroupSelectModal {groups} onSubmit={changeGroup}>
                 {#snippet trigger(props)}
                     <button
                         {...props}
-                        class="list-option w-full"
+                        class="m3-account-action"
                         onclick={(e) => {
                             onSelect();
                             props.onclick?.(e);
                         }}
                     >
-                        <iconify-icon icon="ion:swap-horizontal"></iconify-icon>
+                        <iconify-icon aria-hidden="true" icon="material-symbols:swap-horiz-rounded"></iconify-icon>
                         <span>{$t("general.change-group")}</span>
                     </button>
                 {/snippet}
@@ -93,13 +93,13 @@
         {#snippet trigger(props)}
             <button
                 {...props}
-                class="list-option w-full"
+                class="m3-account-action"
                 onclick={(e) => {
                     onSelect();
                     props.onclick?.(e);
                 }}
             >
-                <iconify-icon icon="ion:add"></iconify-icon>
+                <iconify-icon aria-hidden="true" icon="material-symbols:add-rounded"></iconify-icon>
                 <span>{$t("general.create-group")}</span>
             </button>
         {/snippet}

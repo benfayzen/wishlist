@@ -28,7 +28,8 @@ const config: UserConfig = {
                 name: "Wishlist",
                 short_name: "Wishlist",
                 description: "Christmas wishlist you can share with the whole family.",
-                theme_color: "#8b1fea",
+                theme_color: "#f3ebf3",
+                background_color: "#f3ebf3",
                 icons: [
                     {
                         src: "/android-chrome-192x192.png",
@@ -41,10 +42,10 @@ const config: UserConfig = {
                         type: "image/png"
                     },
                     {
-                        src: "/android-chrome-512x512.png",
+                        src: "/android-chrome-maskable-512x512.png",
                         sizes: "512x512",
                         type: "image/png",
-                        purpose: "any maskable"
+                        purpose: "maskable"
                     }
                 ],
                 share_target: {

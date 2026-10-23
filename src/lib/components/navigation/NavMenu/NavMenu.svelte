@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { invalidateAll } from "$app/navigation";
+    import { afterNavigate, invalidateAll } from "$app/navigation";
+    import { Dialog, Portal } from "@skeletonlabs/skeleton-svelte";
     import { Role } from "$lib/schema";
     import Avatar from "../../Avatar.svelte";
     import GroupSubMenu from "./GroupSubMenu.svelte";
@@ -8,7 +9,6 @@
     import GroupSelectChip from "$lib/components/wishlists/chips/GroupSelectChip.svelte";
     import ChangeLanguageModal from "$lib/components/modals/ChangeLanguageModal.svelte";
     import LightSwitch from "./LightSwitch.svelte";
-    import Popup from "$lib/components/Popup.svelte";
 
     interface Props {
         user: LocalUser | null;
@@ -18,96 +18,143 @@
 
     const { user, groups, isProxyUser }: Props = $props();
     const t = getFormatter();
-
     let open = $state(false);
     let interactive = $state(false);
     onMount(() => {
         interactive = true;
     });
-
     const closeMenu = () => {
         open = false;
     };
+    afterNavigate(closeMenu);
 </script>
 
 {#if user}
     <div class="flex min-w-0 items-center gap-4">
-        {#if groups && groups?.length > 1}
-            <GroupSelectChip {groups} {user} />
+        {#if groups && groups.length > 1}
+            <div class="hidden min-w-0 min-[840px]:flex">
+                <GroupSelectChip {groups} {user} />
+            </div>
         {/if}
-        <Popup zIndex="z-20!" bind:open>
-            {#snippet trigger(props)}
-                <button class="m3-avatar-trigger" {...props} disabled={!interactive}>
-                    <Avatar class="size-10 text-xs" {user} />
-                    <span class="sr-only">User Menu</span>
-                </button>
-            {/snippet}
-            {#snippet content(props)}
-                <div {...props}>
-                    <nav class="m3-card list-nav p-4 shadow-xl" data-testid="user menu navigation">
-                        <ul>
-                            <li>
-                                <a href="/account" onclick={closeMenu}>
-                                    <iconify-icon icon="ion:person"></iconify-icon>
-                                    <span class="flex-auto">{$t("admin.account")}</span>
-                                </a>
-                            </li>
-                            {#if user.roleId == Role.ADMIN}
+        <Dialog onOpenChange={(event) => (open = event.open)} {open}>
+            <Dialog.Trigger class="m3-avatar-trigger" disabled={!interactive}>
+                <Avatar class="size-10 text-xs" {user} />
+                <span class="sr-only">{$t("a11y.user-menu")}</span>
+            </Dialog.Trigger>
+            <Portal>
+                <Dialog.Backdrop class="m3-account-backdrop" />
+                <Dialog.Positioner class="m3-account-positioner">
+                    <Dialog.Content class="m3-account-panel">
+                        <header class="m3-account-header">
+                            <Dialog.Title>{$t("admin.account")}</Dialog.Title>
+                            <Dialog.CloseTrigger class="m3-icon-button m3-account-close" aria-label={$t("a11y.close")}>
+                                <iconify-icon aria-hidden="true" icon="material-symbols:close-rounded"></iconify-icon>
+                            </Dialog.CloseTrigger>
+                        </header>
+                        <nav
+                            class="m3-account-body"
+                            aria-label={$t("a11y.user-menu")}
+                            data-testid="user menu navigation"
+                        >
+                            <div class="m3-account-identity">
+                                <Avatar class="size-16 shrink-0 text-xl" {user} />
+                                <div class="m3-account-details">
+                                    <p class="m3-account-name">{user.name}</p>
+                                    <p class="m3-account-email">{user.email || user.username}</p>
+                                </div>
+                            </div>
+                            <ul class="m3-account-section">
                                 <li>
-                                    <a href="/admin" onclick={closeMenu}>
-                                        <iconify-icon icon="ion:settings"></iconify-icon>
-                                        <span class="flex-auto">{$t("admin.admin")}</span>
+                                    <a class="m3-account-action m3-account-primary" href="/account" onclick={closeMenu}>
+                                        <iconify-icon
+                                            aria-hidden="true"
+                                            icon="material-symbols:manage-accounts-outline-rounded"
+                                        ></iconify-icon>
+                                        <span>{$t("admin.account")}</span>
+                                        <iconify-icon
+                                            class="m3-account-chevron"
+                                            aria-hidden="true"
+                                            icon="material-symbols:chevron-right-rounded"
+                                        ></iconify-icon>
                                     </a>
                                 </li>
-                            {/if}
-
-                            <hr class="hr" />
-                            <GroupSubMenu {groups} onSelect={closeMenu} {user} />
-                            {#if !isProxyUser}
-                                <hr class="hr" />
-                                <li>
-                                    <button
-                                        class="list-option w-full"
-                                        onclick={async () => {
-                                            closeMenu();
-                                            await fetch("/logout", { method: "POST" });
-                                            invalidateAll();
-                                        }}
-                                    >
-                                        <iconify-icon icon="ion:log-out"></iconify-icon>
-                                        <p>{$t("auth.sign-out")}</p>
-                                    </button>
-                                </li>
-                            {/if}
-                            <hr class="hr pb-1" />
-                            <li>
-                                <ChangeLanguageModal currentLanguage={user.preferredLanguage}>
-                                    {#snippet trigger(props)}
-                                        <button
-                                            {...props}
-                                            class="list-option w-full"
-                                            onclick={(e) => {
-                                                closeMenu();
-                                                props.onclick?.(e);
-                                            }}
-                                            type="button"
-                                        >
-                                            <iconify-icon icon="ion:language"></iconify-icon>
-                                            <p>{$t("general.language")}</p>
-                                        </button>
-                                    {/snippet}
-                                </ChangeLanguageModal>
-                            </li>
-                            <li>
-                                <div class="flex w-full justify-around pt-1">
-                                    <LightSwitch />
+                                {#if user.roleId == Role.ADMIN}
+                                    <li>
+                                        <a class="m3-account-action" href="/admin" onclick={closeMenu}>
+                                            <iconify-icon
+                                                aria-hidden="true"
+                                                icon="material-symbols:admin-panel-settings-outline-rounded"
+                                            ></iconify-icon>
+                                            <span>{$t("admin.admin")}</span>
+                                            <iconify-icon
+                                                class="m3-account-chevron"
+                                                aria-hidden="true"
+                                                icon="material-symbols:chevron-right-rounded"
+                                            ></iconify-icon>
+                                        </a>
+                                    </li>
+                                {/if}
+                            </ul>
+                            <section aria-label={$t("admin.groups")}>
+                                <h2 class="m3-account-section-title">{$t("admin.groups")}</h2>
+                                <ul class="m3-account-section">
+                                    <GroupSubMenu {groups} onSelect={closeMenu} {user} />
+                                </ul>
+                            </section>
+                            <section aria-label={$t("admin.settings")}>
+                                <h2 class="m3-account-section-title">{$t("admin.settings")}</h2>
+                                <div class="m3-account-section">
+                                    <ChangeLanguageModal currentLanguage={user.preferredLanguage}>
+                                        {#snippet trigger(props)}
+                                            <button
+                                                {...props}
+                                                class="m3-account-action"
+                                                onclick={(event) => {
+                                                    closeMenu();
+                                                    props.onclick?.(event);
+                                                }}
+                                                type="button"
+                                            >
+                                                <iconify-icon
+                                                    aria-hidden="true"
+                                                    icon="material-symbols:language-rounded"
+                                                ></iconify-icon>
+                                                <span>{$t("general.language")}</span>
+                                                <iconify-icon
+                                                    class="m3-account-chevron"
+                                                    aria-hidden="true"
+                                                    icon="material-symbols:chevron-right-rounded"
+                                                ></iconify-icon>
+                                            </button>
+                                        {/snippet}
+                                    </ChangeLanguageModal>
+                                    <div class="m3-account-appearance">
+                                        <LightSwitch />
+                                    </div>
                                 </div>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            {/snippet}
-        </Popup>
+                            </section>
+                            {#if !isProxyUser}
+                                <button
+                                    class="m3-account-action m3-account-signout"
+                                    onclick={async () => {
+                                        closeMenu();
+                                        await fetch("/logout", { method: "POST" });
+                                        invalidateAll();
+                                    }}
+                                    type="button"
+                                >
+                                    <iconify-icon
+                                        aria-hidden="true"
+                                        icon="material-symbols:logout-rounded"
+                                    ></iconify-icon>
+                                    <span>{$t("auth.sign-out")}</span>
+                                </button>
+                            {/if}
+                        </nav>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Portal>
+        </Dialog>
     </div>
 {:else}
     <LightSwitch showLabel={false} />

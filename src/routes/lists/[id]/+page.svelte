@@ -283,12 +283,12 @@
         <SortBy />
     </div>
     <div class="flex flex-row flex-wrap items-end gap-2">
+        {#if data.list.owner.isMe || data.list.isManager}
+            <ManageListChip onclick={() => goto(`${new URL(page.url).pathname}/manage`)} />
+            <ReorderChip onFinalize={handleReorderFinalize} bind:reordering />
+        {/if}
         {#if !reordering}
             <ListViewModeChip {isTileView} />
-        {/if}
-        {#if data.list.owner.isMe || data.list.isManager}
-            <ReorderChip onFinalize={handleReorderFinalize} bind:reordering />
-            <ManageListChip onclick={() => goto(`${new URL(page.url).pathname}/manage`)} />
         {/if}
     </div>
 </div>
