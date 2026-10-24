@@ -6,12 +6,30 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = resolve(root, "src/lib/assets/wishlist-logo.png");
 const output = (name) => resolve(root, "static", name);
-const png = (size) => sharp(source).resize(size, size).png().toBuffer();
+const background = "#f3ebf3";
+const mark = await sharp(source).trim().png().toBuffer();
+const { width, height } = await sharp(mark).metadata();
+
+async function png(size, { opaque = false, maskable = false } = {}) {
+    // Fit the whole bounding rectangle inside the W3C safe circle (radius 40%),
+    // with a little breathing room. A fixed 80% square can lose its corners.
+    // https://www.w3.org/TR/appmanifest/#icon-masks
+    const scale = maskable ? (size * 0.76) / Math.hypot(width, height) : (size * 0.9) / Math.max(width, height);
+    const foreground = await sharp(mark)
+        .resize(Math.max(1, Math.round(width * scale)), Math.max(1, Math.round(height * scale)))
+        .png()
+        .toBuffer();
+    return sharp({
+        create: { width: size, height: size, channels: 4, background: opaque ? background : "#00000000" }
+    })
+        .composite([{ input: foreground, gravity: "centre" }])
+        .png()
+        .toBuffer();
+}
 
 for (const [name, size] of [
     ["favicon-16x16.png", 16],
     ["favicon-32x32.png", 32],
-    ["apple-touch-icon.png", 180],
     ["android-chrome-192x192.png", 192],
     ["android-chrome-512x512.png", 512],
     ["mstile-150x150.png", 150]
@@ -19,11 +37,9 @@ for (const [name, size] of [
     await writeFile(output(name), await png(size));
 }
 
-// Keep the list and star inside the central safe circle when launchers crop the icon.
-await sharp({ create: { width: 512, height: 512, channels: 4, background: "#4b087d" } })
-    .composite([{ input: await png(416), gravity: "centre" }])
-    .png()
-    .toFile(output("android-chrome-maskable-512x512.png"));
+// iOS and adaptive Android launchers get an explicit opaque background.
+await writeFile(output("apple-touch-icon.png"), await png(180, { opaque: true }));
+await writeFile(output("android-chrome-maskable-512x512.png"), await png(512, { opaque: true, maskable: true }));
 
 // ICO supports PNG frames; include native sizes for tabs and desktop shortcuts.
 const sizes = [16, 32, 48];

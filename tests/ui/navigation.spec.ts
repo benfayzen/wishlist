@@ -21,7 +21,8 @@ for (const width of [320, 768, 839, 840, 1024, 1440]) {
         await expect(navigation.locator('[aria-current="page"]')).toHaveAttribute("href", "/lists");
         const toggle = page.getByRole("button", { name: "Expand navigation", exact: true });
         if (width >= 840) {
-            await expect(logo).toHaveCSS("border-radius", "12px");
+            await expect(logo).toHaveCSS("object-fit", "contain");
+            await expect(logo).toHaveCSS("border-radius", "0px");
             await expect
                 .poll(() => logo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0))
                 .toBeTruthy();

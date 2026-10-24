@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./src/lib/assets/wishlist-logo.png" width="200" />
+<img src="./src/lib/assets/wishlist-logo.png" alt="Wishlist — Material 3 Expressive gift and wish list logo" width="200" height="200" />
 <h1>Wishlist</h1>
 <p> A sharable wishlist for your friends and family </p>
 </div>
@@ -38,6 +38,11 @@ Create a wish from a URL, or manually fill in the details
 ## Getting Started
 
 ### Material 3 Expressive fork
+
+The gift-and-scroll logo is a homage to the original Wishlist artwork. The README,
+application, email templates and installable PWA share the same updated branding.
+See [logo assets and icon generation](./assets/branding/README.md) for the source
+artwork and platform variants. The screenshots above show this fork's current UI.
 
 This fork publishes `ghcr.io/benfayzen/wishlist:material-3-expressive` from the
 `feat/material-3-expressive` branch using GitHub Actions. Images support

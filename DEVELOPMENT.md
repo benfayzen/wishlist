@@ -100,8 +100,17 @@ to test guest reservations.
 ## App icons
 
 After replacing `src/lib/assets/wishlist-logo.png`, run `pnpm icons:generate` to
-regenerate the PNG icons and multi-size favicon. Safari uses the simplified
-monochrome list and star in `static/safari-pinned-tab.svg`.
+regenerate the PNG icons and multi-size favicon. The app uses a transparent logo;
+Apple touch icons and maskable PWA icons use an opaque tonal background. The
+maskable icon keeps the entire gift and scroll inside the central safe circle.
+Safari uses the simplified monochrome gift and scroll in `static/safari-pinned-tab.svg`.
+When changing the artwork, also update that silhouette and bump the icon URL
+version in `src/app.html` and `vite.config.ts` so cached icons can refresh.
+
+The supplied Gemini original is preserved in `assets/branding/wishlist-gemini-original.jpg`.
+`src/lib/assets/wishlist-logo.png` is the transparent app rendition prepared with
+the built-in ImageGen background-removal tool. Its gift, scroll and list motif
+is retained. All platform icons are generated from that PNG without AI resizing.
 
 ## Building Docker
 
