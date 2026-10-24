@@ -4,7 +4,8 @@ for (const width of [320, 1440]) {
     for (const mode of ["light", "dark"]) {
         test(`expressive filter selection and draft cancellation at ${width}px in ${mode}`, async ({
             page,
-            userData
+            additionalPage: _additionalPage,
+            additionalUserData
         }) => {
             await page.setViewportSize({ width, height: 900 });
             await page.emulateMedia({ reducedMotion: "reduce" });
@@ -16,21 +17,21 @@ for (const width of [320, 1440]) {
             await filter.click();
             const panel = page.locator(width < 600 ? ".m3-picker-sheet" : ".m3-picker-panel");
             await expect(panel).toBeVisible();
-            await panel.getByRole("checkbox", { name: userData.name, exact: true }).check();
+            await panel.getByRole("checkbox", { name: additionalUserData.name, exact: true }).check();
             await panel.getByRole("button", { name: "Cancel", exact: true }).click();
             await expect(page).toHaveURL(/\/lists$/);
             await expect(filter).toBeFocused();
             await filter.click();
-            await expect(panel.getByRole("checkbox", { name: userData.name, exact: true })).not.toBeChecked();
-            await panel.getByRole("checkbox", { name: userData.name, exact: true }).check();
+            await expect(panel.getByRole("checkbox", { name: additionalUserData.name, exact: true })).not.toBeChecked();
+            await panel.getByRole("checkbox", { name: additionalUserData.name, exact: true }).check();
             await panel.getByRole("button", { name: "Apply", exact: true }).click();
-            await expect(page).toHaveURL(new RegExp(`users=${userData.id}`));
+            await expect(page).toHaveURL(new RegExp(`users=${additionalUserData.id}`));
             await expect(filter).toHaveAttribute("data-active", "true");
-            await expect(filter).toHaveAccessibleName(`People: ${userData.name}`);
-            await expect(filter).toContainText(userData.name);
+            await expect(filter).toHaveAccessibleName(`People: ${additionalUserData.name}`);
+            await expect(filter).toContainText(additionalUserData.name);
             await page.reload();
             await filter.click();
-            await expect(panel.getByRole("checkbox", { name: userData.name, exact: true })).toBeChecked();
+            await expect(panel.getByRole("checkbox", { name: additionalUserData.name, exact: true })).toBeChecked();
             const geometry = await panel.boundingBox();
             expect(geometry!.x).toBeGreaterThanOrEqual(0);
             expect(geometry!.x + geometry!.width).toBeLessThanOrEqual(width + 1);

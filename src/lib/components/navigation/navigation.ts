@@ -21,10 +21,15 @@ export const navItems = [
     }
 ] satisfies NavItem[];
 
+export function isMyListsView(url: URL, user: Pick<LocalUser, "id"> | null): boolean {
+    const users = url.searchParams.getAll("users");
+    return !!user && users.length === 1 && users[0] === user.id;
+}
+
 /** Ignore sort/filter parameters when identifying a top-level destination. */
 export function activeDestination(url: URL, user: LocalUser): string | undefined {
     if (url.pathname === "/claims" || url.pathname.startsWith("/claims/")) return "navigation.claims";
-    if (url.pathname === "/lists" && url.searchParams.getAll("users").includes(user.id)) return "navigation.lists";
+    if (url.pathname === "/lists" && isMyListsView(url, user)) return "navigation.lists";
     if (url.pathname === "/lists" || url.pathname.startsWith("/lists/") || url.pathname.startsWith("/items/"))
         return "navigation.overview";
     return undefined;
