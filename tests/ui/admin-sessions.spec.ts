@@ -61,7 +61,9 @@ for (const width of [320, 1440]) {
             await additionalPage.goto("/lists");
             await expect(additionalPage).toHaveURL(/\/lists$/);
             await adminPage.reload();
-            await expect(adminPage.locator("#username")).toHaveValue(userData.username);
+            await expect(adminPage.getByRole("textbox", { name: "Username", exact: true })).toHaveValue(
+                userData.username
+            );
 
             await page.request.post("/login", {
                 form: { username: userData.username, password: userData.password },
@@ -85,7 +87,7 @@ test("ordinary and anonymous users cannot clear another user's sessions", async 
     expect(forbidden.status()).toBe(403);
     const unauthenticated = await anonymousPage.request.post(action, {
         form: {},
-        headers: { Origin: baseURL! },
+        headers: { Origin: baseURL!, Accept: "text/html" },
         maxRedirects: 0
     });
     expect(unauthenticated.status()).toBe(307);
