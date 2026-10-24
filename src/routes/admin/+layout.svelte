@@ -5,6 +5,7 @@
     import type { LayoutProps, Snapshot } from "./$types";
     import { getFormatter } from "$lib/i18n";
     import { resolve } from "$app/paths";
+    import Select from "$lib/components/Select.svelte";
 
     const { children }: LayoutProps = $props();
     const t = getFormatter();
@@ -34,19 +35,30 @@
     };
 </script>
 
-<Tabs onValueChange={({ value }) => onValueChange(value as TabOption)} value={selectedTab}>
-    <Tabs.List class="flex overflow-auto">
-        {#each Object.entries(tabs) as [value, { label }]}
-            <Tabs.Trigger {value}>
-                {label}
-            </Tabs.Trigger>
-        {/each}
-        <Tabs.Indicator />
-    </Tabs.List>
-    <Tabs.Content value={selectedTab}>
-        {@render children?.()}
-    </Tabs.Content>
-</Tabs>
+<div class="admin-panel">
+    <div class="admin-mobile-navigation">
+        <Select
+            aria-label={$t("admin.administration")}
+            onchange={(event) => onValueChange(event.currentTarget.value as TabOption)}
+            value={selectedTab}
+        >
+            {#each Object.entries(tabs) as [value, { label }]}<option {value}>{label}</option>{/each}
+        </Select>
+    </div>
+    <Tabs onValueChange={({ value }) => onValueChange(value as TabOption)} value={selectedTab}>
+        <Tabs.List class="admin-tabs">
+            {#each Object.entries(tabs) as [value, { label }]}
+                <Tabs.Trigger {value}>
+                    {label}
+                </Tabs.Trigger>
+            {/each}
+            <Tabs.Indicator />
+        </Tabs.List>
+        <Tabs.Content class="admin-content" value={selectedTab}>
+            {@render children?.()}
+        </Tabs.Content>
+    </Tabs>
+</div>
 
 <svelte:head>
     <title>{$t("admin.administration")}</title>
