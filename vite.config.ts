@@ -22,7 +22,11 @@ const config: UserConfig = {
         SvelteKitPWA({
             base: "/",
             scope: "/",
-            workbox: { navigateFallback: null },
+            workbox: {
+                navigateFallback: null,
+                // Versioned icon URLs still resolve to their precached assets when offline.
+                ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/]
+            },
             registerType: "autoUpdate",
             manifest: {
                 name: "Wishlist",
@@ -32,17 +36,17 @@ const config: UserConfig = {
                 background_color: "#f3ebf3",
                 icons: [
                     {
-                        src: "/android-chrome-192x192.png",
+                        src: "/android-chrome-192x192.png?v=4",
                         sizes: "192x192",
                         type: "image/png"
                     },
                     {
-                        src: "/android-chrome-512x512.png",
+                        src: "/android-chrome-512x512.png?v=4",
                         sizes: "512x512",
                         type: "image/png"
                     },
                     {
-                        src: "/android-chrome-maskable-512x512.png",
+                        src: "/android-chrome-maskable-512x512.png?v=4",
                         sizes: "512x512",
                         type: "image/png",
                         purpose: "maskable"

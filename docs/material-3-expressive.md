@@ -42,12 +42,12 @@ pressed button shape uses the fast-spatial fallback (350ms, .42/1.67/.21/.9).
 
 Product decisions (not official Material templates):
 
-- A logo-derived default palette: violet `#8b1fea` for primary actions, pink `#f5009b`
-  for secondary selection and golden amber `#ffb52e` for tertiary accents. These are product
+- A logo-derived default palette: violet `#8b1fea` for primary actions, periwinkle `#9298e9`
+  for secondary selection and golden amber `#f7bc2d` for tertiary accents. These are product
   color choices, not official M3 brand colors. Material Color Utilities generates paired
   roles for light and dark modes, with softly violet-tinted neutral surfaces. Custom list
   colors continue to use SchemeTonalSpot. The create-item FAB uses the tertiary container
-  and its paired foreground to echo the logo's golden star, including matching hover layers.
+  and its paired foreground to echo the logo's golden scroll, including matching hover layers.
 - Google Sans Flex for all text, with roundness/width axes for display headlines. Font is
   self-hosted from [Google Fonts](https://github.com/google/fonts/tree/main/ofl/googlesansflex);
   `static/fonts/google-sans-flex/OFL.txt` and TRADEMARKS.md ship with it. No Google Fonts requests.
@@ -394,22 +394,30 @@ transition frames. No page errors or document overflow were observed. The final 
 are `data/screenshots/m3e-components-*.png`; measurements and capture log are in
 `data/m3-verification/component-audit/visual-review.json` and `visual-review-final.log`.
 
-### Generated application logo
+### Application logo — 2026-10-24
 
-Navigation now uses the supplied `output/imagegen/wishlist-icon-47725a35.png`, copied
-unchanged to `src/lib/assets/wishlist-logo.png`. A shared `AppLogo` component displays
-the image at 48px with 12px rounded corners and a localized accessible name. These
-dimensions are product choices. The previous navigation icon and visible Wishlist
-wordmark have been removed.
+The user-supplied Gemini gift-and-scroll logo pays homage to the original artwork.
+Its original JPEG is preserved in `assets/branding/wishlist-gemini-original.jpg`;
+the transparent app rendition is `src/lib/assets/wishlist-logo.png`. The shared
+`AppLogo` component displays it at 48px with a localized accessible name and links
+to the home page. `object-fit: contain` and unclipped corners preserve the complete
+motif. These dimensions and the logo palette are product decisions.
 
-Desktop navigation places the logo at the top of the rail, with the menu toggle below
-it in both collapsed and expanded states. Mobile and signed-out pages show it in the
-header; the mobile header retains its 64px height. The logo links to the home page.
+Desktop navigation places the logo at the top of the rail, with the menu toggle
+below it in collapsed and expanded states. Signed-out pages show it in the header.
+Signed-in mobile pages retain the existing title-only header and bottom navigation.
 
-Verification: production build, targeted formatting/ESLint and all eight navigation
-checks passed, including image loading and rounded corners at 320/768/1024/1440px.
-Type check reported 0 errors and 10 existing warnings. Six preview captures cover
-mobile/desktop, light/dark, expanded navigation and the signed-out header. No page
-errors or document overflow were observed. Reports are in `data/m3-verification/logo/`;
-screenshots are `data/screenshots/wishlist-logo-*.png`. The local preview now serves
-the checked build using its existing preview database.
+The README uses the same app image and current screenshots. Email templates use
+the regenerated public 512px icon. Favicons, Apple touch icons, Windows tiles and
+the Safari monochrome gift-and-scroll mask are updated. Maskable Android icons
+use an opaque tonal background and fit the full motif inside the safe circle.
+Versioned icon URLs refresh the branding; the service worker ignores the version
+parameter when matching precached images so those URLs also work offline.
+
+Verification: production build, targeted formatting/ESLint, fourteen Chromium
+checks, PNG dimensions/transparency, three ICO frames and manifest entries passed.
+All nine platform icon URLs returned HTTP 200 with networking disabled. Desktop
+and mobile captures were reviewed in light and dark themes. Type check reported
+0 errors and 10 existing warnings. Native iOS/Android installation was not tested
+on physical devices. Reports and captures are in the ignored `data/logo-*` files;
+source and preparation notes are in `assets/branding/README.md`.

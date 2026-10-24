@@ -9,7 +9,7 @@ import {
 
 // Product colors drawn from wishlist-logo.png; Material generates the paired roles and tones.
 export const DEFAULT_SEED = "#8b1fea";
-const BRAND_COLORS = { primary: DEFAULT_SEED, secondary: "#f5009b", tertiary: "#ffb52e" };
+const BRAND_COLORS = { primary: DEFAULT_SEED, secondary: "#9298e9", tertiary: "#f7bc2d" };
 /** Only accept opaque six-digit colors; never interpolate stored CSS or URL parameters. */
 export function validSeed(value: unknown): string {
     return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value) ? value.toLowerCase() : DEFAULT_SEED;

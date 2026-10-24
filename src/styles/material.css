@@ -841,8 +841,7 @@
         display: block;
         inline-size: 3rem;
         block-size: 3rem;
-        border-radius: var(--md-shape-medium);
-        object-fit: cover;
+        object-fit: contain;
     }
     .m3-avatar-trigger {
         display: grid;
