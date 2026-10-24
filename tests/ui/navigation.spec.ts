@@ -4,6 +4,8 @@ for (const width of [320, 768, 839, 840, 1024, 1440]) {
     test(`adaptive navigation at ${width}px works without installation`, async ({ page, userData }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto("/lists?sort=name");
+        await expect(page).toHaveTitle("Overview");
+        await expect(page.getByTestId("list-filter")).toBeVisible();
         expect((await page.locator(".m3-nav").boundingBox())!.height).toBeGreaterThanOrEqual(64);
         await expect(page.locator("header").getByRole("heading", { level: 1 })).toHaveText(await page.title());
         await expect(page.locator("header h1")).toHaveAttribute("title", await page.title());
@@ -42,11 +44,14 @@ for (const width of [320, 768, 839, 840, 1024, 1440]) {
             await expect(toggle).toBeHidden();
             await expect(page.locator(".m3-navigation-bar")).toBeVisible();
         }
-        await navigation.getByRole("link", { name: "Lists", exact: true }).click();
+        await navigation.getByRole("link", { name: "My Lists", exact: true }).click();
         await expect(page).toHaveURL(new RegExp(`users=${userData.id}`));
         await page.goto(`/lists?sort=name&users=${userData.id}`);
         await expect(navigation.locator('[aria-current="page"]')).toHaveCount(1);
-        await expect(navigation.locator('[aria-current="page"]')).toContainText("Lists");
+        await expect(navigation.locator('[aria-current="page"]')).toContainText("My Lists");
+        await expect(page).toHaveTitle("My Lists");
+        await expect(page.locator("header h1")).toHaveText("My Lists");
+        await expect(page.getByTestId("list-filter")).toHaveCount(0);
         await navigation.getByRole("link", { name: "Claims", exact: true }).click();
         await expect(page).toHaveURL(/\/claims$/);
         await expect(page.locator("header").getByRole("heading", { level: 1 })).toHaveText(await page.title());
@@ -164,9 +169,12 @@ test("list filter aligns with its trigger and stays above navigation", async ({ 
             await menu.locator("#apply").click();
             await expect(menu).toBeHidden();
             await expect(page).toHaveURL(new RegExp(`users=${userData.id}`));
-            await page.getByTestId("list-filter").getByRole("button").click();
-            await menu.getByRole("checkbox", { name: "All", exact: true }).check();
-            await menu.locator("#apply").click();
+            await expect(page.getByTestId("list-filter")).toHaveCount(0);
+            await page
+                .getByRole("navigation", { name: "Main navigation" })
+                .filter({ visible: true })
+                .getByRole("link", { name: "Overview", exact: true })
+                .click();
             await expect(page).toHaveURL(/\/lists$/);
         }
     }

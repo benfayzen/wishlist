@@ -13,7 +13,7 @@ export class ListsPage extends BasePage {
 
     constructor(page: Page) {
         super(page, "/lists");
-        this.header = page.getByRole("heading", { name: "Lists" });
+        this.header = page.getByRole("heading", { name: /^(Overview|My Lists)$/ });
         this.createButton = page.getByRole("button", { name: "Create List" });
         this.listContainer = page.getByTestId("list-container");
         this.listItems = this.listContainer.getByTestId("list-card");
@@ -59,8 +59,6 @@ export class ListsPage extends BasePage {
     }
 
     async clearFilter() {
-        await this.listFilterChip.open();
-        await this.listFilterChip.selectOption("All");
-        await this.listFilterChip.applyFilter();
+        await this.goto();
     }
 }

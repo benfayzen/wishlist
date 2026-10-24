@@ -46,7 +46,12 @@
     };
 </script>
 
-<div class="mb-4 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0 md:gap-x-4">
+<div class="admin-section-heading">
+    <h2 class="m3-headline">{$t("admin.groups")}</h2>
+    <span class="admin-count">{groupsFiltered.length}</span>
+</div>
+
+<div class="admin-toolbar">
     <Search data={groups} keys={["name"]} bind:result={groupsFiltered} />
     <PromptModal
         description={$t("general.provide-the-name-of-the-group-below")}
@@ -63,7 +68,23 @@
     </PromptModal>
 </div>
 
-<div class="table-wrap preset-outlined-surface-200-800 rounded-container">
+<ul class="admin-records admin-mobile-records" aria-label={$t("admin.groups")}>
+    {#each groupsFiltered as group (group.id)}
+        <li>
+            <a class="admin-record admin-record-link" href={`/admin/groups/${group.id}`}>
+                <div class="admin-record-heading">
+                    <div class="admin-identity">
+                        <span class="admin-record-name">{group.name}</span>
+                        <span class="admin-record-meta">{$t("general.user-count")}: {group.userCount}</span>
+                    </div>
+                    <iconify-icon aria-hidden="true" icon="ion:chevron-forward"></iconify-icon>
+                </div>
+            </a>
+        </li>
+    {/each}
+</ul>
+
+<div class="admin-desktop-table table-wrap preset-outlined-surface-200-800 rounded-container">
     <table class="table-hover table table-auto">
         <thead>
             <tr>
@@ -90,3 +111,5 @@
         </tbody>
     </table>
 </div>
+
+{#if groupsFiltered.length === 0}<p class="admin-empty" role="status">{$t("general.no-results")}</p>{/if}

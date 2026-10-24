@@ -21,7 +21,7 @@
             <Select
                 id="defaultGroup"
                 name="defaultGroup"
-                class="m3-select w-full max-w-fit"
+                class="m3-select w-full max-w-md"
                 value={config.defaultGroup || ""}
             >
                 <option class="truncate" value="">{$t("admin.select-a-group-option")}</option>

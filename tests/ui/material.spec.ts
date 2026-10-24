@@ -78,11 +78,14 @@ for (const width of [320, 768, 1440]) {
                 "/admin/settings#email"
             ]) {
                 await adminPage.goto(route);
-                if (route.startsWith("/admin/settings"))
-                    await expect(adminPage.getByRole("tab", { name: "Einstellungen", exact: true })).toHaveAttribute(
-                        "aria-selected",
-                        "true"
-                    );
+                if (route.startsWith("/admin/settings")) {
+                    const mobileNavigation = adminPage.getByRole("combobox", { name: "Administration", exact: true });
+                    if (await mobileNavigation.isVisible()) await expect(mobileNavigation).toHaveValue("settings");
+                    else
+                        await expect(
+                            adminPage.getByRole("tab", { name: "Einstellungen", exact: true })
+                        ).toHaveAttribute("aria-selected", "true");
+                }
                 await fits(adminPage);
             }
             for (const route of ["/login", "/signup", "/forgot-password"]) {

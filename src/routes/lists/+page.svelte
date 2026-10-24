@@ -8,6 +8,8 @@
     import empty from "$lib/assets/no_wishes.svg";
     import { getFormatter } from "$lib/i18n";
     import { resolve } from "$app/paths";
+    import { page } from "$app/state";
+    import { isMyListsView } from "$lib/components/navigation/navigation";
 
     type ListData = PageData["otherLists"][0];
 
@@ -15,6 +17,7 @@
 
     const t = getFormatter();
     const users = $state(data.users);
+    const myListsView = $derived(isMyListsView(page.url, data.user));
 
     const hasNewItems = async (list: ListData) => {
         if (!list.items || list.items.length === 0) return false;
@@ -25,9 +28,11 @@
     };
 </script>
 
-<div class="m3-toolbar print:hidden">
-    <ListFilterChip {users} />
-</div>
+{#if !myListsView}
+    <div class="m3-toolbar print:hidden">
+        <ListFilterChip {users} />
+    </div>
+{/if}
 
 {#if data.myLists.length + data.otherLists.length === 0}
     <div class="flex flex-col items-center justify-center space-y-4 pt-4">
@@ -65,5 +70,5 @@
 </button>
 
 <svelte:head>
-    <title>{$t("wishes.lists")}</title>
+    <title>{$t(myListsView ? "wishes.my-lists" : "navigation.overview")}</title>
 </svelte:head>

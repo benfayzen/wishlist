@@ -135,4 +135,38 @@ test("multiple users and list filter", async ({
     await user1ListsPage.filterLists(user2.name);
     await user1ListsPage.expectListCount(1);
     await user1ListsPage.getListAt(0).then((list) => list.assertOwner(user2.name));
+
+    for (const [language, overview, myLists] of [
+        ["en", "Overview", "My Lists"],
+        ["de", "Übersicht", "Meine Listen"]
+    ]) {
+        await user1Page.request.post("/?/language", {
+            form: { language },
+            headers: { Origin: new URL(user1Page.url()).origin }
+        });
+        await user1Page.goto("/lists");
+        await expect(user1Page).toHaveTitle(overview);
+        await expect(user1Page.locator("header h1")).toHaveText(overview);
+        await expect(user1Page.getByTestId("list-filter")).toBeVisible();
+        await user1ListsPage.expectListCount(2);
+
+        const navigation = user1Page.getByRole("navigation").filter({ visible: true });
+        await navigation.getByRole("link", { name: myLists, exact: true }).click();
+        await expect(user1Page).toHaveTitle(myLists);
+        await expect(user1Page.locator("header h1")).toHaveText(myLists);
+        await expect(user1Page.getByTestId("list-filter")).toHaveCount(0);
+        await user1ListsPage.expectListCount(1);
+        await user1ListsPage.getListAt(0).then((list) => list.assertOwner(userData.name));
+        await user1Page.reload();
+        await expect(user1Page).toHaveTitle(myLists);
+        await expect(user1Page.getByTestId("list-filter")).toHaveCount(0);
+
+        for (const users of [`${userData.id},${user2.id}`, encodeURIComponent(`${userData.id},${user2.id}`)]) {
+            await user1Page.goto(`/lists?${new URLSearchParams({ users })}`);
+            await expect(user1Page).toHaveTitle(overview);
+            await expect(user1Page.getByTestId("list-filter")).toBeVisible();
+            await expect(navigation.locator('[aria-current="page"]')).toHaveText(overview);
+            await user1ListsPage.expectListCount(2);
+        }
+    }
 });

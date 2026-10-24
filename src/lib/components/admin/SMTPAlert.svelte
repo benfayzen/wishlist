@@ -24,7 +24,11 @@
             </div>
         </div>
         <div class="alert-actions w-full justify-end lg:w-fit">
-            <button class="m3-primary m3-button m3-button-small" onclick={() => (smtpAcknowledged.current = true)}>
+            <button
+                class="m3-primary m3-button m3-button-small"
+                onclick={() => (smtpAcknowledged.current = true)}
+                type="button"
+            >
                 {$t("general.dismiss")}
             </button>
         </div>
