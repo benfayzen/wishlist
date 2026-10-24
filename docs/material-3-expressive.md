@@ -66,6 +66,12 @@ Product decisions (not official Material templates):
 - Image occupying one third of item rows, cropped with a fade/blur confined to its edge;
   contain-fit tiles, full wrapping titles, adaptive content height, grid-aligned list cards.
 - The form sections and product/login card layouts are Wishlist layouts, not M3 templates.
+- “Most wanted” uses a decorative scalloped rosette with a star and an attached tonal text
+  pill. This is a product composition inspired by M3 Expressive shape and emphasis tactics,
+  not the official notification Badge component. The rosette uses tertiary/on-tertiary;
+  the label uses tertiary-container/on-tertiary-container. The custom 40px emblem, 12/16px
+  bold label, overlap and placement are product choices. In row images narrower than 192px,
+  only the emblem is visible; the localized label remains available to assistive technology.
 - Reduced-motion users receive no CSS animations or transitions; action behavior is unchanged.
 
 ## Context and authorization

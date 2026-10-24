@@ -188,7 +188,9 @@ test("list HCT palette survives create, edit, management and body portals then r
     expect(await primary()).not.toBe(context);
 });
 
-test("row image geometry, full tile images, long titles, keyboard and reduced motion", async ({ page }) => {
+test("tile default, row image geometry, filled tile images, long titles, keyboard and reduced motion", async ({
+    page
+}) => {
     const list = await ownList(page);
     await page.goto(`${list}/create-item`);
     const title = "Langer deutscher Produktname mit vielen Einzelheiten und zusätzlichen Größenangaben";
@@ -205,6 +207,10 @@ test("row image geometry, full tile images, long titles, keyboard and reduced mo
     await expect(page.getByTestId("item-card")).toBeVisible();
     await ready(page);
     const card = page.getByTestId("item-card");
+    await expect(card.locator(".m3-tile-media")).toBeVisible();
+    await page.getByTitle("List View", { exact: true }).click();
+    await page.reload();
+    await expect(card.locator(".m3-item-row")).toBeVisible();
     const dimensions = await card.evaluate((el) => {
         const row = el.querySelector(".m3-item-row")!.getBoundingClientRect();
         const media = el.querySelector(".m3-item-media")!.getBoundingClientRect();
@@ -226,7 +232,7 @@ test("row image geometry, full tile images, long titles, keyboard and reduced mo
     await page.getByTitle("Tile View", { exact: true }).click();
     const tileImage = card.locator(".m3-tile-media img");
     await expect(tileImage).toBeVisible();
-    expect(await tileImage.evaluate((el) => getComputedStyle(el).objectFit)).toBe("contain");
+    expect(await tileImage.evaluate((el) => getComputedStyle(el).objectFit)).toBe("cover");
     expect(await tileImage.evaluate((el) => (el as HTMLImageElement).naturalHeight)).toBeGreaterThan(0);
     await tileImage.evaluate(
         (el) => ((el as HTMLImageElement).src = "/api/assets/intentionally-missing-test-image.webp")

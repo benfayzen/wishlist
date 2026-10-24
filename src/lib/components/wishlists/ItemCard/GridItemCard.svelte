@@ -11,7 +11,7 @@
 <div class="flex h-full flex-col">
     <!-- Image extends to card edges -->
     <div class="m3-tile-media relative h-48 w-full overflow-hidden">
-        <ItemImage class="h-full w-full rounded-t-[calc(var(--radius-container)-1px)] object-contain" item={props.item}>
+        <ItemImage class="h-full w-full rounded-t-[calc(var(--radius-container)-1px)] object-cover" item={props.item}>
             {#snippet defaultImage(t)}
                 {@render _defaultImage(t, "rounded-t-[calc(var(--radius-container)-1px)] h-full w-full")}
             {/snippet}
