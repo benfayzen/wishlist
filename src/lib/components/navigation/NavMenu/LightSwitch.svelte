@@ -1,82 +1,53 @@
 <script lang="ts">
     import { getFormatter } from "$lib/i18n";
     import { LocalStorage } from "$lib/local-storage.svelte";
-    import { SegmentedControl, type SegmentedControlRootProps } from "@skeletonlabs/skeleton-svelte";
+    import ConnectedButtonGroup from "$lib/components/ConnectedButtonGroup.svelte";
     import { onMount } from "svelte";
-    import type { ClassValue } from "svelte/elements";
 
-    interface Props {
-        sizeClass?: ClassValue;
+    const { showLabel = true }: { showLabel?: boolean } = $props();
+    const t = getFormatter();
+    const options = $derived([
+        {
+            value: "system",
+            label: $t("general.system"),
+            icon: "material-symbols:desktop-windows-outline-rounded",
+            selectedIcon: "material-symbols:desktop-windows-rounded"
+        },
+        {
+            value: "light",
+            label: $t("general.light"),
+            icon: "material-symbols:light-mode-outline-rounded",
+            selectedIcon: "material-symbols:light-mode-rounded"
+        },
+        {
+            value: "dark",
+            label: $t("general.dark"),
+            icon: "material-symbols:dark-mode-outline-rounded",
+            selectedIcon: "material-symbols:dark-mode-rounded"
+        }
+    ]);
+    const preference = new LocalStorage<string>("mode", "system");
+    const value = $derived(["light", "dark"].includes(preference.current) ? preference.current : "system");
+
+    function applyMode() {
+        document.documentElement.dataset.mode =
+            value === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : value;
     }
 
-    let props: Props = $props();
-
-    const t = getFormatter();
-
-    const options = [
-        { value: "system", icon: "ion:desktop-outline", text: $t("general.system") },
-        { value: "light", icon: "ion:sunny-outline", text: $t("general.light") },
-        { value: "dark", icon: "ion:moon-outline", text: $t("general.dark") }
-    ];
-
-    const modeLocalStorage = new LocalStorage<string>("mode", "system");
-
-    let value = $state("system");
-
-    const setPreference = (pref: string) => {
-        document.documentElement.setAttribute("data-mode", pref);
-    };
-
-    $effect(() => {
-        value = modeLocalStorage.current;
-        if (value === "system") {
-            const pref = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            setPreference(pref);
-        } else {
-            setPreference(value);
-        }
-    });
-
+    $effect(applyMode);
     onMount(() => {
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-            if (value === "system") {
-                setPreference(e.matches ? "dark" : "light");
-            }
-        });
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
+        media.addEventListener("change", applyMode);
+        return () => media.removeEventListener("change", applyMode);
     });
-
-    const onValueChange: SegmentedControlRootProps["onValueChange"] = (details) => {
-        modeLocalStorage.current = details.value || "system";
-    };
 </script>
 
-<SegmentedControl {onValueChange} {value}>
-    <SegmentedControl.Label>{$t("general.mode")}</SegmentedControl.Label>
-    <SegmentedControl.Control class="rounded-container border-surface-300-700 gap-0 p-0.5">
-        <SegmentedControl.Indicator class="rounded-container" />
-        {#each options as { value, icon, text } (value)}
-            <SegmentedControl.Item class={props?.sizeClass} {value}>
-                <SegmentedControl.ItemText class="flex size-4" title={text}>
-                    <iconify-icon {icon}></iconify-icon>
-                    <span class="sr-only">{text}</span>
-                </SegmentedControl.ItemText>
-                <SegmentedControl.ItemHiddenInput />
-            </SegmentedControl.Item>
-        {/each}
-    </SegmentedControl.Control>
-</SegmentedControl>
-
-<svelte:head>
-    <script>
-        (function initMode() {
-            let mode =
-                typeof localStorage !== "undefined" ? JSON.parse(localStorage.getItem("mode")) || "system" : "system";
-            if (mode === "system") {
-                const pref = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-                document.documentElement.setAttribute("data-mode", pref);
-            } else {
-                document.documentElement.setAttribute("data-mode", mode);
-            }
-        })();
-    </script>
-</svelte:head>
+<div class="m3-mode-control">
+    <span class={["m3-mode-label", !showLabel && "sr-only"]}>{$t("general.mode")}</span>
+    <ConnectedButtonGroup
+        label={$t("general.mode")}
+        onchange={(mode) => (preference.current = mode)}
+        {options}
+        {value}
+    />
+</div>

@@ -1,205 +1,153 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { page } from "$app/state";
-    import Popup from "$lib/components/Popup.svelte";
+    import AdaptivePicker from "$lib/components/AdaptivePicker.svelte";
     import { getFormatter } from "$lib/i18n";
-    import { Popover } from "@skeletonlabs/skeleton-svelte";
     import type { ClassValue } from "svelte/elements";
-
-    interface Props {
-        options: Option[];
-        defaultOption: Option;
-        searchParam: string;
-        label?: string;
-        directionParam?: string | undefined;
-        prefix?: string;
-        multiselect?: boolean;
-        class?: ClassValue;
-        testId?: string;
-    }
 
     const {
         options,
         defaultOption,
         searchParam,
         label,
-        directionParam = undefined,
-        prefix = undefined,
+        directionParam,
+        prefix,
+        showLabel = false,
         multiselect = false,
         class: clazz,
         testId
-    }: Props = $props();
+    }: {
+        options: Option[];
+        defaultOption: Option;
+        searchParam: string;
+        label?: string;
+        directionParam?: string;
+        prefix?: string;
+        showLabel?: boolean;
+        multiselect?: boolean;
+        class?: ClassValue;
+        testId?: string;
+    } = $props();
     const t = getFormatter();
-
-    let filter = $derived(page.url.searchParams.get(searchParam));
-    let direction = $derived(directionParam ? page.url.searchParams.get(searchParam) : null);
-    let selectedOptions: Option[] = $state([defaultOption]);
-    let pendingSelectedOptions: Option[] = $state([defaultOption]);
-    $effect(() => {
-        if (multiselect && filter) {
-            const filters = decodeURIComponent(filter).split(",");
-            const opts = [];
-            for (const option of options) {
-                if (filters.includes(option.value)) {
-                    opts.push(option);
-                }
-            }
-            pendingSelectedOptions = opts;
-            selectedOptions = opts;
-        } else if (filter) {
-            for (const option of options) {
-                if (filter === option.value) {
-                    if (direction && option.direction && option.direction === direction) {
-                        selectedOptions = [option];
-                        break;
-                    } else {
-                        selectedOptions = [option];
-                        break;
-                    }
-                }
-            }
-        } else {
-            selectedOptions = [defaultOption];
-        }
-    });
-
+    const name = $props.id();
     let menuOpen = $state(false);
+    const selectedOptions = $derived.by(() => {
+        let filter = page.url.searchParams.get(searchParam);
+        if (!filter) return [defaultOption];
+        // Preserve compatibility with existing doubly encoded filter URLs.
+        try {
+            filter = decodeURIComponent(filter);
+        } catch {
+            return [defaultOption];
+        }
+        if (multiselect) {
+            const values = filter.split(",");
+            const selected = options.filter((option) => values.includes(option.value));
+            return selected.length ? selected : [defaultOption];
+        }
+        const direction = directionParam ? page.url.searchParams.get(directionParam) : null;
+        const selected = options.find(
+            (option) => option.value === filter && (!option.direction || option.direction === (direction ?? "asc"))
+        );
+        return [selected ?? defaultOption];
+    });
+    let pendingSelectedOptions: Option[] = $state([]);
+    $effect(() => {
+        if (!menuOpen) pendingSelectedOptions = [...selectedOptions];
+    });
+    const isDefault = (opts: Option[]) => opts.length === 1 && opts[0].value === defaultOption.value;
+    const active = $derived(!isDefault(selectedOptions));
+    const selectionLabel = $derived(selectedOptions.map((option) => option.displayValue).join(", "));
+    const accessibleLabel = $derived(label ? `${label}: ${selectionLabel}` : selectionLabel);
 
-    const isOnlyDefaultOptionSelected = (opts: Option[]) => {
-        return opts.length === 1 && opts[0].value === defaultOption.value;
-    };
-    const handleSelectChange = (option: Option, checked: boolean) => {
+    function toggle(option: Option, checked: boolean) {
         if (checked) {
-            if (isOnlyDefaultOptionSelected(pendingSelectedOptions)) {
-                pendingSelectedOptions = [option];
-            } else if (option.value === defaultOption.value) {
-                pendingSelectedOptions = [defaultOption];
-            } else {
-                pendingSelectedOptions.push(option);
-            }
+            pendingSelectedOptions =
+                option.value === defaultOption.value || isDefault(pendingSelectedOptions)
+                    ? [option]
+                    : [...pendingSelectedOptions.filter((item) => item.value !== option.value), option];
         } else {
-            pendingSelectedOptions = pendingSelectedOptions.filter((opt) => opt.value !== option.value);
+            pendingSelectedOptions = pendingSelectedOptions.filter((item) => item.value !== option.value);
         }
-    };
-    const handleApply = (option?: Option) => {
-        if (option) {
-            selectedOptions = [option];
-            menuOpen = false;
+    }
+    function apply(option?: Option) {
+        const selected = option ? [option] : pendingSelectedOptions;
+        const next = new URL(page.url);
+        if (!selected.length || isDefault(selected)) {
+            next.searchParams.delete(searchParam);
+            if (directionParam) next.searchParams.delete(directionParam);
         } else {
-            selectedOptions = pendingSelectedOptions;
+            next.searchParams.set(searchParam, encodeURIComponent(selected.map((item) => item.value).join(",")));
+            if (directionParam && selected[0].direction) next.searchParams.set(directionParam, selected[0].direction);
         }
-
-        const newUrl = new URL(page.url);
-
-        if (isOnlyDefaultOptionSelected(selectedOptions)) {
-            newUrl.searchParams.delete(searchParam);
-            if (!multiselect && directionParam) newUrl.searchParams.delete(directionParam);
-        } else {
-            const value = selectedOptions.map((opt) => opt.value).join(",");
-            newUrl.searchParams.set(searchParam, encodeURIComponent(value));
-            if (!multiselect && directionParam && selectedOptions[0].direction) {
-                newUrl.searchParams.set(directionParam, selectedOptions[0].direction);
-            }
-        }
-
-        goto(newUrl, {
-            replaceState: true
-        });
-    };
-    const handleCancel = () => {
-        pendingSelectedOptions = selectedOptions;
-    };
-    const isSelected = (option: Option) => {
-        return pendingSelectedOptions.find((opt) => opt.value === option.value) !== undefined;
-    };
+        menuOpen = false;
+        goto(next, { replaceState: true });
+    }
 </script>
 
-<div class={["flex flex-col gap-1", clazz]} data-testid={testId}>
-    {#if label}
-        <span class="text-xs">{label}</span>
-    {/if}
-    <Popup bind:open={menuOpen}>
+<div class={["m3-filter", clazz]} data-testid={testId}>
+    <AdaptivePicker label={label ?? $t("wishes.filter")} bind:open={menuOpen}>
         {#snippet trigger(props)}
             <button
                 {...props}
-                class={[
-                    "inset-ring-primary-500 chip h-fit w-fit inset-ring",
-                    selectedOptions[0].value !== defaultOption.value &&
-                        "preset-tonal-primary inset-ring-primary-500 inset-ring"
-                ]}
+                class="m3-filter-chip"
+                aria-label={accessibleLabel}
+                data-active={active}
+                title={accessibleLabel}
+                type="button"
             >
-                {#if selectedOptions[0].direction === "asc"}
-                    <iconify-icon icon="ion:arrow-up"></iconify-icon>
-                {:else if selectedOptions[0].direction === "desc"}
-                    <iconify-icon icon="ion:arrow-down"></iconify-icon>
-                {:else if prefix}
-                    <iconify-icon icon={prefix}></iconify-icon>
-                {/if}
-                <div class="flex gap-x-1">
-                    <span>
-                        {selectedOptions[0].displayValue}
-                    </span>
-                    {#if multiselect && selectedOptions.length > 1}
-                        <span>
-                            +{selectedOptions.length - 1}
-                        </span>
+                <span class="m3-filter-chip-surface">
+                    {#if active && !directionParam}
+                        <iconify-icon aria-hidden="true" icon="material-symbols:check-rounded"></iconify-icon>
+                    {:else if prefix}
+                        <iconify-icon aria-hidden="true" icon={prefix}></iconify-icon>
                     {/if}
-                </div>
-                <iconify-icon
-                    class="arrow text-xs duration-300 ease-out"
-                    class:rotate-180={menuOpen}
-                    icon="ion:caret-down"
-                ></iconify-icon>
+                    <span class="m3-filter-chip-label">
+                        {#if showLabel && label}
+                            <span class="m3-filter-chip-category">{label}:</span>
+                        {/if}
+                        <span class="m3-filter-chip-value">{selectedOptions[0].displayValue}</span>
+                        {#if multiselect && selectedOptions.length > 1}
+                            <span class="m3-filter-chip-count">+{selectedOptions.length - 1}</span>
+                        {/if}
+                    </span>
+                    <iconify-icon
+                        class="m3-picker-arrow"
+                        aria-hidden="true"
+                        icon="material-symbols:expand-more-rounded"
+                    ></iconify-icon>
+                </span>
             </button>
         {/snippet}
-
-        {#snippet content(props)}
-            <div
-                {...props}
-                class={["card preset-filled-surface-100-900 list-nav z-10 max-h-96 p-4 shadow-xl", props?.class]}
-            >
-                <nav>
-                    <ul class="max-h-72 overflow-auto">
-                        {#each options as option (option.value + option.direction)}
-                            <li>
-                                {#if multiselect}
-                                    <label class="checkbox-label list-option">
-                                        <input
-                                            class="checkbox"
-                                            checked={isSelected(option)}
-                                            onchange={(e) => handleSelectChange(option, e.currentTarget.checked)}
-                                            type="checkbox"
-                                        />
-                                        <span>{option.displayValue}</span>
-                                    </label>
-                                {:else}
-                                    <button class="list-option w-full" onclick={() => handleApply(option)}>
-                                        {option.displayValue}
-                                    </button>
-                                {/if}
-                            </li>
-                        {/each}
-                    </ul>
+        <div class="m3-picker-options" aria-label={label ?? $t("wishes.filter")} role="group">
+            {#each options as option (option.value + (option.direction ?? ""))}
+                {@const selected = multiselect
+                    ? pendingSelectedOptions.some((item) => item.value === option.value)
+                    : selectedOptions[0] === option}
+                <label class="m3-picker-option" data-selected={selected}>
                     {#if multiselect}
-                        <div class="flex flex-row justify-between gap-x-2 pt-4">
-                            <Popover.CloseTrigger
-                                id="cancel"
-                                class="preset-tonal-secondary border-secondary-500 btn btn-sm border"
-                                onclick={handleCancel}
-                            >
-                                {$t("general.cancel")}
-                            </Popover.CloseTrigger>
-                            <Popover.CloseTrigger
-                                id="apply"
-                                class="preset-filled-primary-500 btn btn-sm"
-                                onclick={() => handleApply()}
-                            >
-                                {$t("general.apply")}
-                            </Popover.CloseTrigger>
-                        </div>
+                        <input
+                            class="checkbox"
+                            checked={selected}
+                            onchange={(event) => toggle(option, event.currentTarget.checked)}
+                            type="checkbox"
+                        />
+                    {:else}
+                        <input {name} class="m3-radio" checked={selected} onchange={() => apply(option)} type="radio" />
                     {/if}
-                </nav>
+                    <span>{option.displayValue}</span>
+                </label>
+            {/each}
+        </div>
+        {#if multiselect}
+            <div class="m3-picker-actions">
+                <button id="cancel" class="m3-text-button m3-button" onclick={() => (menuOpen = false)} type="button">
+                    {$t("general.cancel")}
+                </button>
+                <button id="apply" class="m3-primary m3-button" onclick={() => apply()} type="button">
+                    {$t("general.apply")}
+                </button>
             </div>
-        {/snippet}
-    </Popup>
+        {/if}
+    </AdaptivePicker>
 </div>

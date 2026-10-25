@@ -6,10 +6,11 @@
 
     interface Props {
         header: Snippet;
+        iconOnly?: boolean;
     }
 
     const t = getFormatter();
-    const { header }: Props = $props();
+    const { header, iconOnly = false }: Props = $props();
     const disabledUrls = [
         "/login",
         "/signup",
@@ -31,8 +32,15 @@
 {#if disabled}
     {@render header()}
 {:else}
-    <button class="btn w-fit p-0" aria-label={$t("setup.back")} onclick={() => history.back()} type="button">
+    <button
+        class={iconOnly ? "m3-icon-button shrink-0" : "m3-button w-fit p-0"}
+        aria-label={$t("setup.back")}
+        onclick={() => history.back()}
+        type="button"
+    >
         <iconify-icon class="mt-0.5" icon="ion:arrow-back"></iconify-icon>
-        <span class="truncate text-xl">{$t("setup.back")}</span>
+        {#if !iconOnly}
+            <span class="truncate text-xl">{$t("setup.back")}</span>
+        {/if}
     </button>
 {/if}

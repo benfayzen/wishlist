@@ -1,5 +1,14 @@
 {
+    "navigation": {
+        "overview": "Overview",
+        "lists": "My Lists",
+        "claims": "Claims"
+    },
     "a11y": {
+        "main-navigation": "Main navigation",
+        "expand-navigation": "Expand navigation",
+        "collapse-navigation": "Collapse navigation",
+
         "a-person-looking-at-an-empty-board": "A person looking at an empty board",
         "cancel-editing": "cancel editing",
         "claimed-progress": "Claimed progress",
@@ -349,6 +358,7 @@
         "update": "Update",
         "use-system-language": "Use system language",
         "user": "User",
+        "people": "People",
         "user-count": "User Count",
         "very-strong": "Very Strong",
         "very-weak": "Very Weak",
@@ -373,6 +383,7 @@
     },
     "unable-to-load-icons": "Unable to load icons.",
     "wishes": {
+        "view-layout": "View layout",
         "add-a-list-manager": "Add a list manager",
         "add-a-list-manager-explainer": "Search for a user within this group to add as a manager to your list.",
         "add-a-manager": "Add manager",
@@ -502,5 +513,17 @@
         "view-wishes": "View Wishes",
         "wishes-for": "{listOwner}'s Wishes",
         "write": "Write"
+    },
+    "ui": {
+        "create-options": "More create options",
+        "more-information": "More information",
+        "product-link": "Link and product information",
+        "details": "The essentials",
+        "images": "Images",
+        "notes-and-lists": "Notes and lists",
+        "list-identity": "Name and appearance",
+        "list-sharing": "Visibility and claims",
+        "list-management": "Description and management",
+        "currency": "Currency"
     }
 }

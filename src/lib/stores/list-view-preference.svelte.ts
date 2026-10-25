@@ -12,6 +12,9 @@ export const initListViewPreference = (preference: ListViewPreference) => {
     setPreference(preferenceState);
 };
 
+// Capture this state during component initialization before using it in event handlers.
+export const getListViewPreferenceState = getPreference;
+
 // Get the reactive object from the context and update the value
 export const setListViewPreference = (preference: ListViewPreference) => {
     getPreference().value = preference;

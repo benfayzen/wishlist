@@ -168,24 +168,24 @@
 
     {#if !userId}
         <div class="flex flex-col gap-2">
-            <label class="label w-fit">
+            <label class="m3-label w-fit">
                 <span>{$t("general.name-optional")}</span>
-                <div class="input-group grid-cols-[auto_1fr_auto]">
-                    <div class="ig-cell preset-tonal">
+                <div class="m3-field grid-cols-[auto_1fr_auto]">
+                    <div class="m3-field-slot">
                         <iconify-icon class="text-lg" icon="ion:person"></iconify-icon>
                     </div>
-                    <input class="ig-input" type="text" bind:value={name} />
+                    <input class="m3-field-input" type="text" bind:value={name} />
                 </div>
             </label>
 
             {#if requireClaimEmail}
-                <label class="label w-fit">
+                <label class="m3-label w-fit">
                     <span>{$t("auth.email")}</span>
-                    <div class="input-group grid-cols-[auto_1fr_auto]">
-                        <div class="ig-cell preset-tonal">
+                    <div class="m3-field grid-cols-[auto_1fr_auto]">
+                        <div class="m3-field-slot">
                             <iconify-icon class="text-lg" icon="ion:person"></iconify-icon>
                         </div>
-                        <input class="ig-input" required type="email" bind:value={username} />
+                        <input class="m3-field-input" required type="email" bind:value={username} />
                     </div>
                 </label>
             {/if}
@@ -194,10 +194,10 @@
 
     {#if item.remainingQuantity > 1 || claim}
         <div class="flex flex-col gap-1">
-            <label class="label w-fit">
+            <label class="m3-label w-fit">
                 <span>{$t("wishes.enter-the-quantity-to-claim")}</span>
                 <input
-                    class={["input", error && "input-invalid"]}
+                    class={["m3-input", error && "m3-invalid"]}
                     inputmode="numeric"
                     max={item.remainingQuantity + (claim?.quantity || 0)}
                     min={claim ? 0 : 1}

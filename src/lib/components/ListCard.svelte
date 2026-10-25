@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { List, User } from "$lib/generated/prisma/client";
     import { Progress } from "@skeletonlabs/skeleton-svelte";
+    import { validSeed, createTheme } from "$lib/theme";
+    import { hexFromArgb } from "@material/material-color-utilities";
     import Avatar from "./Avatar.svelte";
     import { getFormatter } from "$lib/i18n";
 
@@ -28,39 +30,30 @@
             ? Math.min(100, Math.round(((list.claimedCount ?? 0) / list.itemCount) * 100))
             : 0
     );
-    let iconColor = $derived(list.iconColor);
+    let iconColor = $derived(hexFromArgb(createTheme(validSeed(list.iconColor)).light.primaryContainer));
+    let onIconColor = $derived(hexFromArgb(createTheme(validSeed(list.iconColor)).light.onPrimaryContainer));
     let elementTag = $derived(preventNavigate ? "div" : "a");
-    let element: HTMLElement | undefined = $state();
-
-    $effect(() => {
-        if (element && !preventNavigate) {
-            (element as unknown as HTMLLinkElement).href = `/lists/${list.id}`;
-        }
-    });
 </script>
 
 <svelte:element
     this={elementTag}
-    bind:this={element}
-    class={[
-        "card preset-filled-surface-100-900 inset-ring-surface-200-800 inset-ring",
-        !preventNavigate && "card-hover"
-    ]}
+    {...!preventNavigate ? { href: `/lists/${list.id}` } : {}}
+    class={["m3-list-card", list.unapprovedCount && list.unapprovedCount > 0 && "m3-list-card-stack"]}
+    data-testid="list-card"
 >
     {#if list.unapprovedCount && list.unapprovedCount > 0}
-        <div
-            class="preset-tonal-primary border-primary-500 rounded-tl-container rounded-tr-container flex flex-row items-center gap-x-2 border px-2 py-1"
-        >
-            <iconify-icon class="text-lg" icon="ion:information-circle"></iconify-icon>
-            <p class="text-sm">
+        <div class="m3-list-card-approval">
+            <iconify-icon aria-hidden="true" icon="ion:information-circle"></iconify-icon>
+            <p>
                 {$t("wishes.approvals-waiting", { values: { approvalCount: list.unapprovedCount } })}
             </p>
         </div>
     {/if}
 
-    <div class="grid grid-cols-[auto_1fr] items-center gap-4 p-4">
+    <div class="m3-card m3-list-card-content grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 p-4">
         <div
-            style="background-color: {iconColor};"
+            style:background-color={iconColor}
+            style:color={onIconColor}
             class="text-surface-50 flex aspect-square w-12 items-center justify-center overflow-hidden rounded-full font-semibold md:w-14"
             class:bg-primary-500={!iconColor}
         >

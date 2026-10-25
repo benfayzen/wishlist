@@ -16,10 +16,10 @@
 </script>
 
 <div class="flex flex-col items-center space-y-4">
-    <h1 class="h1 capitalize">{$t("auth.create-account")}</h1>
+    <h1 class="m3-page-title capitalize">{$t("auth.create-account")}</h1>
 
     <form
-        class="max-w-lg min-w-80 md:w-1/2 lg:w-2/3"
+        class="w-full max-w-lg"
         method="POST"
         use:enhance={() => {
             signingIn = true;

@@ -6,6 +6,10 @@ declare global {
     // and what to do when importing types
     /// <reference types="@sveltejs/kit" />
     declare namespace App {
+        interface PageState {
+            wishlistScrollId?: string;
+        }
+
         // Locals must be an interface and not a type
         interface Locals {
             user: LocalUser | null;

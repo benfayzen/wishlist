@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./src/lib/assets/logo.png" width="200" />
+<img src="./src/lib/assets/wishlist-logo.png" alt="Wishlist — Material 3 Expressive gift and wish list logo" width="200" height="200" />
 <h1>Wishlist</h1>
 <p> A sharable wishlist for your friends and family </p>
 </div>
@@ -20,22 +20,110 @@ Wishlist is a self-hosted wishlist application that you can share with your frie
 - [x] Registry Mode (single list)
 - [x] OAuth Authentication
 
-<p float="left">
-    <img src="./assets/homepage-desktop.png" width="74%" />
-    <img src="./assets/homepage-mobile.png" width="25%" />
-    Multiple groups for friends and family
+## Screenshots
+
+A look at the Material 3 Expressive interface, with an English UI and fictional
+South Park demo data. Stan belongs to both **Marsh Family** (Stan, Randy, Sharon
+and Shelly) and **South Park Friends** (Stan, Kyle, Kenny and Eric).
+
+### Friends and family, in their own groups
+
+Colorful lists, gift availability and pending suggestions at a glance. Navigation
+adapts from a desktop rail to a bottom bar on mobile.
+
+<p>
+    <img src="./assets/homepage-desktop.png" alt="Desktop overview of Marsh Family wishlists, with a pending suggestion on Stan's Birthday" width="74%" />
+    <img src="./assets/homepage-mobile.png" alt="Marsh Family overview on a phone with bottom navigation and an add-list button" width="25%" />
 </p>
 
-<p float="left">
-    <img src="./assets/my-wishes-mobile.png" width="49%" />
-    <img src="./assets/wishes-mobile.png" width="49%" />
-    Add items to your list so other's can claim them
+Switch groups to keep gifts for family and friends separate, using the same account.
+
+<img src="./assets/friends-desktop.png" alt="South Park Friends wishlists for Stan, Kyle, Kenny and Eric, with the group picker open" />
+
+### Make a wish, plan a gift
+
+Manage your own wishes in a compact text-only list on mobile, approve suggestions,
+browse a friend's list, or change your group, language and theme from the account menu.
+
+<p align="center">
+    <img src="./assets/my-wishes-mobile.png?v=text-only" alt="Stan's Winter Adventures in the mobile list layout, with owner controls and full-width text" width="32%" />
+    <img src="./assets/wishes-mobile.png?v=text-only" alt="Shelly's wishlist in the mobile text-only list layout, with prices, notes and claim controls" width="32%" />
+    <img src="./assets/account-menu-mobile.png" alt="Stan's mobile account menu with group switching, language and theme controls" width="32%" />
 </p>
 
-<img src="./assets/wish-form.png" />
-Create a wish from a URL, or manually fill in the details
+List colors carry through the interface in light and dark themes. Mark a favorite
+as **Most Wanted**, reserve gifts and keep surprises hidden from the recipient.
+
+<img src="./assets/wishes-desktop-dark.png" alt="Kenny's Adventure Kit in dark mode, showing most-wanted, reserved, purchased and partially claimed wishes" />
+
+Keep track of the gifts you have claimed and mark them as purchased.
+
+<img src="./assets/claims-desktop.png" alt="Stan's Claims page filtered to Shelly and grouped by recipient, showing reserved and purchased gifts" />
+
+Create a wish from a product URL, or add the details, image, price and notes yourself.
+
+<img src="./assets/wish-form.png" alt="English create-wish form filled with an adventure backpack, price, quantity, uploaded photo and notes" />
+
+See [reproducing the screenshots](./docs/readme-screenshots.md) for the isolated
+demo database, accounts and capture command. South Park characters belong to their
+respective owners and are used here as fictional examples.
 
 ## Getting Started
+
+### Material 3 Expressive fork
+
+The gift-and-scroll logo is a homage to the original Wishlist artwork. The README,
+application, email templates and installable PWA share the same updated branding.
+See [logo assets and icon generation](./assets/branding/README.md) for the source
+artwork and platform variants. The screenshots above show this fork's current UI.
+
+This fork includes Material 3 Expressive on `main` and publishes
+`ghcr.io/benfayzen/wishlist:latest` and `:edge` using GitHub Actions. The
+`feat/material-3-expressive` branch also publishes `:material-3-expressive`. Images support
+`linux/amd64` and `linux/arm64`. Each build also has an immutable `sha-<full commit SHA>` tag.
+Publication uses the repository's built-in `GITHUB_TOKEN`; no Docker Hub secrets are needed.
+The first image must finish building before it can be pulled. GitHub may require enabling
+Actions in a fork. If anonymous pulls are denied, set the package's visibility to public
+in GitHub Packages, or authenticate Docker to GHCR with a token that can read the package.
+
+For an existing installation, keep its volumes, network and environment variables and
+replace only the `image:` line. Back up the existing data and uploads before upgrading;
+the normal application startup applies any pending upstream database migrations.
+
+```yaml
+name: wishlist
+services:
+    wishlist:
+        container_name: wishlist
+        networks:
+            - proxy
+        image: ghcr.io/benfayzen/wishlist:latest
+        volumes:
+            - /srv/docker/appdata/uploads:/usr/src/app/uploads
+            - /srv/docker/appdata/wishlist/data:/usr/src/app/data
+        environment:
+            - ORIGIN=https://wishlist.example.com
+            - DEFAULT_CURRENCY=EUR
+        restart: unless-stopped
+
+networks:
+    proxy:
+        external: true
+```
+
+Keep an existing `networks:` definition if it differs from this example. Apply the
+new image on the server from the directory containing the Compose file:
+
+```sh
+docker compose pull wishlist
+docker compose up -d wishlist
+docker compose logs --tail=100 wishlist
+```
+
+For subsequent updates, repeat these commands after the image build succeeds.
+Use the immutable `sha-<full commit SHA>` tag when pinning a reviewed build.
+
+### Original project
 
 Getting started is simple with Docker Compose.
 

@@ -51,9 +51,10 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
     depends("data:items");
 
     // Read view preference from cookie (for SSR to prevent flicker)
-    const viewPreference = cookies.get("listViewPreference") as "list" | "tile" | undefined;
+    const viewPreference: "list" | "tile" = cookies.get("listViewPreference") === "list" ? "list" : "tile";
 
     return {
+        themeSeed: list.iconColor,
         list: {
             ...list,
             isSelfClaimable,
@@ -80,6 +81,6 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
         showPublicClaimName: config.claims.showNamePublic,
         requireClaimEmail: config.claims.requireEmail,
         suggestionsEnabled: config.suggestions.enable,
-        initialViewPreference: viewPreference || "list"
+        initialViewPreference: viewPreference
     };
 }) satisfies PageServerLoad;

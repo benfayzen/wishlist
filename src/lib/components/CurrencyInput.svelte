@@ -2,7 +2,7 @@
     import { getFormatter as getPriceFormatter, getLocaleConfig } from "$lib/price-formatter";
     import type { KeyboardEventHandler } from "svelte/elements";
     import { onMount } from "svelte";
-    import { getLocale } from "$lib/i18n";
+    import { getLocale, getFormatter as getTranslator } from "$lib/i18n";
     import { getNumberFormatter } from "svelte-i18n";
     import { Combobox, Portal, useListCollection, type ComboboxRootProps } from "@skeletonlabs/skeleton-svelte";
 
@@ -16,6 +16,7 @@
 
     let { value = $bindable(null), currency = $bindable("USD"), name, id, disabled = false }: Props = $props();
     const locale = getLocale();
+    const t = getTranslator();
 
     let numberFormatter = getNumberFormatter({ locale });
     let priceFormatter = $derived(getPriceFormatter(currency));
@@ -97,15 +98,15 @@
     };
 </script>
 
-<div class="input-group grid-cols-[auto_1fr_auto]">
-    <div class="ig-cell preset-tonal">
+<div class="m3-field grid-cols-[auto_1fr_auto]">
+    <div class="m3-field-slot">
         <iconify-icon icon="ion:pricetag"></iconify-icon>
     </div>
     <input
         bind:this={inputElement}
         id={`formatted-${id}`}
         name={`formatted-${name}`}
-        class="ig-input"
+        class="m3-field-input"
         autocomplete="off"
         {disabled}
         inputmode={maximumFractionDigits > 0 ? "decimal" : "numeric"}
@@ -117,10 +118,11 @@
         bind:value={displayValue}
     />
     <Combobox
-        class="w-22"
+        class="m3-currency"
         alwaysSubmitOnEnter={false}
         collection={currenciesCollection}
         data-testid="currency"
+        {disabled}
         inputBehavior="autohighlight"
         {onInputValueChange}
         onOpenChange={() => (items = availableCurrencies)}
@@ -132,7 +134,7 @@
         <Combobox.Control>
             <Combobox.Input>
                 {#snippet element(props)}
-                    <input {...props} name="currency" class="ig-input rounded-s-none uppercase ring-0 focus:ring-1" />
+                    <input {...props} name="currency" class="m3-field-input uppercase" aria-label={$t("ui.currency")} />
                 {/snippet}
             </Combobox.Input>
             <Combobox.Trigger class="bg-transparent" />

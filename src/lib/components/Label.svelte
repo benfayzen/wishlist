@@ -10,7 +10,7 @@
     let { value, children, ...props }: Props = $props();
 </script>
 
-<label {...props} class={["label", props.class]}>
+<label {...props} class={["m3-label", props.class]}>
     <span>{value}</span>
     {@render children()}
 </label>

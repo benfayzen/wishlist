@@ -14,7 +14,7 @@ setup("setup wizard", async ({ page }) => {
     await setupWizardPage.getStarted();
     await setupWizardPage.completeSteps();
 
-    await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Overview", exact: true })).toBeVisible();
 
     await page.context().storageState({ path: adminAuthFile });
 });

@@ -25,5 +25,5 @@
         value = undefined;
     }}
 >
-    <input class="input" type="text" bind:value {...inputProps} />
+    <input class="m3-input" type="text" bind:value {...inputProps} />
 </ConfirmModal>

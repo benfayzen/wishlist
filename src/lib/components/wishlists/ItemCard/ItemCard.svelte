@@ -74,7 +74,7 @@
         onIncreasePriority = undefined,
         onDecreasePriority = undefined,
         onPriorityChange,
-        isTileView = false,
+        isTileView = true,
         isSelfClaimable = false
     }: ItemCardProps = $props();
 
@@ -121,18 +121,23 @@
 
 <div
     class={[
-        "card preset-filled-surface-100-900 border-surface-200-800 block h-full w-full border text-start print:break-inside-avoid print:shadow-none",
+        "m3-card m3-item-card block h-full w-full text-start print:break-inside-avoid print:shadow-none",
         !item.approved && "preset-tonal-warning border-warning-500 border",
         !reorderActions && "card-hover"
     ]}
     aria-labelledby={`${id}-name`}
+    data-testid="item-card"
     onclick={() => {
         if (!reorderActions) launchDrawer();
     }}
-    onkeyup={(e) => {
-        if (!reorderActions && e.key === "Enter") launchDrawer();
+    onkeydown={(e) => {
+        if (e.target === e.currentTarget && !reorderActions && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            launchDrawer();
+        }
     }}
     role={reorderActions ? "none" : "button"}
+    tabindex={reorderActions ? undefined : 0}
 >
     <ItemCard
         {id}

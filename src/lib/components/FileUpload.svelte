@@ -2,13 +2,16 @@
     import { getFormatter } from "$lib/i18n";
     import { FileUpload, type FileUploadRootProps } from "@skeletonlabs/skeleton-svelte";
 
-    const props: FileUploadRootProps = $props();
+    const { label, ...props }: FileUploadRootProps & { label?: string } = $props();
 
     const t = getFormatter();
 </script>
 
-<FileUpload {...props} class="input-group grid-cols-[auto_1fr] items-center p-1">
-    <FileUpload.Trigger class="btn btn-sm preset-filled h-fit">{$t("general.select-file")}</FileUpload.Trigger>
+<FileUpload {...props} class={["m3-upload", props.class]}>
+    <FileUpload.Trigger class="m3-button m3-button-small m3-primary h-fit">
+        {$t("general.select-file")}
+    </FileUpload.Trigger>
+    <FileUpload.Label class="sr-only">{label ?? $t("wishes.upload-image")}</FileUpload.Label>
     <FileUpload.HiddenInput />
     <FileUpload.ItemGroup>
         <FileUpload.Context>

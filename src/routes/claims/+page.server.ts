@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
     const config = await getConfig(activeMembership.groupId);
 
     // Read view preference from cookie (for SSR to prevent flicker)
-    const viewPreference = cookies.get("listViewPreference") as "list" | "tile" | undefined;
+    const viewPreference: "list" | "tile" = cookies.get("listViewPreference") === "list" ? "list" : "tile";
 
     const userIdFilter = decodeMultiValueFilter(url.searchParams.get("users"));
     const items = await client.item.findMany({
@@ -124,7 +124,7 @@ export const load: PageServerLoad = async ({ url, cookies }) => {
             activeGroupId: activeMembership.groupId
         },
         items: itemDTOs,
-        initialViewPreference: viewPreference || "list",
+        initialViewPreference: viewPreference,
         config
     };
 };

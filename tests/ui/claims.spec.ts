@@ -1,4 +1,4 @@
-import { test } from "../fixtures";
+import { test, expect } from "../fixtures";
 import { GroupSettingsPage } from "../pageObjects/group-settings.page";
 import { ListPage } from "../pageObjects/list.page";
 import { ListsPage } from "../pageObjects/lists.page";
@@ -23,6 +23,13 @@ test("claim single", async ({ page: ownerPage, userData: owner, additionalPage: 
             .then((card) => card.click())
             .then((listPage) => listPage.getItemAt(0))
             .then((item) => item.claimSingle());
+        const purchased = claimerPage.getByRole("button", { name: "Mark item as purchased", exact: true });
+        await expect(purchased).toHaveAttribute("aria-pressed", "false");
+        await purchased.click();
+        const undoPurchase = claimerPage.getByRole("button", { name: "Mark item as not purchased", exact: true });
+        await expect(undoPurchase).toHaveAttribute("aria-pressed", "true");
+        await claimerPage.reload();
+        await expect(undoPurchase).toHaveAttribute("aria-pressed", "true");
     });
 
     await test.step("list card shows none available", async () => {

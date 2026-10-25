@@ -20,7 +20,9 @@ export default tseslint.config(
             "**/package-lock.json",
             "**/yarn.lock",
             "**/dev-dist",
-            "**/playwright*"
+            "**/playwright*",
+            "test-results/**",
+            "data/**"
         ]
     },
     eslint.configs.recommended,

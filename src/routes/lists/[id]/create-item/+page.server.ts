@@ -43,6 +43,7 @@ export const load: PageServerLoad = async ({ params }) => {
     const isOwnerOrManager =
         list.owner.id === user.id || list.managers.find(({ userId }) => userId === user.id) !== undefined;
     return {
+        themeSeed: list.iconColor,
         user,
         lists,
         list: {

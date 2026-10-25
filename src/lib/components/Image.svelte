@@ -8,11 +8,11 @@
 
     const { children, src, ...rest }: Props = $props();
 
-    let imgError = $state(false);
+    let failedSrc = $state<Props["src"]>();
 </script>
 
-{#if imgError || !src}
+{#if failedSrc === src || !src}
     {@render children?.()}
 {:else}
-    <img {...rest} onerror={() => (imgError = true)} {src} />
+    <img {...rest} onerror={() => (failedSrc = src)} {src} />
 {/if}

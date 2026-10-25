@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import type { Group } from "$lib/generated/prisma/client";
     import SettingsGroup from "../SettingsGroup.svelte";
     import Setting from "../Setting.svelte";
@@ -15,19 +16,19 @@
 
 <SettingsGroup title={$t("admin.groups")}>
     <Setting>
-        <label class="label flex flex-col" for="defaultGroup">
+        <label class="m3-label flex flex-col" for="defaultGroup">
             <span>{$t("admin.default-group")}</span>
-            <select
+            <Select
                 id="defaultGroup"
                 name="defaultGroup"
-                class="select w-full max-w-fit"
+                class="m3-select w-full max-w-md"
                 value={config.defaultGroup || ""}
             >
                 <option class="truncate" value="">{$t("admin.select-a-group-option")}</option>
                 {#each groups as group}
                     <option value={group.id}>{group.name}</option>
                 {/each}
-            </select>
+            </Select>
         </label>
 
         {#snippet description()}

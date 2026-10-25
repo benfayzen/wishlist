@@ -12,11 +12,11 @@
     {#snippet heading({ depth, raw, text, options, slug, children })}
         {@const id = options.headerIds ? options.headerPrefix + slug(text) : undefined}
         {#if depth === 1}
-            <h1 {id} class="h1">{@render children?.()}</h1>
+            <h1 {id} class="m3-page-title">{@render children?.()}</h1>
         {:else if depth === 2}
-            <h2 {id} class="h2">{@render children?.()}</h2>
+            <h2 {id} class="m3-headline">{@render children?.()}</h2>
         {:else if depth === 3}
-            <h3 {id} class="h3">{@render children?.()}</h3>
+            <h3 {id} class="m3-title">{@render children?.()}</h3>
         {:else if depth === 4}
             <h4 {id} class="h4">{@render children?.()}</h4>
         {:else if depth === 5}
