@@ -1,5 +1,14 @@
 {
+    "navigation": {
+        "overview": "Übersicht",
+        "lists": "Meine Listen",
+        "claims": "Reserviert"
+    },
     "a11y": {
+        "main-navigation": "Hauptnavigation",
+        "expand-navigation": "Navigation ausklappen",
+        "collapse-navigation": "Navigation einklappen",
+
         "menu": "Menü",
         "cancel-editing": "editieren abbrechen",
         "clear-url-field": "URL-Feld leeren",
@@ -145,6 +154,7 @@
         "oidc-url-description": "Die URL deines OAuth-Anbieters oder die URL des jeweiligen Realms bzw. der jeweiligen Anwendung innerhalb deines Anbieters. Diese wird häufig auch als „Discovery-URL“ bezeichnet."
     },
     "wishes": {
+        "view-layout": "Ansicht",
         "filter": "Filter",
         "finish": "Fertig",
         "for": "Für <span class=\"{class}\">{name}</span>",
@@ -434,6 +444,7 @@
         "this-invite-link-is-only-valid-for-one-signup": "Dieser Einladungslink ist nur für eine Anmeldung gültig",
         "update": "Aktualisieren",
         "user": "Benutzer",
+        "people": "Personen",
         "user-count": "Benutzerzahl",
         "very-strong": "Sehr stark",
         "very-weak": "Sehr schwach",
@@ -499,5 +510,17 @@
         "invite-body": "Du wurdest eingeladen Wishlist beizutreten! Um die Einladung anzunehmen, klicke auf den untenstehenden Link.",
         "test-body": "Wenn du dies hier liest, dann Glückwunsch! Die E-Mail Einstellungen wurden korrekt konfiguriert!"
     },
-    "unable-to-load-icons": "Konnte Icons nicht laden."
+    "unable-to-load-icons": "Konnte Icons nicht laden.",
+    "ui": {
+        "create-options": "Weitere Erstelloptionen",
+        "more-information": "Weitere Informationen",
+        "product-link": "Link und Produktdaten",
+        "details": "Das Wichtigste",
+        "images": "Bilder",
+        "notes-and-lists": "Notizen und Zuordnung",
+        "list-identity": "Name und Erscheinungsbild",
+        "list-sharing": "Sichtbarkeit und Reservierungen",
+        "list-management": "Beschreibung und Verwaltung",
+        "currency": "Währung"
+    }
 }

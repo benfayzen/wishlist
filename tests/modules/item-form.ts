@@ -22,7 +22,7 @@ export class ItemForm {
 
     constructor(page: Page) {
         this.page = page;
-        this.urlField = page.getByLabel("Item URL");
+        this.urlField = page.getByRole("textbox", { name: "Item URL", exact: true });
         this.nameField = page.getByLabel("Item Name");
         this.priceField = page.locator("#formatted-price");
         this.currencyField = page.getByTestId("currency");
@@ -32,7 +32,7 @@ export class ItemForm {
         this.uploadImageButton = page.getByRole("button", { name: "Select File" });
         this.mostWantedCheckbox = page.getByLabel("Most wanted");
         this.imageUrlField = page.getByLabel("Image URL");
-        this.notesField = page.getByLabel("Notes");
+        this.notesField = page.getByRole("textbox", { name: "Notes", exact: true });
         this.notesWriteTab = page.getByRole("tab", { name: "Write" });
         this.notesPreviewTab = page.getByRole("tab", { name: "Preview" });
         this.notesPreviewContainer = page.getByTestId("markdown-preview");

@@ -1,7 +1,7 @@
 <script lang="ts">
     import TokenCopy from "$lib/components/TokenCopy.svelte";
     import type { Group } from "$lib/generated/prisma/client";
-    import { fade } from "svelte/transition";
+    import { fade } from "$lib/motion";
     import { InviteUsersAPI } from "$lib/api/users";
     import { getFormatter } from "$lib/i18n";
     import { toaster } from "../toaster";
@@ -66,7 +66,7 @@
 <div class="flex flex-col space-y-4 {vertical ? 'items-center' : 'md:flex-row md:items-end md:space-y-0 md:gap-x-4'}">
     <InviteUserModal {defaultGroup} {groups} onSubmit={generateInvite} smtpEnabled={config.smtp.enable}>
         {#snippet trigger(props)}
-            <button {...props} class="preset-filled-primary-500 btn w-fit" type="button">
+            <button {...props} class="m3-primary m3-button w-fit" type="button">
                 <iconify-icon icon="ion:person-add"></iconify-icon>
                 <p>{$t("general.invite-user")}</p>
             </button>

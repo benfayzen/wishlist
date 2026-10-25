@@ -13,12 +13,15 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Build flags for compatibility on older systems
-ENV RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=-sse4.1,-sse4.2,-avx,-avx2" \
-    CFLAGS="-march=x86-64 -mtune=generic" \
-    CXXFLAGS="-march=x86-64 -mtune=generic"
+ARG TARGETARCH
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        export RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=-sse4.1,-sse4.2,-avx,-avx2"; \
+        export CFLAGS="-march=x86-64 -mtune=generic"; \
+        export CXXFLAGS="-march=x86-64 -mtune=generic"; \
+    fi; \
+    pnpm install --frozen-lockfile
 COPY prisma/ ./prisma/
 RUN pnpm prisma generate
 COPY src/ ./src

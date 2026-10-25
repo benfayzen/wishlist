@@ -35,14 +35,45 @@
     };
 </script>
 
-<div class="mb-4 flex flex-col space-y-4 md:flex-row md:items-end md:space-y-0 md:gap-x-4">
-    <Search data={users} keys={["name", "username"]} bind:result={usersFiltered} />
+<div class="admin-section-heading">
+    <h2 class="m3-headline">{$t("admin.users")}</h2>
+    <span class="admin-count">{usersFiltered.length}</span>
+</div>
+
+<div class="admin-toolbar">
+    <Search data={users} keys={["name", "username", "email"]} bind:result={usersFiltered} />
     <form method="POST" use:enhance>
         <InviteUser {config} {groups} />
     </form>
 </div>
 
-<div class="table-wrap preset-outlined-surface-200-800 rounded-container">
+<ul class="admin-records admin-mobile-records" aria-label={$t("admin.users")}>
+    {#each usersFiltered as user (user.id)}
+        <li>
+            <a
+                class="admin-record admin-record-link"
+                href={user.username === currentUser.username ? "/account" : `/admin/users/${user.id}`}
+            >
+                <div class="admin-record-heading">
+                    <div class="admin-identity">
+                        <span class="admin-record-name">{user.name}</span>
+                        <span class="admin-record-meta">@{user.username}</span>
+                    </div>
+                    <iconify-icon aria-hidden="true" icon="ion:chevron-forward"></iconify-icon>
+                </div>
+                {#if user.email}<span class="admin-record-meta">{user.email}</span>{/if}
+                {#if user.isAdmin || user.groups?.length}
+                    <div class="admin-record-tags">
+                        {#if user.isAdmin}<span class="admin-role">{$t("admin.admin")}</span>{/if}
+                        {#each user.groups?.toSorted() ?? [] as group}<span class="admin-tag">{group}</span>{/each}
+                    </div>
+                {/if}
+            </a>
+        </li>
+    {/each}
+</ul>
+
+<div class="admin-desktop-table table-wrap preset-outlined-surface-200-800 rounded-container">
     <table class="table-hover table">
         <thead>
             <tr>
@@ -54,7 +85,15 @@
         <tbody>
             {#each usersFiltered as user}
                 <tr onclick={() => selectionHandler(user)}>
-                    <td class="text-nowrap">{user.name}</td>
+                    <td>
+                        <a
+                            class="anchor"
+                            href={user.username === currentUser.username ? "/account" : `/admin/users/${user.id}`}
+                            onclick={(event) => event.stopPropagation()}
+                        >
+                            {user.name}
+                        </a>
+                    </td>
                     <td>{user.username}</td>
                     <td>{user.email}</td>
                     <td class="text-center">
@@ -74,3 +113,5 @@
         </tbody>
     </table>
 </div>
+
+{#if usersFiltered.length === 0}<p class="admin-empty" role="status">{$t("general.no-results")}</p>{/if}

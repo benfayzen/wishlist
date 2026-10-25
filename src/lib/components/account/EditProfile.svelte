@@ -20,9 +20,7 @@
     let submitButton: HTMLElement | undefined = $state();
 </script>
 
-<div
-    class="card preset-filled-surface-100-900 inset-ring-surface-200-800 flex w-full min-w-96 flex-col gap-1 p-4 inset-ring md:max-w-1/3"
->
+<div class="m3-card flex w-full min-w-0 flex-col gap-1 p-4 md:max-w-xl">
     <div class="relative m-auto h-full w-full max-w-37.5">
         <Avatar class="size-32 text-3xl" {user} />
         <form
@@ -42,7 +40,7 @@
             }}
         >
             <FileUpload name="profilePic" accept="image/*" onFileAccept={() => submitButton?.click()}>
-                <FileUpload.Trigger class="btn-icon preset-tonal-secondary" title={$t("a11y.upload-profile-image")}>
+                <FileUpload.Trigger class="m3-icon-button m3-secondary" title={$t("a11y.upload-profile-image")}>
                     <iconify-icon class="text-lg" icon="ion:camera"></iconify-icon>
                     <span class="sr-only">{$t("a11y.upload-profile-image")}</span>
                 </FileUpload.Trigger>
@@ -112,7 +110,7 @@
                 <span>{$t("admin.profile-disabled")}</span>
             {/if}
 
-            <button class="preset-filled-primary-500 btn w-fit" {disabled} formaction="?/profile" type="submit">
+            <button class="m3-primary m3-button w-fit" {disabled} formaction="?/profile" type="submit">
                 {$t("general.update")}
             </button>
         </div>

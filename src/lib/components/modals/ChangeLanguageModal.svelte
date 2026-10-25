@@ -51,9 +51,9 @@
             };
         }}
     >
-        <label class="label" for="language">
+        <label class="m3-label" for="language">
             <span>{$t("general.language")}</span>
-            <select id="language" name="language" class="select" value={currentLanguage || ""}>
+            <select id="language" name="language" class="m3-select" value={currentLanguage || ""}>
                 <option value="">{$t("general.use-system-language")}</option>
                 {#each supportedLangs as lang}
                     {#if !lang.hidden}

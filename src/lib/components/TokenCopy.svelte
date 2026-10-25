@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Portal, Tooltip } from "@skeletonlabs/skeleton-svelte";
-    import { fade } from "svelte/transition";
+    import { fade } from "$lib/motion";
     import { getFormatter } from "$lib/i18n";
     import type { ClassValue } from "svelte/elements";
     import { clipboard } from "$lib/clipboard.svelte";
@@ -12,7 +12,7 @@
         onCopied?: VoidFunction;
     }
 
-    let { url, btnStyle = "btn-icon", children, onCopied }: Props = $props();
+    let { url, btnStyle = "m3-icon-button", children, onCopied }: Props = $props();
     const t = getFormatter();
 
     let copiedVisible = $state(false);
@@ -28,7 +28,7 @@
     <div class="flex flex-row items-center">
         <Tooltip>
             <Tooltip.Trigger
-                class="btn {btnStyle}"
+                class="m3-button {btnStyle}"
                 {@attach clipboard("tokenUrl")}
                 aria-label={$t("general.copy-to-clipboard")}
                 onclick={() => {
@@ -42,7 +42,7 @@
             </Tooltip.Trigger>
             <Portal>
                 <Tooltip.Positioner>
-                    <Tooltip.Content class="card preset-filled-secondary-500 p-2">
+                    <Tooltip.Content class="m3-card preset-filled-secondary-500 p-2">
                         <span>{$t("general.copy-to-clipboard")}</span>
                         <Tooltip.Arrow
                             class="[--arrow-background:var(--color-secondary-500)] [--arrow-size:--spacing(2)]"
@@ -54,8 +54,8 @@
             </Portal>
         </Tooltip>
 
-        {#if copiedVisible}
-            <span out:fade>{$t("general.copied")}</span>
-        {/if}
+        <span role="status">
+            {#if copiedVisible}<span out:fade>{$t("general.copied")}</span>{/if}
+        </span>
     </div>
 </div>

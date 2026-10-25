@@ -166,6 +166,9 @@ importers:
 
   .:
     dependencies:
+      '@material/material-color-utilities':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@metascraper/helpers':
         specifier: ^5.49.1
         version: 5.58.4(@noble/hashes@2.4.0)(debug@4.4.3)
@@ -1659,6 +1662,9 @@ packages:
   '@kikobeats/time-span@1.0.13':
     resolution: {integrity: sha512-CfBK4/EZ73uN/6b5/wOfvWju1Ev/6H+uXqS2Vqd7/dEQTyOsvv4BdOHDqESp4Efa9YyrPPvN3IHU+C4z9FAo3Q==}
     engines: {node: '>= 18'}
+
+  '@material/material-color-utilities@0.4.0':
+    resolution: {integrity: sha512-dlq6VExJReb8dhjj3a/yTigr3ncNwoFmL5Iy2ENtbDX03EmNeOEdZ+vsaGrj7RTuO+mB7L58II4LCsl4NpM8uw==}
 
   '@metascraper/helpers@5.58.4':
     resolution: {integrity: sha512-3pyzjvl+2IjDoZpBhwmFJVyiTKq0wPk6d8tiL+MjeI07++VNutSyGIQZdcQK3cYhs3u+HL2Z+BH4rBQlGJ2yfg==}
@@ -6965,6 +6971,8 @@ snapshots:
   '@keyv/serialize@1.1.1': {}
 
   '@kikobeats/time-span@1.0.13': {}
+
+  '@material/material-color-utilities@0.4.0': {}
 
   '@metascraper/helpers@5.58.4(@noble/hashes@2.4.0)(debug@4.4.3)':
     dependencies:

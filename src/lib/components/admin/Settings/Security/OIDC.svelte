@@ -22,7 +22,7 @@
     </label>
     {#if enabled}
         <div class="grid grid-cols-1 gap-x-4 gap-y-2 pb-1 md:grid-cols-2">
-            <label class="label" for="oidcDiscoveryUrl">
+            <label class="m3-label" for="oidcDiscoveryUrl">
                 <Tooltip>
                     {#snippet label()}
                         <span>{$t("admin.oidc-url")}</span>
@@ -35,7 +35,7 @@
                 <input
                     id="oidcDiscoveryUrl"
                     name="oidcDiscoveryUrl"
-                    class="input"
+                    class="m3-input"
                     autocomplete="off"
                     required
                     type="url"
@@ -43,24 +43,24 @@
                 />
             </label>
 
-            <label class="label" for="oidcProviderName">
+            <label class="m3-label" for="oidcProviderName">
                 <span>{$t("admin.oidc-provider-name")}</span>
                 <input
                     id="oidcProviderName"
                     name="oidcProviderName"
-                    class="input"
+                    class="m3-input"
                     autocomplete="off"
                     placeholder={$t("general.oauth")}
                     type="text"
                     value={config.oidc.providerName}
                 />
             </label>
-            <label class="label" for="oidcClientId">
+            <label class="m3-label" for="oidcClientId">
                 <span>{$t("admin.oidc-client-id")}</span>
                 <input
                     id="oidcClientId"
                     name="oidcClientId"
-                    class="input"
+                    class="m3-input"
                     autocomplete="off"
                     required
                     type="text"
@@ -77,12 +77,12 @@
             />
 
             <Setting>
-                <label class="label" for="oidcNameClaim">
+                <label class="m3-label" for="oidcNameClaim">
                     <span>Name claim</span>
                     <input
                         id="oidcNameClaim"
                         name="oidcNameClaim"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         placeholder="name"
                         type="text"
@@ -95,12 +95,12 @@
             </Setting>
 
             <Setting>
-                <label class="label" for="oidcUsernameClaim">
+                <label class="m3-label" for="oidcUsernameClaim">
                     <span>Username claim</span>
                     <input
                         id="oidcUsernameClaim"
                         name="oidcUsernameClaim"
-                        class="input"
+                        class="m3-input"
                         autocomplete="off"
                         placeholder="preferred_username"
                         type="text"

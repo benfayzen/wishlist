@@ -15,7 +15,7 @@ import z from "zod";
 import type { List, Prisma } from "$lib/generated/prisma/client";
 import { userCanEditOnSomeList } from "$lib/item-util";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
     const user = requireLogin();
 
     const $t = await getFormatter();
@@ -42,6 +42,9 @@ export const load: PageServerLoad = async ({ params }) => {
                         select: {
                             id: true,
                             ownerId: true,
+                            iconColor: true,
+                            public: true,
+                            groupId: true,
                             managers: {
                                 select: {
                                     userId: true
@@ -62,7 +65,24 @@ export const load: PageServerLoad = async ({ params }) => {
 
     const lists = await getAvailableLists(item.userId, user.id);
 
+    const originPath = url.searchParams.get("redirectTo");
+    const originId = originPath?.match(/^\/lists\/([^/?#]+)(?:[?#].*)?$/)?.[1];
+    const activeMembership = await client.userGroupMembership.findFirst({
+        where: { userId: user.id, active: true },
+        select: { groupId: true }
+    });
+    const contextList = item.lists.find(
+        ({ list }) =>
+            list.id === originId &&
+            (list.groupId === activeMembership?.groupId || (list.public && list.ownerId !== user.id)) &&
+            (item.userId === user.id ||
+                item.createdById === user.id ||
+                list.ownerId === user.id ||
+                list.managers.some(({ userId }) => userId === user.id))
+    );
+
     return {
+        themeSeed: contextList?.list.iconColor,
         user,
         item: {
             ...item,

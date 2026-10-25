@@ -9,14 +9,14 @@
         placeholder?: string;
         value?: string | null;
     }
-    let { value, ...rest }: Props = $props();
+    let { value = $bindable(), ...rest }: Props = $props();
     const t = getFormatter();
 
     let currentTab = $state("write");
     let previewNote = $derived(currentTab === "preview");
 </script>
 
-<div class="card preset-filled-surface-100-900 p-2">
+<div class="m3-editor">
     <Tabs class="border-none" onValueChange={({ value }) => (currentTab = value)} value={currentTab}>
         <Tabs.List class="flex overflow-auto">
             <Tabs.Trigger value={"write"}>{$t("wishes.write")}</Tabs.Trigger>
@@ -24,18 +24,19 @@
             <Tabs.Indicator />
         </Tabs.List>
     </Tabs>
-    <textarea {...rest} class="textarea" class:hidden={previewNote} rows="4" bind:value></textarea>
+    <textarea {...rest} class="m3-textarea" class:hidden={previewNote} rows="4" bind:value></textarea>
     {#if previewNote}
         {#if value}
-            <div
-                class="preset-outlined-surface-500 rounded-container h-28 max-w-none overflow-auto px-3 py-2 whitespace-pre-wrap"
-                data-testid="markdown-preview"
-            >
+            <div class="m3-editor-preview" data-testid="markdown-preview">
                 <Markdown source={value} />
             </div>
         {/if}
     {/if}
-    <a class="preset-tonal btn btn-sm mt-1" href="https://www.markdownguide.org/basic-syntax/" target="_blank">
+    <a
+        class="m3-secondary m3-button m3-button-small mt-1"
+        href="https://www.markdownguide.org/basic-syntax/"
+        target="_blank"
+    >
         <iconify-icon icon="ion:logo-markdown"></iconify-icon>
         <span>{$t("wishes.supports-markdown")}</span>
     </a>

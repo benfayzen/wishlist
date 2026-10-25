@@ -64,12 +64,12 @@
 
     <div class="flex flex-col gap-2">
         {#if smtpEnabled}
-            <label class="label w-fit" for="invite-email">
+            <label class="m3-label w-fit" for="invite-email">
                 <span>{$t("auth.email")}</span>
                 <input
                     id="invite-email"
                     name="invite-email"
-                    class={["input", emailError && "input-invalid"]}
+                    class={["m3-input", emailError && "m3-invalid"]}
                     aria-invalid={emailError}
                     autocomplete="off"
                     required
@@ -87,7 +87,7 @@
                 <Listbox.Content
                     class={[
                         "preset-filled-surface-200-800 preset-outlined-surface-300-700 pt-3",
-                        groupError && "input-invalid!"
+                        groupError && "m3-invalid!"
                     ]}
                 >
                     {#each collection.items as item (item.id)}
@@ -116,15 +116,12 @@
                     <button {...props} class={positiveStyle}>{$t("auth.invite-via")}</button>
                 {/snippet}
                 {#snippet content(props)}
-                    <div {...props} class="card preset-filled-surface-100-900 p-4 shadow-xl">
+                    <div {...props} class="m3-card p-4 shadow-xl">
                         <div class="flex flex-row gap-x-4">
-                            <button
-                                class="preset-tonal-primary border-primary-500 btn border"
-                                onclick={() => onFormSubmit("link")}
-                            >
+                            <button class="m3-secondary m3-button" onclick={() => onFormSubmit("link")}>
                                 {$t("general.invite-link")}
                             </button>
-                            <button class="preset-filled-primary-500 btn" onclick={() => onFormSubmit("email")}>
+                            <button class="m3-primary m3-button" onclick={() => onFormSubmit("email")}>
                                 {$t("auth.email")}
                             </button>
                         </div>

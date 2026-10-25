@@ -12,17 +12,18 @@
 
 {#if data.smtpEnabled}
     <div class="flex flex-col items-center space-y-4">
-        <h1 class="h1">{$t("auth.reset-password")}</h1>
+        <h1 class="m3-page-title">{$t("auth.reset-password")}</h1>
         {#if form?.success}
-            <div class="flex w-80 flex-col items-center space-y-1 text-center md:w-full">
+            <div class="flex w-full max-w-md flex-col items-center space-y-1 text-center md:w-full">
                 <iconify-icon icon="ion:checkmark-circle-outline" width="100"></iconify-icon>
                 <span class="text-xl font-bold">{$t("general.success")}</span>
                 <p>{$t("auth.check-your-email")}</p>
             </div>
         {:else}
-            <p class="w-80 text-center">{$t("auth.enter-email")}</p>
+            <p class="w-full max-w-md text-center">{$t("auth.enter-email")}</p>
             <form
-                class="w-80"
+                class="w-full max-w-md"
+                aria-busy={loading}
                 method="POST"
                 use:enhance={() => {
                     loading = true;
@@ -38,8 +39,8 @@
                         <input
                             id="email"
                             name="email"
-                            class="input"
-                            class:input-invalid={form?.errors?.email}
+                            class="m3-input"
+                            class:m3-invalid={form?.errors?.email}
                             required
                             type="email"
                         />
@@ -49,7 +50,9 @@
                     {/if}
 
                     <div>
-                        <button class="preset-filled-primary-500 btn" type="submit">{$t("general.submit")}</button>
+                        <button class="m3-primary m3-button" disabled={loading} type="submit">
+                            {$t("general.submit")}
+                        </button>
                     </div>
                 </div>
             </form>
@@ -57,7 +60,7 @@
     </div>
 {:else}
     <div class="flex flex-col items-center space-y-4">
-        <h1 class="h1">{$t("auth.self-service-password-reset-unavailable")}</h1>
+        <h1 class="m3-page-title">{$t("auth.self-service-password-reset-unavailable")}</h1>
         <span class="text-xl">{$t("auth.contact-admin")}</span>
         <a class="anchor" href="/login">{$t("auth.return-to-login")}</a>
     </div>

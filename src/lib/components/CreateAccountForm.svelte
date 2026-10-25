@@ -18,16 +18,16 @@
     let passwordConfirm = $state("");
 </script>
 
-<div class="bg-surface-100-900 card border-surface-200-800 flex flex-col space-y-4 border p-4">
+<div class=" m3-card flex flex-col space-y-4 p-4">
     {#if data.id}
         <input id="tokenId" name="tokenId" class="hidden" value={data.id} />
     {/if}
-    <label class="label" for="name">
+    <label class="m3-label" for="name">
         <span>{$t("auth.name")}</span>
         <input
             id="name"
             name="name"
-            class={["input", formData?.errors?.name && "input-invalid"]}
+            class={["m3-input", formData?.errors?.name && "m3-invalid"]}
             autocomplete="name"
             required
             type="text"
@@ -38,12 +38,12 @@
     </label>
 
     <div class="flex flex-col space-y-4 md:flex-row md:space-y-0 md:gap-x-2">
-        <label class="label" for="username">
+        <label class="m3-label" for="username">
             <span>{$t("auth.username")}</span>
             <input
                 id="username"
                 name="username"
-                class={["input", formData?.errors?.username && "input-invalid"]}
+                class={["m3-input", formData?.errors?.username && "m3-invalid"]}
                 autocapitalize="off"
                 autocomplete="username"
                 required
@@ -53,12 +53,12 @@
                 <span class="text-invalid">{formData.errors.username[0]}</span>
             {/if}
         </label>
-        <label class="label" for="email">
+        <label class="m3-label" for="email">
             <span>{$t("auth.email")}</span>
             <input
                 id="email"
                 name="email"
-                class={["input", formData?.errors?.email && "input-invalid"]}
+                class={["m3-input", formData?.errors?.email && "m3-invalid"]}
                 autocomplete="email"
                 required
                 type="email"
@@ -92,11 +92,7 @@
 
     {#if !hideActions}
         <div class="flex items-center justify-center gap-x-4 pb-2">
-            <button
-                class="preset-filled-primary-500 btn w-min"
-                disabled={password !== passwordConfirm || signingIn}
-                type="submit"
-            >
+            <button class="m3-primary m3-button" disabled={password !== passwordConfirm || signingIn} type="submit">
                 {#if signingIn}
                     <span class="loading loading-spinner loading-xs"></span>
                 {/if}

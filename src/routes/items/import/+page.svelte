@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import { enhance } from "$app/forms";
     import { getFormatter } from "$lib/i18n";
     import type { PageProps } from "./$types";
@@ -15,25 +16,25 @@
 </script>
 
 <div class="flex w-full flex-col items-center">
-    <form class="card flex w-2/3 flex-col gap-4 p-4" method="POST" use:enhance>
+    <form class="m3-card flex w-2/3 flex-col gap-4 p-4" method="POST" use:enhance>
         {#if !data.url}
             <div class="flex flex-col gap-2">
-                <h2 class="h2">{$t("wishes.import-error-title")}</h2>
+                <h2 class="m3-headline">{$t("wishes.import-error-title")}</h2>
                 <span>{$t("wishes.import-error-text")}</span>
             </div>
         {:else}
             <div>
-                <h2 class="h2">{$t("wishes.import-item")}</h2>
+                <h2 class="m3-headline">{$t("wishes.import-item")}</h2>
                 <span>{$t("wishes.import-item-text")}</span>
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="label w-full">
+                <label class="m3-label w-full">
                     <span>{$t("admin.select-a-group-option")}</span>
 
-                    <select
+                    <Select
                         name="group"
-                        class="select"
+                        class="m3-select"
                         onchange={(e) => (selectedGroupId = e.currentTarget.value)}
                         required
                         value={currentGroup?.id}
@@ -41,19 +42,19 @@
                         {#each data.groups as group}
                             <option value={group.id}>{group.name}</option>
                         {/each}
-                    </select>
+                    </Select>
 
                     {#if form?.group}
                         <span class="text-invalid">{form.group}</span>
                     {/if}
                 </label>
 
-                <label class="label w-full">
+                <label class="m3-label w-full">
                     <span>{$t("wishes.select-a-list")}</span>
 
-                    <select
+                    <Select
                         name="list"
-                        class="select"
+                        class="m3-select"
                         disabled={selectedGroupId === undefined || lists.length === 0}
                         required
                     >
@@ -65,7 +66,7 @@
                                 list.name || $t("wishes.wishes-for", { values: { listOwner: list.owner.name } })}; }
                             <option value={list.id}>{listName}</option>
                         {/each}
-                    </select>
+                    </Select>
 
                     {#if form?.list}
                         <span class="text-invalid">{form.list}</span>
@@ -76,7 +77,7 @@
             </div>
 
             <div class="flex flex-row-reverse">
-                <button class="preset-filled-primary-500 btn">{$t("general.import")}</button>
+                <button class="m3-primary m3-button">{$t("general.import")}</button>
             </div>
         {/if}
     </form>

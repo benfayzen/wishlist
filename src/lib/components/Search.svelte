@@ -20,12 +20,12 @@
     });
 </script>
 
-<label class="label w-fit">
+<label class="m3-label w-fit">
     <span>{$t("general.search")}</span>
-    <div class="input-group grid-cols-[auto_1fr_auto]">
-        <div class="ig-cell preset-tonal">
+    <div class="m3-field grid-cols-[auto_1fr_auto]">
+        <div class="m3-field-slot">
             <iconify-icon class="text-lg" icon="ion:search"></iconify-icon>
         </div>
-        <input class="ig-input" type="search" bind:value={search} />
+        <input class="m3-field-input" type="search" bind:value={search} />
     </div>
 </label>

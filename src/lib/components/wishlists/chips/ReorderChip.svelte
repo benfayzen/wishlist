@@ -10,16 +10,17 @@
     const t = getFormatter();
 </script>
 
-<div>
-    {#if reordering}
-        <button class="preset-tonal-secondary border-secondary-500 chip border" onclick={onFinalize}>
-            <iconify-icon icon="ion:checkmark"></iconify-icon>
-            <span>{$t("wishes.finish")}</span>
-        </button>
-    {:else}
-        <button class="preset-filled-primary-500 chip" onclick={() => (reordering = true)}>
-            <iconify-icon icon="ion:reorder-four"></iconify-icon>
-            <span>{$t("wishes.reorder")}</span>
-        </button>
-    {/if}
-</div>
+<button
+    class="m3-action-pill"
+    aria-pressed={reordering}
+    onclick={() => (reordering ? onFinalize() : (reordering = true))}
+    type="button"
+>
+    <span class="m3-action-pill-surface">
+        <iconify-icon
+            aria-hidden="true"
+            icon={reordering ? "material-symbols:check-rounded" : "material-symbols:reorder-rounded"}
+        ></iconify-icon>
+        <span>{reordering ? $t("wishes.finish") : $t("wishes.reorder")}</span>
+    </span>
+</button>

@@ -1,0 +1,219 @@
+/* M3 surface roles, dialog shape and touch targets. Panel placement, grouping,
+   spacing and the 840px adaptation threshold are product design decisions. */
+@layer components {
+    .m3-account-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        background: rgb(0 0 0 / 32%);
+    }
+    .m3-account-positioner {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        padding: 1rem;
+    }
+    .m3-account-panel {
+        display: flex;
+        flex-direction: column;
+        inline-size: 28rem;
+        max-inline-size: 100%;
+        max-block-size: 100%;
+        min-block-size: 0;
+        overflow: hidden;
+        border-radius: var(--md-shape-extra-large);
+        background: var(--md-surface-container-high);
+        color: var(--md-on-surface);
+        box-shadow: 0 6px 28px rgb(0 0 0 / 18%);
+        transform-origin: top right;
+        animation: m3-account-enter var(--md-motion-spatial);
+    }
+    .m3-account-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        min-block-size: 3.5rem;
+        gap: 1rem;
+        padding: 0.5rem 0.75rem 0.5rem 1.5rem;
+        font-size: 1.125rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+    }
+    .m3-account-close {
+        flex-shrink: 0;
+        color: var(--md-on-surface-variant);
+        font-size: 1.5rem;
+    }
+    .m3-account-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        min-block-size: 0;
+        padding: 0.25rem 1rem 1.25rem;
+        overflow: auto;
+        overscroll-behavior: contain;
+    }
+    .m3-account-identity {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: var(--md-shape-extra-large);
+        background: var(--md-surface-container-lowest);
+    }
+    .m3-account-details {
+        min-inline-size: 0;
+        overflow-wrap: anywhere;
+    }
+    .m3-account-name {
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 600;
+    }
+    .m3-account-email {
+        margin-block-start: 0.25rem;
+        color: var(--md-on-surface-variant);
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+    .m3-account-section-title {
+        padding: 0 1rem 0.5rem;
+        color: var(--md-on-surface-variant);
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 500;
+    }
+    .m3-account-section {
+        padding: 0.25rem;
+        list-style: none;
+        border-radius: var(--md-shape-extra-large);
+        background: var(--md-surface-container-lowest);
+    }
+    .m3-account-action,
+    .m3-account-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        inline-size: 100%;
+        min-block-size: 3.5rem;
+        padding: 0.875rem 1rem;
+        border-radius: 1.5rem;
+        text-align: start;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        overflow-wrap: anywhere;
+    }
+    .m3-account-action {
+        cursor: pointer;
+        transition: background-color var(--md-motion-effects);
+    }
+    .m3-account-action > span,
+    .m3-account-group > span {
+        flex: 1;
+        min-inline-size: 0;
+    }
+    .m3-account-action iconify-icon,
+    .m3-account-group iconify-icon {
+        flex-shrink: 0;
+        font-size: 1.5rem;
+        color: var(--md-on-surface-variant);
+    }
+    .m3-account-primary {
+        color: var(--md-primary);
+        font-weight: 600;
+    }
+    .m3-account-primary iconify-icon {
+        color: inherit;
+    }
+    .m3-account-chevron {
+        margin-inline-start: auto;
+    }
+    [dir="rtl"] .m3-account-chevron {
+        transform: rotate(180deg);
+    }
+    .m3-account-group {
+        color: var(--md-on-secondary-container);
+        background: var(--md-secondary-container);
+        font-weight: 600;
+    }
+    .m3-account-group iconify-icon {
+        color: inherit;
+    }
+    .m3-account-appearance {
+        padding: 0.75rem 1rem 1rem;
+    }
+    .m3-account-appearance .m3-mode-control {
+        gap: 0.75rem;
+    }
+    .m3-account-appearance .m3-mode-label {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+    .m3-account-appearance .m3-connected-group {
+        inline-size: 100%;
+    }
+    .m3-account-appearance .m3-connected-button {
+        flex: 1;
+        min-inline-size: 0;
+    }
+    .m3-account-signout {
+        justify-content: center;
+        min-block-size: 3rem;
+        border: 1px solid var(--md-outline);
+        border-radius: var(--md-shape-full);
+    }
+    .m3-account-signout > span {
+        flex: initial;
+    }
+    .m3-account-action:hover,
+    .m3-account-action:active {
+        background: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
+    }
+    .m3-account-action:focus-visible,
+    .m3-account-close:focus-visible {
+        outline: 3px solid var(--md-primary);
+        outline-offset: -3px;
+    }
+    @media (width < 840px) {
+        .m3-account-positioner {
+            padding: 0;
+        }
+        .m3-account-panel {
+            inline-size: 100%;
+            block-size: 100dvh;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .m3-account-header {
+            padding-block-start: max(0.5rem, env(safe-area-inset-top));
+            padding-inline-start: max(1.25rem, env(safe-area-inset-left));
+            padding-inline-end: max(0.75rem, env(safe-area-inset-right));
+        }
+        .m3-account-body {
+            flex: 1;
+            padding-inline-start: max(1rem, env(safe-area-inset-left));
+            padding-inline-end: max(1rem, env(safe-area-inset-right));
+            padding-block-end: max(1.5rem, env(safe-area-inset-bottom));
+        }
+        .m3-account-signout {
+            margin-block-start: auto;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .m3-account-panel {
+            animation: none;
+        }
+    }
+}
+@keyframes m3-account-enter {
+    from {
+        transform: translateY(0.75rem) scale(0.98);
+    }
+    to {
+        transform: translateY(0) scale(1);
+    }
+}

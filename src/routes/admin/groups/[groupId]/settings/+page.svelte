@@ -40,8 +40,8 @@
         <span>{page.form.error}</span>
     {/if}
 
-    <div class="flex w-full flex-row justify-end pt-6">
-        <button class="preset-filled-primary-500 btn" disabled={saving} type="submit">
+    <div class="admin-save-actions">
+        <button class="m3-primary m3-button" disabled={saving} type="submit">
             {#if saving}
                 <span class="loading loading-spinner loading-xs"></span>
             {/if}

@@ -8,13 +8,14 @@
 @import "./styles/loading.css";
 @import "./styles/print.css";
 @import "./styles/table.css";
-@import "./styles/button.css";
-@import "./styles/input.css";
+
+@import "./styles/material.css";
+@import "./styles/expressive.css";
+@import "./styles/account-menu.css";
+@import "./styles/admin.css";
 @import "./styles/tabs.css";
 @import "./styles/alert.css";
 @import "./styles/dialog.css";
-
-@plugin "@tailwindcss/forms";
 
 @layer wishlist;
 
@@ -74,11 +75,13 @@
     }
 
     .subtext {
-        @apply text-surface-900/70 dark:text-surface-50/50 text-sm;
+        color: var(--md-on-surface-variant);
+        font-size: 0.875rem;
+        font-weight: 400;
     }
 
     .text-subtle {
-        @apply text-surface-900/70 dark:text-surface-50/50;
+        color: var(--md-on-surface-variant);
     }
 }
 
@@ -99,19 +102,8 @@
         }
     }
 
-    .card-hover {
-        @variant hover {
-            scale: 101% 101%;
-            box-shadow: var(--shadow-xl);
-        }
-    }
-
     .text-tiny {
         font-size: calc(0.6rem /* 12px */ * var(--text-scaling));
-    }
-
-    .input-invalid {
-        @apply preset-outlined-error-700-300;
     }
 
     .text-invalid {

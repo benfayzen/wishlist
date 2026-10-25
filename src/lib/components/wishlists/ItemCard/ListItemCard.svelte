@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { getFormatter } from "$lib/i18n";
     import type { InternalItemCardProps } from "./ItemCard.svelte";
     import type { MessageFormatter } from "$lib/server/i18n";
     import ItemNameHeader from "./components/ItemNameHeader.svelte";
@@ -6,22 +7,26 @@
     import ItemFooter from "./components/ItemFooter.svelte";
     import ItemImage from "./components/ItemImage.svelte";
 
+    const t = getFormatter();
     const { defaultImage: _defaultImage, ...props }: InternalItemCardProps = $props();
 </script>
 
-<ItemNameHeader {...props} />
-
-<div class="flex flex-row gap-x-4 p-4 print:pt-1">
-    <ItemImage class="aspect-square h-24 w-24 rounded object-contain md:h-40 md:w-40" {...props} shrinkBadge>
-        {#snippet defaultImage(t: MessageFormatter)}
-            {@render _defaultImage(t, "aspect-square size-24 rounded md:size-40")}
-        {/snippet}
-    </ItemImage>
-
-    <div class="flex flex-col">
-        <ItemAttributes {...props} />
+<div class="m3-item-row">
+    <div class="m3-item-media">
+        <div class="absolute inset-0">
+            <ItemImage class="h-full w-full object-cover" {...props} shrinkBadge>
+                {#snippet defaultImage(t: MessageFormatter)}
+                    {@render _defaultImage(t, "h-full w-full")}
+                {/snippet}
+            </ItemImage>
+        </div>
+    </div>
+    <div class="m3-item-content">
+        {#if props.item.mostWanted}
+            <span class="m3-mobile-wish-priority text-sm font-semibold">{$t("wishes.most-wanted")}</span>
+        {/if}
+        <ItemNameHeader {...props} />
+        <div class="min-w-0"><ItemAttributes {...props} /></div>
+        <ItemFooter {...props} />
     </div>
 </div>
-
-<!-- Footer with buttons -->
-<ItemFooter {...props} />

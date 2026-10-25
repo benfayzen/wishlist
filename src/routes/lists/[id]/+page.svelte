@@ -7,8 +7,8 @@
     import { onMount } from "svelte";
     import { flip } from "svelte/animate";
     import { quintOut } from "svelte/easing";
+    import { motionDuration } from "$lib/motion";
     import { crossfade } from "svelte/transition";
-    import { isInstalled } from "$lib/stores/is-installed";
     import empty from "$lib/assets/no_wishes.svg";
     import SortBy from "$lib/components/wishlists/chips/SortBy.svelte";
     import { hash, hashItems, viewedItems } from "$lib/stores/viewed-items";
@@ -54,18 +54,18 @@
     initListViewPreference(data.initialViewPreference);
     let isTileView = $derived(getListViewPreference() === "tile");
 
-    const flipDurationMs = 200;
+    const flipDurationMs = motionDuration(200);
     const listAPI = $derived(new ListAPI(data.list.id));
 
     const [send, receive] = crossfade({
-        duration: (d) => Math.sqrt(d * 200),
+        duration: (d) => motionDuration(Math.sqrt(d * 200)),
 
         fallback(node) {
             const style = getComputedStyle(node);
             const transform = style.transform === "none" ? "" : style.transform;
 
             return {
-                duration: 600,
+                duration: motionDuration(600),
                 easing: quintOut,
                 css: (t) => `
 					transform: ${transform} scale(${t});
@@ -265,7 +265,8 @@
             <Markdown source={data.list.description} />
         {/if}
         <button
-            class="text-primary-700 dark:text-primary-500 text-sm print:hidden"
+            class="m3-button m3-text-button print:hidden"
+            aria-expanded={!hideDescription}
             onclick={() => (hideDescription = !hideDescription)}
         >
             {hideDescription ? $t("wishes.show-description") : $t("wishes.hide-description")}
@@ -273,23 +274,28 @@
     </div>
 {/if}
 
-<!-- chips -->
-<div class="flex flex-wrap items-end justify-between gap-2 pb-4 print:hidden">
-    <div class="flex flex-row flex-wrap items-end gap-2">
+<div class="m3-wishlist-toolbar print:hidden">
+    <div class="m3-wishlist-filters">
         {#if !data.list.owner.isMe || data.list.isSelfClaimable}
-            <ClaimFilterChip />
+            <div class="m3-wishlist-claim-filter">
+                <ClaimFilterChip />
+            </div>
         {/if}
-        <SortBy />
+        <div class="m3-wishlist-sort">
+            <SortBy />
+        </div>
     </div>
-    <div class="flex flex-row flex-wrap items-end gap-2">
-        {#if !reordering}
+    {#if !reordering}
+        <div class="m3-wishlist-view">
             <ListViewModeChip {isTileView} />
-        {/if}
-        {#if data.list.owner.isMe || data.list.isManager}
-            <ReorderChip onFinalize={handleReorderFinalize} bind:reordering />
+        </div>
+    {/if}
+    {#if data.list.owner.isMe || data.list.isManager}
+        <div class="m3-wishlist-actions">
             <ManageListChip onclick={() => goto(`${new URL(page.url).pathname}/manage`)} />
-        {/if}
-    </div>
+            <ReorderChip onFinalize={handleReorderFinalize} bind:reordering />
+        </div>
+    {/if}
 </div>
 
 {#if data.list.owner.isMe || data.list.isManager}
@@ -298,11 +304,11 @@
         {#if data.listMode === "registry" || data.list.public}
             <div class="flex flex-row gap-x-2">
                 {#if publicListUrl}
-                    <TokenCopy btnStyle="btn-xs" url={publicListUrl?.href}>
+                    <TokenCopy btnStyle="m3-button-small" url={publicListUrl?.href}>
                         <span class="text-sm">{$t("wishes.public-url")}</span>
                     </TokenCopy>
                 {:else}
-                    <button class="btn btn-xs inset-ring-surface-500 inset-ring" onclick={getOrCreatePublicList}>
+                    <button class="m3-button m3-button-small" onclick={getOrCreatePublicList}>
                         {$t("wishes.share")}
                     </button>
                 {/if}
@@ -313,7 +319,7 @@
 
 {#if (data.list.owner.isMe || data.list.isManager) && approvals.length > 0}
     <div class="flex flex-col space-y-4 pb-4 print:hidden">
-        <h2 class="h2">{$t("wishes.approvals")}</h2>
+        <h2 class="m3-headline">{$t("wishes.approvals")}</h2>
         <div
             class={isTileView
                 ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
@@ -321,7 +327,11 @@
             data-testid="approvals-container"
         >
             {#each approvals as item (item.id)}
-                <div in:receive={{ key: item.id }} out:send|local={{ key: item.id }} animate:flip={{ duration: 200 }}>
+                <div
+                    in:receive={{ key: item.id }}
+                    out:send|local={{ key: item.id }}
+                    animate:flip={{ duration: motionDuration(200) }}
+                >
                     <ItemCard
                         groupId={data.list.groupId}
                         {isTileView}
@@ -423,14 +433,13 @@
 <!-- Add Item button -->
 {#if data.loggedInUser && (data.list.owner.isMe || data.list.isManager || data.suggestionsEnabled)}
     <button
-        class={[
-            "preset-tonal btn btn-icon btn-icon-sm md:btn-icon-base inset-ring-surface-200-800 fixed right-4 z-30 size-16 p-0! inset-ring md:right-10 md:bottom-10 md:size-20 print:hidden",
-            $isInstalled ? "bottom-24" : "bottom-4"
-        ]}
-        aria-label="add item"
+        class="m3-fab m3-page-fab print:hidden"
+        aria-label={$t("wishes.add-item")}
         onclick={() => goto(`${page.url.pathname}/create-item?redirectTo=${page.url.pathname}`, { replaceState: true })}
+        title={$t("wishes.add-item")}
     >
-        <iconify-icon class="text-xl md:text-2xl" icon="ion:add"></iconify-icon>
+        <iconify-icon aria-hidden="true" icon="material-symbols:add-rounded"></iconify-icon>
+        <span class="m3-fab-label">{$t("wishes.add-item")}</span>
     </button>
 {/if}
 

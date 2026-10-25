@@ -11,6 +11,7 @@ declare module "virtual:pwa-register" {
 }
 
 type NavItem = {
+    outlinedIcon?: string;
     labelKey: string;
     href: (user?: LocalUser | null) => string;
     icon: string;

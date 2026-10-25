@@ -8,12 +8,12 @@
 
     let { checked = $bindable(), children, description, ...props }: Props = $props();
     let _id = $props.id();
-    let id = $derived(props.name || _id);
+    let id = $derived(_id);
     let descriptionId = $derived(_id + "_desc");
 </script>
 
 {#snippet checkbox()}
-    <div class="flex flex-row items-center gap-x-2">
+    <div class="m3-check">
         <input
             {id}
             class={["checkbox", props.class]}

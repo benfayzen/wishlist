@@ -14,7 +14,7 @@ test("unauthenticated", async ({ anonymousPage: page }) => {
 test("admin authenticated", async ({ adminPage: page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Overview", exact: true })).toBeVisible();
     const userMenu = new UserMenu(page);
     await userMenu.assertAdminButtonVisible();
 });
@@ -22,7 +22,7 @@ test("admin authenticated", async ({ adminPage: page }) => {
 test("user authenticated", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: "Lists" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Overview", exact: true })).toBeVisible();
     const userMenu = new UserMenu(page);
     await userMenu.assertAdminButtonNotVisible();
 });

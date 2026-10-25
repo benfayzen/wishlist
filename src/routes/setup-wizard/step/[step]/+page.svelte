@@ -15,23 +15,25 @@
     };
 </script>
 
-<Steps count={steps.length} linear {onStepChange} {step}>
-    <Steps.List>
-        {#each { length: steps.length }, index}
-            <Steps.Item {index}>
-                <Steps.Indicator>{index + 1}</Steps.Indicator>
-                {#if index < steps.length - 1}
-                    <Steps.Separator />
-                {/if}
-            </Steps.Item>
-        {/each}
-    </Steps.List>
+{#key step}
+    <Steps count={steps.length} linear {onStepChange} {step}>
+        <Steps.List>
+            {#each { length: steps.length }, index}
+                <Steps.Item {index}>
+                    <Steps.Indicator>{index + 1}</Steps.Indicator>
+                    {#if index < steps.length - 1}
+                        <Steps.Separator />
+                    {/if}
+                </Steps.Item>
+            {/each}
+        </Steps.List>
 
-    <Steps.Content index={step}>
-        <Steps.Context>
-            {#snippet children(api)}
-                <Component onSuccess={() => api().goToNextStep()} />
-            {/snippet}
-        </Steps.Context>
-    </Steps.Content>
-</Steps>
+        <Steps.Content index={step}>
+            <Steps.Context>
+                {#snippet children(api)}
+                    <Component onSuccess={() => api().goToNextStep()} />
+                {/snippet}
+            </Steps.Context>
+        </Steps.Content>
+    </Steps>
+{/key}

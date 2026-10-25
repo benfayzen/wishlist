@@ -67,13 +67,13 @@
         <Listbox.Label class="text-base">{$t("general.search")}</Listbox.Label>
         <Listbox.Input>
             {#snippet element(props)}
-                <div class="input-group grid-cols-[auto_1fr]">
-                    <div class="ig-cell preset-tonal">
+                <div class="m3-field grid-cols-[auto_1fr]">
+                    <div class="m3-field-slot">
                         <iconify-icon icon="ion:search"></iconify-icon>
                     </div>
                     <input
                         {...props}
-                        class="ig-input rounded-l-none ring-0 focus:focus-within:ring-1"
+                        class="m3-field-input"
                         oninput={(e) => doSearch(e.currentTarget.value)}
                         type="search"
                         bind:value={searchValue}

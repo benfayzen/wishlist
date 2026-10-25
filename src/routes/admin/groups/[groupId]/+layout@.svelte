@@ -6,11 +6,12 @@
     import { getFormatter } from "$lib/i18n";
     import { resolve } from "$app/paths";
     import { onMount } from "svelte";
+    import { page } from "$app/state";
 
     const { data, children }: LayoutProps = $props();
     const t = getFormatter();
 
-    const groupAPI = new GroupAPI(data.group.id);
+    const groupAPI = $derived(new GroupAPI(data.group.id));
     let editing = $state(false);
     let newGroupName: string | undefined = $state();
     const saveGroupName = async () => {
@@ -29,7 +30,7 @@
 
     type TabOption = keyof typeof tabs;
 
-    let selectedTab: TabOption = $state("members");
+    let selectedTab: TabOption = $derived(page.url.pathname.endsWith("/settings") ? "settings" : "members");
 
     async function onValueChange(value: TabOption) {
         selectedTab = value;
@@ -47,43 +48,53 @@
     };
 </script>
 
-<div class="flex flex-row items-center gap-x-2">
-    {#if editing}
-        <input
-            class="input w-fit"
-            placeholder={data.group.name}
-            title={$t("admin.group-name")}
-            type="text"
-            bind:value={newGroupName}
-        />
-        <div class="-gap-x-2 flex flex-row items-center">
-            <button class="btn-icon pr-0" aria-label={$t("a11y.save-group-name")} onclick={() => saveGroupName()}>
-                <iconify-icon icon="ion:save" width="24px"></iconify-icon>
+<div class="admin-panel">
+    <div class="admin-group-heading">
+        {#if editing}
+            <input
+                class="m3-input"
+                placeholder={data.group.name}
+                title={$t("admin.group-name")}
+                type="text"
+                bind:value={newGroupName}
+            />
+            <div class="-gap-x-2 flex flex-row items-center">
+                <button
+                    class="m3-icon-button pr-0"
+                    aria-label={$t("a11y.save-group-name")}
+                    onclick={() => saveGroupName()}
+                >
+                    <iconify-icon icon="ion:save" width="24px"></iconify-icon>
+                </button>
+                <button
+                    class="m3-icon-button pl-0"
+                    aria-label={$t("a11y.cancel-editing")}
+                    onclick={() => (editing = !editing)}
+                >
+                    <iconify-icon class="text-error-500" icon="ion:close" width="24px"></iconify-icon>
+                </button>
+            </div>
+        {:else}
+            <h2 class="m3-headline">{data.group.name}</h2>
+            <button class="m3-icon-button" aria-label={$t("a11y.edit-group-name")} onclick={() => (editing = !editing)}>
+                <iconify-icon icon="ion:create-outline" width="24px"></iconify-icon>
             </button>
-            <button class="btn-icon pl-0" aria-label={$t("a11y.cancel-editing")} onclick={() => (editing = !editing)}>
-                <iconify-icon class="text-error-500" icon="ion:close" width="24px"></iconify-icon>
-            </button>
-        </div>
-    {:else}
-        <h2 class="h2 pb-2">{data.group.name}</h2>
-        <button class="btn-icon" aria-label={$t("a11y.edit-group-name")} onclick={() => (editing = !editing)}>
-            <iconify-icon icon="ion:create-outline" width="24px"></iconify-icon>
-        </button>
-    {/if}
+        {/if}
+    </div>
+
+    <Tabs {dir} onValueChange={({ value }) => onValueChange(value as TabOption)} value={selectedTab}>
+        <Tabs.List class="admin-group-tabs flex">
+            {#each Object.entries(tabs) as [value, { label }]}
+                <Tabs.Trigger {value}>
+                    {label}
+                </Tabs.Trigger>
+            {/each}
+            <Tabs.Indicator />
+        </Tabs.List>
+    </Tabs>
+
+    <div class="admin-content">{@render children?.()}</div>
 </div>
-
-<Tabs {dir} onValueChange={({ value }) => onValueChange(value as TabOption)} value={selectedTab}>
-    <Tabs.List class="flex overflow-auto">
-        {#each Object.entries(tabs) as [value, { label }]}
-            <Tabs.Trigger {value}>
-                {label}
-            </Tabs.Trigger>
-        {/each}
-        <Tabs.Indicator />
-    </Tabs.List>
-</Tabs>
-
-{@render children?.()}
 
 <svelte:head>
     <title>{$t("admin.group-settings")}</title>

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import { applyAction, enhance } from "$app/forms";
     import { page } from "$app/state";
     import { onMount } from "svelte";
@@ -30,7 +31,7 @@
 
 <div class="flex w-full flex-col space-y-4">
     <div class="flex flex-col items-center">
-        <h1 class="h1">{$t("setup.global-settings")}</h1>
+        <h1 class="m3-page-title">{$t("setup.global-settings")}</h1>
         <span>{$t("setup.global-settings-subtext")}</span>
     </div>
 
@@ -77,11 +78,11 @@
             </aside>
             <!-- Select nav for small screens -->
             <aside class="w-full md:hidden">
-                <select class="select w-full" onchange={(e) => goto(e.currentTarget.value)} value={currentHash}>
+                <Select class="m3-select w-full" onchange={(e) => goto(e.currentTarget.value)} value={currentHash}>
                     {#each options as option}
                         <option value={option.hash}>{option.label($t)}</option>
                     {/each}
-                </select>
+                </Select>
             </aside>
             <!-- Settings -->
             <div class="w-full">

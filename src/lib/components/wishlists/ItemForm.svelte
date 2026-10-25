@@ -1,8 +1,9 @@
 <script lang="ts">
     import { page } from "$app/state";
     import type { Group, Item, ItemPrice, List, User } from "$lib/generated/prisma/client";
-    import Backdrop from "$lib/components/Backdrop.svelte";
+    import SplitSubmitButton from "$lib/components/SplitSubmitButton.svelte";
     import { getDefaultCurrency, getPriceValue } from "$lib/price-formatter";
+    import FormSection from "../FormSection.svelte";
     import CurrencyInput from "../CurrencyInput.svelte";
     import { onMount } from "svelte";
     import { getFormatter } from "$lib/i18n";
@@ -33,14 +34,22 @@
         currentList?: string;
         buttonText: string;
         saving: boolean;
+        productUrl?: string | null;
     }
 
-    let { userId, item = $bindable(), buttonText, lists: otherLists, currentList, saving = false }: Props = $props();
+    let {
+        userId,
+        item = $bindable(),
+        buttonText,
+        lists: otherLists,
+        currentList,
+        saving = false,
+        productUrl = page.url.searchParams.get("productUrl")
+    }: Props = $props();
     const t = getFormatter();
 
     let productData = $state(item);
     let form = $derived(page.form);
-    let url = $derived(page.url);
     let fetching = $state(false);
     let urlFetched = $state(false);
     let price: number | null = $state(getPriceValue(productData));
@@ -48,7 +57,6 @@
     let userCurrency: string = $derived(productData.itemPrice?.currency || defaultCurrency);
     let quantity = $state(item.quantity || 1);
     let unlimited = $state(item.quantity === null);
-    let submitSrc = $state("submit");
 
     const listsHavingItem = $derived.by(() => {
         return productData.lists
@@ -97,50 +105,55 @@
     };
 
     const getInfo = async () => {
-        if (productData.url && !urlFetched) {
+        if (productData.url && !urlFetched && !fetching) {
             fetching = true;
-            const url = extractUrl(productData.url);
-            const res = await fetch(`/api/product?url=${url}`);
-            if (res.ok) {
-                let newProductData: ProductData = await res.json();
-                productData.url = newProductData.url ? newProductData.url : url;
-                productData.name = newProductData.name ? newProductData.name : newProductData.title || "";
-                if (newProductData.image) {
-                    try {
-                        const imageUrl = new URL(newProductData.image);
-                        productData.imageUrl = imageUrl.href;
-                    } catch {
-                        if (newProductData.url) {
-                            try {
-                                const url = new URL(newProductData.url);
-                                const imageUrl = new URL(newProductData.image, url);
-                                productData.imageUrl = imageUrl.href;
-                            } catch {
-                                // invalid image, stop strying to make it work
+            try {
+                const url = extractUrl(productData.url);
+                const res = await fetch(`/api/product?url=${url}`);
+                if (res.ok) {
+                    let newProductData: ProductData = await res.json();
+                    productData.url = newProductData.url ? newProductData.url : url;
+                    productData.name = newProductData.name ? newProductData.name : newProductData.title || "";
+                    if (newProductData.image) {
+                        try {
+                            const imageUrl = new URL(newProductData.image);
+                            productData.imageUrl = imageUrl.href;
+                        } catch {
+                            if (newProductData.url) {
+                                try {
+                                    const url = new URL(newProductData.url);
+                                    const imageUrl = new URL(newProductData.image, url);
+                                    productData.imageUrl = imageUrl.href;
+                                } catch {
+                                    // invalid image, stop strying to make it work
+                                }
                             }
                         }
                     }
-                }
 
-                if (newProductData.price) {
-                    productData.itemPrice = {
-                        id: "temp-id",
-                        currency: newProductData.currency || defaultCurrency,
-                        value: newProductData.price
-                    };
-                    price = newProductData.price;
+                    if (newProductData.price) {
+                        productData.itemPrice = {
+                            id: "temp-id",
+                            currency: newProductData.currency || defaultCurrency,
+                            value: newProductData.price
+                        };
+                        price = newProductData.price;
+                    }
+                } else {
+                    triggerToast();
                 }
-            } else {
+                urlFetched = true;
+            } catch {
                 triggerToast();
+            } finally {
+                fetching = false;
             }
-            fetching = false;
-            urlFetched = true;
         }
     };
 
     onMount(async () => {
-        if (url.searchParams.has("productUrl")) {
-            productData.url = url.searchParams.get("productUrl");
+        if (productUrl) {
+            productData.url = productUrl;
             await getInfo();
         }
     });
@@ -169,268 +182,262 @@
     };
 </script>
 
-<div class="grid grid-cols-7 gap-4">
-    <label class="label col-span-full" for="url">
-        <span>{$t("wishes.item-url")}</span>
-        <div class="flex flex-row gap-x-4">
-            <div class="input-group w-full grid-cols-[auto_1fr_auto]">
-                <div class="ig-cell preset-tonal">
-                    <iconify-icon icon="ion:link"></iconify-icon>
-                </div>
-                <input
-                    id="url"
-                    name="url"
-                    class="ig-input"
-                    onfocusout={() => getInfo()}
-                    placeholder={$t("wishes.url-placeholder")}
-                    type="url"
-                    bind:value={productData.url}
-                />
-                {#if productData.url}
-                    <button
-                        id="reset-field"
-                        class="ig-cell"
-                        aria-label={$t("a11y.clear-url-field")}
-                        onclick={() => (productData.url = null)}
-                        onkeypress={(e) => e.preventDefault()}
-                        tabindex="-1"
-                        type="button"
-                    >
-                        <iconify-icon icon="ion:close-circle"></iconify-icon>
-                    </button>
-                {/if}
-            </div>
-            {#if productData.url}
-                <button
-                    id="refresh-item"
-                    class="preset-tonal-primary border-primary-500 btn btn-icon border"
-                    aria-label={$t("a11y.refresh-item-data")}
-                    onclick={(e) => {
-                        e.preventDefault();
-                        urlFetched = false;
-                        getInfo();
-                    }}
-                    onkeypress={(e) => e.preventDefault()}
-                    tabindex="-1"
-                    type="button"
-                >
-                    <iconify-icon icon="ion:refresh"></iconify-icon>
-                </button>
-            {/if}
-        </div>
-    </label>
-
-    <label class="label col-span-full xl:col-span-3" for="name">
-        <span>{$t("wishes.item-name")}*</span>
-        <div class="input-group grid-cols-[auto_1fr]">
-            <div class="ig-cell preset-tonal">
-                <iconify-icon icon="ion:bag-handle"></iconify-icon>
-            </div>
-            <input
-                id="name"
-                name="name"
-                class="ig-input"
-                class:input-invalid={form?.errors?.name}
-                autocomplete="off"
-                required
-                type="text"
-                bind:value={productData.name}
-            />
-        </div>
-        {#if form?.errors?.name}
-            <p class="text-invalid pt-2">{form.errors.name[0]}</p>
-        {/if}
-    </label>
-
-    <label class="label col-span-full sm:col-span-4 xl:col-span-2" for="price">
-        <span>{$t("wishes.price")}</span>
-        <CurrencyInput id="price" name="price" currency={userCurrency} bind:value={price} />
-    </label>
-
-    <div class="label col-span-full sm:col-span-3 xl:col-span-2">
-        <label class="pb-1" for="quantity">
-            <span>{$t("wishes.quantity")}</span>
-        </label>
-        <div class="flex flex-row items-center gap-2">
-            <div class="grow">
-                <div class="input-group grid-cols-[auto_1fr]">
-                    <div class="ig-cell preset-tonal">
-                        <iconify-icon icon="ion:gift"></iconify-icon>
+<fieldset class="m3-form-surface m3-import-form" aria-busy={saving} disabled={fetching}>
+    <FormSection title={$t("ui.product-link")}>
+        <div class="m3-form-grid">
+            <label class="m3-label col-span-full" for="url">
+                <span>{$t("wishes.item-url")}</span>
+                <div class="flex flex-row gap-x-4">
+                    <div class="m3-field w-full grid-cols-[auto_1fr_auto]">
+                        <div class="m3-field-slot">
+                            <iconify-icon icon="ion:link"></iconify-icon>
+                        </div>
+                        <input
+                            id="url"
+                            name="url"
+                            class="m3-field-input"
+                            onfocusout={() => getInfo()}
+                            placeholder={$t("wishes.url-placeholder")}
+                            type="url"
+                            bind:value={productData.url}
+                        />
+                        {#if productData.url}
+                            <button
+                                id="reset-field"
+                                class="m3-field-slot"
+                                aria-label={$t("a11y.clear-url-field")}
+                                onclick={() => (productData.url = null)}
+                                type="button"
+                            >
+                                <iconify-icon icon="ion:close-circle"></iconify-icon>
+                            </button>
+                        {/if}
                     </div>
-                    <input
-                        id="quantity"
-                        name="quantity"
-                        class="ig-input w-0 min-w-full"
-                        autocomplete="off"
-                        defaultValue={1}
-                        disabled={unlimited}
-                        inputmode="numeric"
-                        max="999"
-                        min="1"
-                        onchange={(e) => {
-                            if (!isNaN(e.currentTarget.valueAsNumber)) {
-                                quantity = e.currentTarget.valueAsNumber;
-                            }
-                        }}
-                        required={unlimited ? false : true}
-                        step="1"
-                        type={unlimited ? "text" : "number"}
-                        value={unlimited ? $t("general.na") : quantity}
-                    />
+                    {#if productData.url}
+                        <button
+                            id="refresh-item"
+                            class="m3-secondary m3-button m3-icon-button"
+                            aria-label={$t("a11y.refresh-item-data")}
+                            onclick={(e) => {
+                                e.preventDefault();
+                                urlFetched = false;
+                                getInfo();
+                            }}
+                            type="button"
+                        >
+                            <iconify-icon icon="ion:refresh"></iconify-icon>
+                        </button>
+                    {/if}
                 </div>
-            </div>
-            <label class="checkbox-label w-fit" for="unlimited">
-                <input id="unlimited" class="checkbox" type="checkbox" bind:checked={unlimited} />
-                <span>{$t("wishes.no-limit")}</span>
             </label>
         </div>
-        {#if form?.errors?.quantity}
-            <p class="text-invalid">{form.errors.quantity[0]}</p>
-        {/if}
-    </div>
-
-    <label class="label col-span-full md:col-span-3" for="image">
-        <span>{$t("wishes.upload-image")}</span>
-        <FileUpload name="image" class="py-1 pl-1" accept="image/*"></FileUpload>
-    </label>
-
-    <label class="label col-span-full md:col-span-4" for="imageUrl">
-        <span>{$t("wishes.image-url")}</span>
-        <div class="input-group grid-cols-[auto_1fr]">
-            <div class="ig-cell preset-tonal">
-                <iconify-icon icon="ion:image"></iconify-icon>
+        {#if fetching}
+            <div class="m3-inline-progress" role="status">
+                <span class="m3-linear-progress" aria-hidden="true"><span></span></span>
+                <span>{$t("wishes.hang-tight-gathering-product-data")}</span>
             </div>
-            <input
-                id="imageUrl"
-                name="imageUrl"
-                class="ig-input"
-                autocomplete="off"
-                type="text"
-                bind:value={productData.imageUrl}
-            />
-        </div>
-    </label>
-
-    <div class="col-span-full">
-        <label class="checkbox-label w-fit" for="mostWanted">
-            <input id="mostWanted" name="mostWanted" class="checkbox" checked={item.mostWanted} type="checkbox" />
-            <span>{$t("wishes.most-wanted")}</span>
-        </label>
-        <span class="subtext">{$t("wishes.most-wanted-description")}</span>
-    </div>
-
-    <label class="label col-span-full" for="note">
-        <span>{$t("wishes.notes")}</span>
-        <MarkdownEditor id="note" name="note" placeholder={$t("wishes.note-placeholder")} value={productData.note} />
-    </label>
-
-    <fieldset
-        class={[
-            "col-span-full flex flex-col space-y-2 md:col-span-5",
-            lists.usersLists.length + lists.managedLists.length <= 1 && "hidden"
-        ]}
-        aria-labelledby="lists-label"
-    >
-        <div class="flex items-end justify-between">
-            <legend id="lists-label">{$t("wishes.lists")}</legend>
-            {#if !item.createdById || item.createdById === userId}
-                <button
-                    class="preset-tonal-primary border-primary-500 btn btn-sm border"
-                    onclick={selectAll}
-                    type="button"
-                >
-                    {$t("general.select-all")}
-                </button>
-            {/if}
-        </div>
-
-        {#if item.createdById && item.createdById !== userId}
-            <p class="text-warning-800-200 text-sm">{$t("wishes.cannot-update-lists-of-item")}</p>
         {/if}
-
-        <div
-            class={[
-                "border-surface-500 rounded-container flex h-36 flex-col space-y-2 overflow-auto border p-2",
-                form?.errors?.lists && "input-invalid",
-                item.createdById && item.createdById !== userId && "disabled"
-            ]}
-        >
-            {#snippet displayList(list: ListProps)}
-                <label class="flex items-center gap-x-2" for={list.id}>
-                    <input
-                        id={list.id}
-                        name="lists"
-                        class="checkbox"
-                        checked={listsHavingItem[list.id] !== undefined}
-                        disabled={listsHavingItem[list.id] === false}
-                        type="checkbox"
-                        value={list.id}
-                    />
-                    <div class="mt-0! flex flex-row gap-x-2">
-                        <span>
-                            {list.name}
-                        </span>
-                        <span class="font-bold italic">({list.group.name})</span>
+    </FormSection>
+    <FormSection title={$t("ui.details")}>
+        <div class="m3-form-grid">
+            <label class="m3-label col-span-full xl:col-span-3" for="name">
+                <span>{$t("wishes.item-name")}*</span>
+                <div class="m3-field grid-cols-[auto_1fr]">
+                    <div class="m3-field-slot">
+                        <iconify-icon icon="ion:bag-handle"></iconify-icon>
                     </div>
-                </label>
-            {/snippet}
-            {#each lists.usersLists as list (list.id)}
-                {@render displayList(list)}
-            {/each}
-            {#each lists.managedLists as list, i (list.id)}
-                {#if i === 0}
-                    <span class="text-subtle">Managed lists</span>
+                    <input
+                        id="name"
+                        name="name"
+                        class="m3-field-input"
+                        class:m3-invalid={form?.errors?.name}
+                        aria-describedby={form?.errors?.name ? "name-error" : undefined}
+                        aria-invalid={!!form?.errors?.name}
+                        autocomplete="off"
+                        required
+                        type="text"
+                        bind:value={productData.name}
+                    />
+                </div>
+                {#if form?.errors?.name}
+                    <p id="name-error" class="text-invalid" role="alert">{form.errors.name[0]}</p>
                 {/if}
-                {@render displayList(list)}
-            {/each}
+            </label>
+
+            <div class="m3-label col-span-full sm:col-span-4 xl:col-span-2">
+                <label for="formatted-price">{$t("wishes.price")}</label>
+                <CurrencyInput id="price" name="price" currency={userCurrency} bind:value={price} />
+            </div>
+
+            <div class="m3-label col-span-full sm:col-span-3 xl:col-span-2">
+                <label for="quantity">
+                    <span>{$t("wishes.quantity")}</span>
+                </label>
+                <div class="flex flex-row items-center gap-2">
+                    <div class="min-w-0 grow">
+                        <div class="m3-field grid-cols-[auto_1fr]">
+                            <div class="m3-field-slot">
+                                <iconify-icon icon="ion:gift"></iconify-icon>
+                            </div>
+                            <input
+                                id="quantity"
+                                name="quantity"
+                                class="m3-field-input"
+                                autocomplete="off"
+                                defaultValue={1}
+                                disabled={unlimited}
+                                inputmode="numeric"
+                                max="999"
+                                min="1"
+                                onchange={(e) => {
+                                    if (!isNaN(e.currentTarget.valueAsNumber)) {
+                                        quantity = e.currentTarget.valueAsNumber;
+                                    }
+                                }}
+                                required={unlimited ? false : true}
+                                step="1"
+                                type={unlimited ? "text" : "number"}
+                                value={unlimited ? $t("general.na") : quantity}
+                            />
+                        </div>
+                    </div>
+                    <label class="checkbox-label w-fit" for="unlimited">
+                        <input id="unlimited" class="checkbox" type="checkbox" bind:checked={unlimited} />
+                        <span>{$t("wishes.no-limit")}</span>
+                    </label>
+                </div>
+                {#if form?.errors?.quantity}
+                    <p class="text-invalid">{form.errors.quantity[0]}</p>
+                {/if}
+            </div>
         </div>
-        {#if form?.errors?.lists}
-            <p class="text-invalid">{form.errors.lists[0]}</p>
-        {/if}
-    </fieldset>
+    </FormSection>
+    <FormSection title={$t("ui.images")}>
+        <div class="m3-form-grid">
+            <div class="m3-label col-span-full md:col-span-3">
+                <span>{$t("wishes.upload-image")}</span>
+                <FileUpload name="image" accept="image/*" label={$t("wishes.upload-image")} />
+            </div>
 
-    <span class="col-span-full text-sm">*{$t("general.required-field")}</span>
+            <label class="m3-label col-span-full md:col-span-4" for="imageUrl">
+                <span>{$t("wishes.image-url")}</span>
+                <div class="m3-field grid-cols-[auto_1fr]">
+                    <div class="m3-field-slot">
+                        <iconify-icon icon="ion:image"></iconify-icon>
+                    </div>
+                    <input
+                        id="imageUrl"
+                        name="imageUrl"
+                        class="m3-field-input"
+                        autocomplete="off"
+                        type="text"
+                        bind:value={productData.imageUrl}
+                    />
+                </div>
+            </label>
 
-    <div class="col-span-full flex w-full flex-col-reverse gap-2 sm:w-full sm:flex-row sm:justify-between">
-        <button
-            class="preset-tonal-secondary border-secondary-500 btn border"
-            disabled={fetching || saving}
-            onclick={onCancel}
-            type="button"
-        >
+            <div class="col-span-full">
+                <label class="checkbox-label w-fit" for="mostWanted">
+                    <input
+                        id="mostWanted"
+                        name="mostWanted"
+                        class="checkbox"
+                        checked={item.mostWanted}
+                        type="checkbox"
+                    />
+                    <span>{$t("wishes.most-wanted")}</span>
+                </label>
+                <span class="subtext">{$t("wishes.most-wanted-description")}</span>
+            </div>
+        </div>
+    </FormSection>
+    <FormSection title={$t("ui.notes-and-lists")}>
+        <div class="m3-form-grid">
+            <div class="m3-label col-span-full">
+                <label for="note">{$t("wishes.notes")}</label>
+                <MarkdownEditor
+                    id="note"
+                    name="note"
+                    placeholder={$t("wishes.note-placeholder")}
+                    value={productData.note}
+                />
+            </div>
+
+            <fieldset
+                class={[
+                    "col-span-full flex flex-col space-y-2 md:col-span-5",
+                    lists.usersLists.length + lists.managedLists.length <= 1 && "hidden"
+                ]}
+                aria-labelledby="lists-label"
+            >
+                <div class="flex items-end justify-between">
+                    <legend id="lists-label">{$t("wishes.lists")}</legend>
+                    {#if !item.createdById || item.createdById === userId}
+                        <button class="m3-secondary m3-button m3-button-small" onclick={selectAll} type="button">
+                            {$t("general.select-all")}
+                        </button>
+                    {/if}
+                </div>
+
+                {#if item.createdById && item.createdById !== userId}
+                    <p class="text-warning-800-200 text-sm">{$t("wishes.cannot-update-lists-of-item")}</p>
+                {/if}
+
+                <div
+                    class={[
+                        "m3-choice-list",
+                        form?.errors?.lists && "m3-invalid",
+                        item.createdById && item.createdById !== userId && "disabled"
+                    ]}
+                >
+                    {#snippet displayList(list: ListProps)}
+                        <label class="flex items-center gap-x-2" for={list.id}>
+                            <input
+                                id={list.id}
+                                name="lists"
+                                class="checkbox"
+                                checked={listsHavingItem[list.id] !== undefined}
+                                disabled={listsHavingItem[list.id] === false}
+                                type="checkbox"
+                                value={list.id}
+                            />
+                            <div class="mt-0! flex flex-row gap-x-2">
+                                <span>
+                                    {list.name}
+                                </span>
+                                <span class="font-bold italic">({list.group.name})</span>
+                            </div>
+                        </label>
+                    {/snippet}
+                    {#each lists.usersLists as list (list.id)}
+                        {@render displayList(list)}
+                    {/each}
+                    {#each lists.managedLists as list, i (list.id)}
+                        {#if i === 0}
+                            <span class="text-subtle">Managed lists</span>
+                        {/if}
+                        {@render displayList(list)}
+                    {/each}
+                </div>
+                {#if form?.errors?.lists}
+                    <p class="text-invalid">{form.errors.lists[0]}</p>
+                {/if}
+            </fieldset>
+        </div>
+    </FormSection>
+    <span class="text-subtle text-sm">*{$t("general.required-field")}</span>
+
+    <div class="m3-form-actions">
+        <button class="m3-text-button m3-button" disabled={fetching || saving} onclick={onCancel} type="button">
             {$t("general.cancel")}
         </button>
-        <div class="flex flex-col-reverse gap-2 sm:flex-row sm:gap-2">
-            {#if !item.id}
-                <button
-                    id="submit-stay"
-                    class="btn preset-outlined-primary-500"
-                    disabled={fetching || saving}
-                    onclick={() => (submitSrc = "submit-stay")}
-                    type="submit"
-                >
-                    {#if saving && submitSrc == "submit-stay"}
-                        <span class="loading loading-spinner loading-xs"></span>
-                    {/if}
-                    <span>{$t("wishes.create-and-add-another")}</span>
-                </button>
-            {/if}
-            <button
-                id="submit"
-                class="preset-filled-primary-500 btn"
-                disabled={fetching || saving}
-                onclick={() => (submitSrc = "submit")}
-                type="submit"
-            >
-                {#if saving && submitSrc == "submit"}
-                    <span class="loading loading-spinner loading-xs"></span>
-                {/if}
+        {#if !item.id}
+            <SplitSubmitButton disabled={fetching || saving} label={buttonText} {saving} />
+        {:else}
+            <button id="submit" class="m3-primary m3-button" disabled={fetching || saving} type="submit">
+                {#if saving}<span class="loading loading-xs" aria-hidden="true"></span>{/if}
                 <span>{buttonText}</span>
             </button>
-        </div>
+        {/if}
     </div>
-</div>
-
-{#if fetching}
-    <Backdrop text={$t("wishes.hang-tight-gathering-product-data")} />
-{/if}
+</fieldset>

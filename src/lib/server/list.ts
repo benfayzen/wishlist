@@ -154,6 +154,7 @@ export const getById = async (id: string) => {
         select: {
             id: true,
             name: true,
+            iconColor: true,
             owner: {
                 select: {
                     id: true,

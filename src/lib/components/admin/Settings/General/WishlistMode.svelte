@@ -1,4 +1,5 @@
 <script lang="ts">
+    import Select from "$lib/components/Select.svelte";
     import Tooltip from "$lib/components/Tooltip.svelte";
     import { getFormatter } from "$lib/i18n";
     import Setting from "../Setting.svelte";
@@ -17,7 +18,7 @@
 <SettingsGroup title={$t("admin.wishlist-mode")}>
     <Setting>
         {@const disabled = groupUserCount > 1 || listCount > 1}
-        <label class="label" for="listMode">
+        <label class="m3-label" for="listMode">
             <Tooltip>
                 {#snippet label()}
                     <span>{$t("admin.wishlist-mode")}</span>
@@ -41,10 +42,10 @@
                     </div>
                 {/snippet}
             </Tooltip>
-            <select id="listMode" name="listMode" class="select w-fit min-w-64" value={config.listMode}>
+            <Select id="listMode" name="listMode" class="m3-select w-full max-w-md" value={config.listMode}>
                 <option value="standard">{$t("admin.wishlist-mode-wishlist")}</option>
                 <option {disabled} value="registry">{$t("admin.wishlist-mode-registry")}</option>
-            </select>
+            </Select>
         </label>
         {#if disabled}
             <div class="flex flex-row items-center gap-x-1">

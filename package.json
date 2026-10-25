@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "vite dev",
+        "icons:generate": "node scripts/generate-icons.mjs",
         "build": "vite build",
         "preview": "vite preview",
         "start": "node build",
@@ -12,9 +13,15 @@
         "lint": "prettier --check . --experimental-cli && eslint .",
         "format": "prettier --write . --experimental-cli",
         "db:patch": "tsx prisma/patches/index.ts",
+        "db:seed:dev": "tsx prisma/seed-dev.ts",
         "test": "playwright test",
         "test:build": "docker compose -f tests/docker/docker-compose.yaml build",
-        "test:setup": "playwright install --with-deps chromium"
+        "test:setup": "playwright install --with-deps chromium",
+        "preview:native": "node scripts/native-server.mjs",
+        "test:native": "playwright test --config playwright.native.config.ts",
+        "db:seed:readme": "tsx prisma/seed-readme.ts",
+        "preview:readme": "node scripts/readme-server.mjs",
+        "screenshots:readme": "node scripts/capture-readme.mjs"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.0",
@@ -61,6 +68,7 @@
     },
     "type": "module",
     "dependencies": {
+        "@material/material-color-utilities": "^0.4.0",
         "@metascraper/helpers": "^5.49.1",
         "@noble/hashes": "^2.0.0",
         "@oslojs/crypto": "^1.0.1",

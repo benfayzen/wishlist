@@ -15,7 +15,7 @@
     let isForOwner = $derived(item.userId === user?.id);
 </script>
 
-<div class="card bg-surface-200-800 max-h-32 overflow-auto px-2 py-1 text-sm">
+<div class="m3-card max-h-32 overflow-auto px-2 py-1 text-sm">
     {#each item.claims as claim}
         {const name =
             showName(claim) || claim.claimedBy?.id === user?.id ? getClaimedName(claim) : $t("wishes.anonymous")}
@@ -38,7 +38,7 @@
                         {#snippet trigger(props)}
                             <button
                                 {...props}
-                                class="btn btn-icon btn-icon-sm preset-tonal inset-ring-surface-500 p-1.5 inset-ring"
+                                class="m3-button m3-icon-button m3-secondary p-1.5"
                                 title={$t("wishes.edit-claim")}
                             >
                                 <iconify-icon class="text-tiny" icon="ion:edit"></iconify-icon>
