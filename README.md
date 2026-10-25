@@ -70,95 +70,41 @@ respective owners and are used here as fictional examples.
 
 ## Getting Started
 
-### Material 3 Expressive fork
-
-The gift-and-scroll logo is a homage to the original Wishlist artwork. The README,
-application, email templates and installable PWA share the same updated branding.
-See [logo assets and icon generation](./assets/branding/README.md) for the source
-artwork and platform variants. The screenshots above show this fork's current UI.
-
-This fork includes Material 3 Expressive on `main` and publishes
-`ghcr.io/benfayzen/wishlist:latest` and `:edge` using GitHub Actions. The
-`feat/material-3-expressive` branch also publishes `:material-3-expressive`. Images support
-`linux/amd64` and `linux/arm64`. Each build also has an immutable `sha-<full commit SHA>` tag.
-Publication uses the repository's built-in `GITHUB_TOKEN`; no Docker Hub secrets are needed.
-The first image must finish building before it can be pulled. GitHub may require enabling
-Actions in a fork. If anonymous pulls are denied, set the package's visibility to public
-in GitHub Packages, or authenticate Docker to GHCR with a token that can read the package.
-
-For an existing installation, keep its volumes, network and environment variables and
-replace only the `image:` line. Back up the existing data and uploads before upgrading;
-the normal application startup applies any pending upstream database migrations.
-
-```yaml
-name: wishlist
-services:
-    wishlist:
-        container_name: wishlist
-        networks:
-            - proxy
-        image: ghcr.io/benfayzen/wishlist:latest
-        volumes:
-            - /srv/docker/appdata/uploads:/usr/src/app/uploads
-            - /srv/docker/appdata/wishlist/data:/usr/src/app/data
-        environment:
-            - ORIGIN=https://wishlist.example.com
-            - DEFAULT_CURRENCY=EUR
-        restart: unless-stopped
-
-networks:
-    proxy:
-        external: true
-```
-
-Keep an existing `networks:` definition if it differs from this example. Apply the
-new image on the server from the directory containing the Compose file:
-
-```sh
-docker compose pull wishlist
-docker compose up -d wishlist
-docker compose logs --tail=100 wishlist
-```
-
-For subsequent updates, repeat these commands after the image build succeeds.
-Use the immutable `sha-<full commit SHA>` tag when pinning a reviewed build.
-
-### Original project
-
-Getting started is simple with Docker Compose.
-
-> [!NOTE]
-> A [Helm chart is available](https://github.com/fox1e-dev/wishlist-charts) via a community contributor  
-> (This is a fork of the [inactive original helm chart](https://github.com/mddeff/wishlist-charts))
-
 Create a `docker-compose.yaml` file:
 
-```compose.yml
+```yaml
 services:
-  wishlist:
-    container_name: wishlist
-    image: ghcr.io/cmintey/wishlist:latest
-    ports:
-      - 3280:3280
-    volumes:
-      - ./uploads:/usr/src/app/uploads  # This is where user image uploads will be stored
-      - ./data:/usr/src/app/data        # This is where the sqlite database will be stored
-    environment:
-      # ORIGIN: https://wishlist.example.com
-      ORIGIN: http://192.168.2.10:3280 # The URL your users will be connecting to
-      TOKEN_TIME: 72 # hours until signup and password reset tokens expire
+    wishlist:
+        image: ghcr.io/benfayzen/wishlist:latest
+        ports:
+            - 3280:3280
+        volumes:
+            - ./uploads:/usr/src/app/uploads
+            - ./data:/usr/src/app/data
+        environment:
+            ORIGIN: http://localhost:3280
+        restart: unless-stopped
 ```
 
-Then simply run `docker compose up -d`.
+Set `ORIGIN` to the address your users will use to access Wishlist, then start
+with `docker compose up -d`. For this example, open `http://localhost:3280`.
 
-You can now connect to your application at `http://<host>:3280`.
+To update an existing installation, keep its data and upload volumes and run:
+
+```sh
+docker compose pull
+docker compose up -d
+```
+
+Back up your data and uploads before updating. Application startup may apply
+database migrations.
 
 > [!NOTE]
-> Set the `ORIGIN` environment variable to the url you will be connecting to, otherwise you will experience issues
+> A [community Helm chart](https://github.com/fox1e-dev/wishlist-charts) is also available.
 
 ### Environment Variables
 
-`ORIGIN`: The URL your users will connect to e.g. `https://wishlist.domain.com`, `http://192.168.2.10:3280`. **Note**, if this value is an IP address, then it must include the exposed port of the application
+`ORIGIN`: The URL your users will connect to e.g. `https://wishlist.example.com`, `http://localhost:3280`. **Note**, if this value is an IP address, then it must include the exposed port of the application
 
 `TOKEN_TIME`: The amount of time (hours) that signup and password reset tokens are valid for
 
