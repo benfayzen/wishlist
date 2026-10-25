@@ -2,8 +2,7 @@
 
 ## Prerequisites
 
-- node v24.15.x
-- [pnpm](https://pnpm.io/installation) v11.x
+Use the Node.js and pnpm versions declared in `package.json`.
 
 ## Install dependencies
 
@@ -39,6 +38,7 @@ mkdir -p uploads
 Setup Prisma ORM and development database:
 
 ```sh
+pnpm exec svelte-kit sync
 pnpm prisma generate
 pnpm prisma migrate dev
 pnpm prisma db seed
@@ -53,7 +53,7 @@ pnpm dev
 
 ### Running checks
 
-These checks are run in the CI pipeline.
+Run checks and builds sequentially: both generate SvelteKit files.
 
 ```sh
 pnpm check
@@ -86,8 +86,8 @@ Log in at `http://localhost:4173` with any of `demo.anna`, `demo.ben`, `demo.cla
 Emma the team group. These are group roles; the demo users are regular users
 globally.
 
-The existing `preview` account also joins all three demo groups, keeping its
-current active group and password. Switch to **Demo · Familie**,
+If an account named `preview` already exists, the seed adds it to all three demo
+groups and preserves its active group and password. Switch to **Demo · Familie**,
 **Demo · Freundeskreis** or **Demo · Team** in the group selector to see the lists.
 The preview user has reservations to edit immediately under **My Claims**.
 
@@ -116,10 +116,8 @@ Safari uses the simplified monochrome gift and scroll in `static/safari-pinned-t
 When changing the artwork, also update that silhouette and bump the icon URL
 version in `src/app.html` and `vite.config.ts` so cached icons can refresh.
 
-The supplied Gemini original is preserved in `assets/branding/wishlist-gemini-original.jpg`.
-`src/lib/assets/wishlist-logo.png` is the transparent app rendition prepared with
-the built-in ImageGen background-removal tool. Its gift, scroll and list motif
-is retained. All platform icons are generated from that PNG without AI resizing.
+See [logo assets](assets/branding/README.md) for the reference artwork, application
+source and generated icon files.
 
 ## Building Docker
 
@@ -127,7 +125,7 @@ is retained. All platform icons are generated from that PNG without AI resizing.
 docker build . --tag wishlist-dev:latest
 ```
 
-Specific platform, current linux/amd64 and linux/arm64 are confirmed supported
+To build for a specific platform:
 
 ```sh
 docker build . --tag wishlist-dev:amd64 --platform linux/amd64
