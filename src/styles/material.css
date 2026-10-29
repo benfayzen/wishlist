@@ -1054,7 +1054,7 @@
         .m3-app-shell.rail-expanded {
             --rail-width: 17.5rem;
         }
-        .m3-content-pane {
+        .has-navigation .m3-content-pane {
             margin-inline-start: 0;
         }
         .m3-navigation-footer {

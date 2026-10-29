@@ -3,6 +3,32 @@
 These instructions apply throughout this repository. Preserve this fork's
 Material 3 Expressive design and custom behavior when integrating upstream work.
 
+## Documentation and repository prose
+
+- Write for the intended reader. The README explains features, installation and
+  use. Maintainer documents contain reproducible setup, current architecture and
+  maintenance instructions.
+- Keep task-specific work reports in the chat, PR description or CI output.
+  Do not commit conversation summaries, implementation diaries, dated validation
+  logs, counts of passed tests, temporary report paths, interim recommendations,
+  or statements about actions taken during an assistant session unless the user
+  explicitly requests that artifact.
+- Do not add image-generation prompts, references to local skills, or stories
+  about which assistant/tool produced a change. Preserve required attribution,
+  licenses, asset source references and the contribution guide's PR disclosures.
+  Document a tool when readers need it to use or maintain the project.
+- State only what the current implementation, configuration or a cited source
+  supports. Do not invent design intent, artwork provenance, compliance claims,
+  support guarantees or successful test/deployment results. Explain project
+  choices as project choices, without presenting them as official requirements.
+- Review edited prose, code comments and user-visible text for these issues
+  before publishing. Remove obsolete implementation history while preserving
+  useful technical constraints and instructions. Do not create a committed audit
+  report merely to record that this review happened.
+- Check every actively used branch, including publishing branches and open PRs.
+  Carry relevant documentation and instruction updates to those branches without
+  overwriting independent work or reintroducing archived history.
+
 ## Integrating updates from the original project
 
 Treat upstream updates as reviewed integration work. Fetching upstream changes

@@ -18,7 +18,7 @@
     let passwordConfirm = $state("");
 </script>
 
-<div class=" m3-card flex flex-col space-y-4 p-4">
+<div class="m3-card account-card">
     {#if data.id}
         <input id="tokenId" name="tokenId" class="hidden" value={data.id} />
     {/if}
@@ -37,68 +37,84 @@
         {/if}
     </label>
 
-    <div class="flex flex-col space-y-4 md:flex-row md:space-y-0 md:gap-x-2">
-        <label class="m3-label" for="username">
-            <span>{$t("auth.username")}</span>
-            <input
-                id="username"
-                name="username"
-                class={["m3-input", formData?.errors?.username && "m3-invalid"]}
-                autocapitalize="off"
-                autocomplete="username"
-                required
-                type="text"
-            />
-            {#if formData?.errors?.username}
-                <span class="text-invalid">{formData.errors.username[0]}</span>
-            {/if}
-        </label>
-        <label class="m3-label" for="email">
-            <span>{$t("auth.email")}</span>
-            <input
-                id="email"
-                name="email"
-                class={["m3-input", formData?.errors?.email && "m3-invalid"]}
-                autocomplete="email"
-                required
-                type="email"
-            />
-            {#if formData?.errors?.email}
-                <span class="text-invalid">{formData.errors.email[0]}</span>
-            {/if}
-        </label>
+    <label class="m3-label" for="username">
+        <span>{$t("auth.username")}</span>
+        <input
+            id="username"
+            name="username"
+            class={["m3-input", formData?.errors?.username && "m3-invalid"]}
+            autocapitalize="off"
+            autocomplete="username"
+            required
+            type="text"
+        />
+        {#if formData?.errors?.username}
+            <span class="text-invalid">{formData.errors.username[0]}</span>
+        {/if}
+    </label>
+    <label class="m3-label" for="email">
+        <span>{$t("auth.email")}</span>
+        <input
+            id="email"
+            name="email"
+            class={["m3-input", formData?.errors?.email && "m3-invalid"]}
+            autocomplete="email"
+            required
+            type="email"
+        />
+        {#if formData?.errors?.email}
+            <span class="text-invalid">{formData.errors.email[0]}</span>
+        {/if}
+    </label>
+
+    <div class="flex min-w-0 flex-col gap-2">
+        <PasswordInput
+            id="password"
+            name="password"
+            autocomplete="new-password"
+            label={$t("auth.password")}
+            required
+            strengthMeter
+            bind:value={password}
+        />
+        {#if formData?.errors?.password}
+            <span class="text-invalid">{formData.errors.password[0]}</span>
+        {/if}
     </div>
 
-    <PasswordInput
-        id="password"
-        name="password"
-        label={$t("auth.password")}
-        required
-        strengthMeter
-        bind:value={password}
-    />
-    <PasswordInput id="confirmpassword" label={$t("auth.confirm-password")} required bind:value={passwordConfirm} />
-
-    {#if password !== passwordConfirm}
-        <span class="text-invalid">{$t("auth.passwords-must-match")}</span>
-    {/if}
-    {#if formData?.errors?.password}
-        <span class="text-invalid">{formData.errors.password[0]}</span>
-    {/if}
+    <div class="flex min-w-0 flex-col gap-2">
+        <PasswordInput
+            id="confirmpassword"
+            autocomplete="new-password"
+            label={$t("auth.confirm-password")}
+            required
+            bind:value={passwordConfirm}
+        />
+        {#if password !== passwordConfirm}
+            <span class="text-invalid">{$t("auth.passwords-must-match")}</span>
+        {/if}
+    </div>
 
     {#if formData?.error && formData?.message}
         <span class="text-invalid">{formData.message}</span>
     {/if}
 
     {#if !hideActions}
-        <div class="flex items-center justify-center gap-x-4 pb-2">
-            <button class="m3-primary m3-button" disabled={password !== passwordConfirm || signingIn} type="submit">
-                {#if signingIn}
-                    <span class="loading loading-spinner loading-xs"></span>
-                {/if}
-                <span>{$t("auth.create-account")}</span>
-            </button>
-            <a class="anchor" href="/login">{$t("auth.sign-in")}</a>
-        </div>
+        <button class="m3-primary m3-button w-full" disabled={password !== passwordConfirm || signingIn} type="submit">
+            {#if signingIn}
+                <span class="loading loading-spinner loading-xs"></span>
+            {/if}
+            <span>{$t("auth.create-account")}</span>
+        </button>
     {/if}
 </div>
+
+<style>
+    /* Product layout: one column keeps the registration fields aligned at every width. */
+    .account-card {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: clamp(1.25rem, 4vw, 2rem);
+    }
+</style>
