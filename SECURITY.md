@@ -6,6 +6,6 @@ Only the latest version of Wishlist is actively supported. Security patches will
 
 ## Reporting a Vulnerability
 
-This repository has [private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/privately-reporting-a-security-vulnerability) enabled. To confidentially report a security issue, click the **"Report a vulnerability"** button on the [Security tab](../../security/advisories/new) of this repository. This allows you to submit details directly to the maintainers without public disclosure.
+If the [Security tab](../../security/advisories/new) offers **Report a vulnerability**, use it to share details privately with the maintainers. Availability depends on the repository's settings. Do not include credentials or exploit details in public issues. For vulnerabilities affecting the original project, follow its [security policy](https://github.com/cmintey/wishlist/security/policy).
 
 For non-sensitive issues or general feedback, feel free to open a GitHub issue or contribute a fix via pull request.
