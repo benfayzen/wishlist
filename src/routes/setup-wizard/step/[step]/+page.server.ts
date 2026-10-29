@@ -1,10 +1,12 @@
+import { publicRegistrationProtection } from "$lib/server/registration";
 import { getConfig } from "$lib/server/config";
 import { client } from "$lib/server/prisma";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { resolve } from "$app/paths";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async (event) => {
+    const { params } = event;
     const userCount = await client.user.count();
     const step = Number.parseInt(params.step);
     if (userCount === 0 && step > 1) {
@@ -17,5 +19,5 @@ export const load: PageServerLoad = async ({ params }) => {
 
     const [config, groups] = await Promise.all([getConfig(), client.group.findMany()]);
 
-    return { config, groups };
+    return { config, groups, turnstile: await publicRegistrationProtection(event) };
 };

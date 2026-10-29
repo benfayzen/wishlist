@@ -1,3 +1,4 @@
+import { registrationAttempt, rejectRegistration } from "$lib/server/registration";
 import { error, fail, redirect, type Cookies } from "@sveltejs/kit";
 import { env } from "$env/dynamic/private";
 import { createSession, generateSessionToken, setSessionTokenCookie } from "$lib/server/auth";
@@ -12,7 +13,8 @@ import { getOIDCConfig } from "$lib/server/openid";
 import { logger } from "$lib/server/logger";
 import z from "zod";
 
-export const load: PageServerLoad = async ({ locals, request, cookies, url, fetch }) => {
+export const load: PageServerLoad = async (event) => {
+    const { locals, request, cookies, url, fetch } = event;
     const config = await getConfig();
     const redirectTo = url.searchParams.get("redirectTo");
     if (locals.user) {
@@ -54,15 +56,27 @@ export const load: PageServerLoad = async ({ locals, request, cookies, url, fetc
                     return fail(400, { username: username, password: "", incorrect: true });
                 }
                 const userCount = await client.user.count();
-                user = await createUser(
-                    {
-                        username: username,
-                        email: email,
-                        name: name
-                    },
-                    userCount > 0 ? Role.USER : Role.ADMIN,
-                    ""
-                );
+                let registration;
+                try {
+                    registration = await registrationAttempt(event);
+                } catch (err) {
+                    return rejectRegistration(err, event);
+                }
+                try {
+                    user = await createUser(
+                        {
+                            username: username,
+                            email: email,
+                            name: name
+                        },
+                        userCount > 0 ? Role.USER : Role.ADMIN,
+                        "",
+                        undefined,
+                        registration
+                    );
+                } catch (err) {
+                    return rejectRegistration(err, event);
+                }
 
                 if (config.defaultGroup) {
                     await client.userGroupMembership.create({

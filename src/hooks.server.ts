@@ -1,3 +1,4 @@
+import { sequence } from "@sveltejs/kit/hooks";
 import type { RouteId } from "$app/types";
 import { env } from "$env/dynamic/private";
 import { getClosestAvailableLocaleFromHeader, getClosestAvailablePreferredLanguage, type Lang } from "$lib/i18n";
@@ -11,7 +12,7 @@ import { logger } from "$lib/server/logger";
 import { loadLocale } from "$lib/server/validations";
 import type { Handle, HandleServerError } from "@sveltejs/kit";
 
-export const handle: Handle = async ({ event, resolve }) => {
+const sessionHandler: Handle = async ({ event, resolve }) => {
     let lang = getClosestAvailableLocaleFromHeader(event.request.headers.get("accept-language"));
 
     const sessionToken = event.cookies.get(sessionCookieName);
@@ -61,6 +62,19 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
     });
 };
+
+// SvelteKit serializes enhanced form failures with HTTP 200. Preserve the
+// protection status for proxies/monitoring while keeping its action payload.
+const registrationResponse: Handle = async ({ event, resolve }) => {
+    const response = await resolve(event);
+    const status = event.locals.registrationStatus;
+    if (status && response.status !== status) {
+        return new Response(response.body, { status, headers: response.headers });
+    }
+    return response;
+};
+
+export const handle: Handle = sequence(registrationResponse, sessionHandler);
 
 export const handleError: HandleServerError = async ({ error: err, event, status, message }) => {
     logger.error(
