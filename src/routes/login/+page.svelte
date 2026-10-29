@@ -35,11 +35,12 @@
     });
 </script>
 
-<div class="flex flex-col items-center space-y-4">
+<div class="login-page">
     <h1 class="m3-page-title capitalize">{$t("auth.sign-in")}</h1>
 
     <form
-        class="w-full max-w-md"
+        class="w-full"
+        aria-busy={signingIn || data.isCallback}
         method="POST"
         use:enhance={(form) => {
             signingIn = true;
@@ -55,7 +56,7 @@
             };
         }}
     >
-        <div class="rounded-container m3-card flex flex-col space-y-4 p-4">
+        <div class="m3-card login-card">
             {#if data.isCallback}
                 <div class="flex flex-col items-center justify-center space-y-4">
                     <span class="loading loading-spinner w-8 md:w-12"></span>
@@ -81,10 +82,11 @@
                         {/if}
                     </label>
 
-                    <div class="relative flex flex-col space-y-4">
+                    <div class="flex min-w-0 flex-col gap-2">
                         <PasswordInput
                             id="password"
                             name="password"
+                            autocomplete="current-password"
                             error={form?.incorrect || form?.error}
                             label={$t("auth.password")}
                             required
@@ -101,48 +103,41 @@
                             </span>
                         {/if}
 
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <button class="m3-primary m3-button" disabled={signingIn}>
-                                {#if signingIn}
-                                    <span class="loading loading-spinner loading-xs"></span>
-                                {/if}
-                                <span>{$t("auth.sign-in")}</span>
-                            </button>
-                            {#if data.enableSignup}
-                                <a class="anchor" href="/signup">{$t("auth.create-an-account")}</a>
-                            {/if}
-                        </div>
-
-                        <a class="anchor text-sm" href="/forgot-password">
+                        <a class="anchor login-recovery" href="/forgot-password">
                             {$t("auth.forgot-password")}
                         </a>
                     </div>
+
+                    <button class="m3-primary m3-button w-full" disabled={signingIn} type="submit">
+                        {#if signingIn}
+                            <span class="loading loading-spinner loading-xs"></span>
+                        {/if}
+                        <span>{$t("auth.sign-in")}</span>
+                    </button>
                 {/if}
                 {#if data.oidcConfig?.ready}
                     {#if data.enableLogin}
-                        <div class="-mt-4 flex w-full items-center justify-center">
-                            <hr class="hr my-2 h-px w-3/4" />
-                            <span class="preset-filled-surface-100-900 absolute left-1/2 -translate-x-1/2 px-2">
-                                {$t("auth.or")}
-                            </span>
+                        <div class="login-divider">
+                            <span>{$t("auth.or")}</span>
                         </div>
                     {/if}
-                    <div class="flex justify-center">
-                        <button
-                            class="m3-primary m3-button"
-                            disabled={signingIn}
-                            onclick={() => window.location.assign(`/login/oidc${page.url.search}`)}
-                            type="button"
-                        >
-                            {$t("auth.sign-in-with", { values: { provider: data.oidcConfig.providerName || "OAuth" } })}
-                        </button>
-                    </div>
+                    <button
+                        class={["m3-button w-full", data.enableLogin ? "m3-outlined" : "m3-primary"]}
+                        disabled={signingIn}
+                        onclick={() => window.location.assign(`/login/oidc${page.url.search}`)}
+                        type="button"
+                    >
+                        {$t("auth.sign-in-with", { values: { provider: data.oidcConfig.providerName || "OAuth" } })}
+                    </button>
                 {/if}
             {/if}
         </div>
     </form>
+    {#if !data.isCallback && data.enableLogin && data.enableSignup}
+        <a class="m3-button m3-text-button" href="/signup">{$t("auth.create-an-account")}</a>
+    {/if}
     {#if data.error}
-        <Alert class="w-full md:w-1/2" noicon title={$t("errors.oidc-error")} type="error">
+        <Alert class="w-full" noicon title={$t("errors.oidc-error")} type="error">
             <pre class="text-wrap">{data.error}</pre>
         </Alert>
     {/if}
@@ -151,3 +146,48 @@
 <svelte:head>
     <title>{$t("auth.sign-in")}</title>
 </svelte:head>
+
+<style>
+    /* Product layout: group credentials and give the primary action a consistent width. */
+    .login-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        inline-size: min(100%, 28rem);
+        margin-inline: auto;
+    }
+
+    .login-card {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: clamp(1.25rem, 4vw, 2rem);
+    }
+
+    .login-recovery {
+        display: flex;
+        align-items: center;
+        align-self: flex-end;
+        min-block-size: var(--md-target-size);
+        max-inline-size: 100%;
+        font-size: 0.875rem;
+        text-align: end;
+    }
+
+    .login-divider {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--md-on-surface-variant);
+        font-size: 0.875rem;
+    }
+
+    .login-divider::before,
+    .login-divider::after {
+        content: "";
+        flex: 1;
+        block-size: 1px;
+        background: var(--md-outline-variant);
+    }
+</style>
