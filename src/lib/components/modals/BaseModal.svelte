@@ -41,7 +41,7 @@
                 <Dialog.Title class="m3-headline">
                     {title}
                 </Dialog.Title>
-                <Dialog.Description>
+                <Dialog.Description class="m3-dialog-description">
                     {#if typeof description === "string"}
                         {@html description}
                     {:else}
