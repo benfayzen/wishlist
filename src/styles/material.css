@@ -117,6 +117,117 @@
     .m3-select {
         padding-inline-end: 2.5rem;
     }
+    .m3-select-wrapper {
+        position: relative;
+        display: inline-grid;
+        align-items: center;
+        inline-size: 100%;
+        min-inline-size: 0;
+    }
+    .m3-select-wrapper.m3-select {
+        border: 0;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+    }
+    .m3-select-wrapper > .m3-select {
+        appearance: none;
+        -webkit-appearance: none;
+        inline-size: 100%;
+        padding-inline-start: 1rem;
+        padding-inline-end: 2.75rem;
+        cursor: pointer;
+    }
+    .m3-select-wrapper.has-leading-icon > .m3-select {
+        padding-inline-start: 2.75rem;
+    }
+    .m3-select-leading,
+    .m3-select-chevron {
+        position: absolute;
+        inset-block: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        inline-size: 2.75rem;
+        color: var(--md-on-surface-variant);
+        pointer-events: none;
+        transition:
+            transform var(--md-motion-spatial),
+            color var(--md-motion-effects);
+    }
+    .m3-select-leading {
+        inset-inline-start: 0;
+    }
+    .m3-select-chevron {
+        inset-inline-end: 0;
+    }
+    .m3-select-wrapper:focus-within .m3-select-chevron,
+    .m3-select-wrapper:focus-within .m3-select-leading {
+        color: var(--md-primary);
+    }
+    .m3-select-wrapper:has(.m3-select:disabled) .m3-select-chevron,
+    .m3-select-wrapper:has(.m3-select:disabled) .m3-select-leading {
+        opacity: 0.6;
+    }
+    /* Expressive M3E Listbox & Combobox menus */
+    [data-scope="listbox"][data-part="content"],
+    [data-scope="combobox"][data-part="content"] {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-block-start: 0.375rem;
+        max-block-size: 15rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 0.375rem;
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-shape-large);
+        background: var(--md-surface-container-low);
+        color: var(--md-on-surface);
+    }
+    [data-scope="combobox"][data-part="content"] {
+        box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+        background: var(--md-surface-container-high);
+    }
+    [data-scope="combobox"][data-part="content"].grid {
+        display: grid;
+    }
+    [data-scope="combobox"][data-part="content"].grid [data-scope="combobox"][data-part="item"] {
+        justify-content: center;
+        padding: 0.5rem;
+    }
+    [data-scope="listbox"][data-part="item"],
+    [data-scope="combobox"][data-part="item"] {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-block-size: 2.75rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: var(--md-shape-small);
+        cursor: pointer;
+        transition:
+            background-color var(--md-motion-effects),
+            border-radius var(--md-motion-spatial);
+    }
+    [data-scope="listbox"][data-part="item"]:hover,
+    [data-scope="combobox"][data-part="item"]:hover,
+    [data-scope="listbox"][data-part="item"][data-highlighted],
+    [data-scope="combobox"][data-part="item"][data-highlighted] {
+        background: var(--md-surface-container-highest);
+    }
+    [data-scope="listbox"][data-part="item"][data-state="checked"],
+    [data-scope="combobox"][data-part="item"][data-state="checked"] {
+        border-radius: var(--md-shape-full);
+        background: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+        font-weight: 600;
+    }
+    [data-scope="listbox"][data-part="item-text"] {
+        display: flex;
+        flex-direction: column;
+        min-inline-size: 0;
+    }
     .m3-field-input {
         inline-size: 100%;
         min-inline-size: 0;
