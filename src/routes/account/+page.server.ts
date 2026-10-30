@@ -34,7 +34,8 @@ export const actions: Actions = {
         const fd = await request.formData();
         const profilePic = fd.get("profilePic");
         if (profilePic && profilePic instanceof File && profilePic.size > 0) {
-            await updatePicture(user.id, user.username, fd);
+            const pictureResult = await updatePicture(user.id, user.username, fd);
+            if (typeof pictureResult !== "string") return pictureResult;
         }
         return updateProfile(user.id, fd);
     },

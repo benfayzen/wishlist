@@ -302,6 +302,7 @@
         "valid-url-not-provided": "Valid url not provided"
     },
     "general": {
+        "profile-picture-upload-failed": "Unable to upload profile picture. Please choose a valid image.",
         "active": "Active",
         "add-a-description": "Add a description",
         "add-user": "Add User",

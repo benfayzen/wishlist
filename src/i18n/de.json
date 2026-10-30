@@ -420,6 +420,7 @@
         "your-account-is-currently-linked-with-oauth": "Dein Account ist momentan mit {providerName} verknüpft"
     },
     "general": {
+        "profile-picture-upload-failed": "Das Profilbild konnte nicht hochgeladen werden. Bitte wähle eine gültige Bilddatei.",
         "active": "Aktiv",
         "search": "Suche",
         "change-group": "Gruppe wechseln",
