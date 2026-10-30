@@ -396,6 +396,7 @@
         "no-claims-found": "Keine Reservierungen gefunden",
         "oidc-client-not-configured": "OIDC Client nicht konfiguriert",
         "sign-in-with": "Login mit {provider}",
+        "link-oauth": "Mit {providerName} verknüpfen",
         "unlink-oauth": "Verknüpfung mit {providerName} aufheben",
         "your-account-is-currently-linked-with-oauth": "Dein Account ist momentan mit {providerName} verknüpft"
     },
@@ -442,6 +443,8 @@
         "submit": "Absenden",
         "success": "Erfolg!",
         "this-invite-link-is-only-valid-for-one-signup": "Dieser Einladungslink ist nur für eine Anmeldung gültig",
+        "profile-updated": "Profil aktualisiert",
+        "update-profile-picture": "Profilbild ändern",
         "update": "Aktualisieren",
         "user": "Benutzer",
         "people": "Personen",
