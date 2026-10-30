@@ -77,7 +77,9 @@
         const content = document.getElementById("main");
         scrollId = page.state.wishlistScrollId || crypto.randomUUID();
         if (!page.state.wishlistScrollId) {
-            replaceState(page.url, { ...page.state, wishlistScrollId: scrollId });
+            tick().then(() => {
+                replaceState(page.url, { ...page.state, wishlistScrollId: scrollId });
+            });
         }
         const saved = scrollPositions.get(scrollId);
         if (params.type === "popstate" && saved) {

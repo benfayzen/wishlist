@@ -546,7 +546,8 @@
         "registry-invalid-name": "Enter a name for the registry.",
         "registry-invalid-managers": "A registry needs at least one valid list manager.",
         "manager-username": "Exact username",
-        "registry-last-manager-delete": "Assign another registry manager before deleting this account."
+        "registry-last-manager-delete": "Assign another registry manager before deleting this account.",
+        "managed-lists": "Managed lists"
     },
     "ui": {
         "create-options": "More create options",

@@ -284,7 +284,19 @@
         "list-allow-self-claims-description-helper-text": "Diese Einstellung kann nur aktiviert werden, wenn Ansprüche für Listenbesitzer sichtbar sind (Gruppeneinstellung).",
         "list-hide-owner-description": "Blendet den Eigentümer auf der Listenkarte aus.",
         "list-not-for-me": "Diese Liste ist für jemand anderen bestimmt.",
-        "list-not-for-me-description": "Wenn du diese Liste für eine andere Person verwaltest, ermöglicht diese Einstellung dem Listeneigentümer, Ansprüche und Anspruchspositionen in der Liste einzusehen."
+        "list-not-for-me-description": "Wenn du diese Liste für eine andere Person verwaltest, ermöglicht diese Einstellung dem Listeneigentümer, Ansprüche und Anspruchspositionen in der Liste einzusehen.",
+        "managed-lists": "Verwaltete Listen",
+        "list-type": "Listentyp",
+        "wishlist-description": "Eine persönliche Wunschliste, die mit ausgewählten Gruppen geteilt wird.",
+        "registry-description": "Ein öffentliches Register ohne Gruppen, das von seinen Listenverwaltern gepflegt wird.",
+        "registry-always-public": "Register sind immer öffentlich, gehören keiner Gruppe an und werden ausschließlich von ihren Listenverwaltern verwaltet.",
+        "invalid-list-groups": "Wähle gültige Gruppen für diese Wunschliste aus. Register können keinen Gruppen angehören.",
+        "list-type-fixed": "Der Listentyp kann nach dem Erstellen nicht mehr geändert werden.",
+        "registry-forbidden": "Nur aktuelle Listenverwalter können dieses Register verwalten.",
+        "registry-invalid-name": "Gib einen Namen für das Register ein.",
+        "registry-invalid-managers": "Ein Register benötigt mindestens einen gültigen Listenverwalter.",
+        "manager-username": "Exakter Benutzername",
+        "registry-last-manager-delete": "Bestimme einen anderen Registerverwalter, bevor du dieses Konto löschst."
     },
     "errors": {
         "cannot-leave-as-last-manager": "Bestimme einen anderen Gruppenleiter, bevor du diese Gruppe verlässt.",

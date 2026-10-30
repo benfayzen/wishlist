@@ -35,7 +35,7 @@
                         <h2 class="m3-title truncate">{membership.group.name}</h2>
                         <div class="mt-1 flex flex-wrap gap-1.5">
                             {#if membership.isManager}
-                                <span class="admin-role">{$t("general.manager")}</span>
+                                <span class="admin-role">{$t("admin.manager")}</span>
                             {/if}
                             {#if membership.active}
                                 <span class="admin-tag">{$t("general.active")}</span>

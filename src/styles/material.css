@@ -538,7 +538,7 @@
         gap: 0.5rem;
         min-inline-size: 0;
         min-block-size: var(--md-field-height);
-        padding: 0.25rem;
+        padding: 0.375rem 0.625rem;
         border: 1px dashed var(--md-outline);
         border-radius: var(--md-shape-medium);
         background: var(--md-surface-container-low);
@@ -546,7 +546,7 @@
     }
     .m3-upload [data-part="item-group"] {
         min-inline-size: 0;
-        flex: 1;
+        flex: 1 1 9rem;
     }
     .m3-upload [data-part="item"] {
         display: flex;
@@ -657,6 +657,9 @@
     .m3-quantity-stepper input[type="number"] {
         -moz-appearance: textfield;
         appearance: textfield;
+        min-inline-size: 3ch;
+        padding-inline: 0.25rem;
+        text-align: center;
         font-size: 1.0625rem;
         font-weight: 600;
     }
@@ -716,18 +719,6 @@
         margin-block-start: 0.125rem;
         font-size: 1.0625rem;
         color: var(--md-secondary);
-    }
-    .m3-claim-split .m3-claim-split-left {
-        border-start-start-radius: var(--md-shape-full);
-        border-end-start-radius: var(--md-shape-full);
-        border-start-end-radius: var(--md-shape-small);
-        border-end-end-radius: var(--md-shape-small);
-    }
-    .m3-claim-split .m3-claim-split-right {
-        border-start-start-radius: var(--md-shape-small);
-        border-end-start-radius: var(--md-shape-small);
-        border-start-end-radius: var(--md-shape-full);
-        border-end-end-radius: var(--md-shape-full);
     }
     /* M3E connected group: 40px visual buttons, 48px targets, 2px separation. */
     .m3-connected-group {
@@ -1033,12 +1024,14 @@
     .m3-claim-button iconify-icon {
         font-size: 1.125rem;
     }
-    .m3-claim-split .m3-claim-button {
+    .m3-claim-split .m3-claim-button,
+    .m3-claim-split .m3-claim-split-left {
         border-start-start-radius: var(--md-shape-full);
         border-end-start-radius: var(--md-shape-full);
         border-start-end-radius: var(--md-shape-small);
         border-end-end-radius: var(--md-shape-small);
     }
+    .m3-claim-split .m3-claim-split-right,
     .m3-claim-split .m3-claim-purchase-button,
     .m3-claim-split .m3-claim-delete-button {
         border-start-start-radius: var(--md-shape-small);
@@ -1176,52 +1169,10 @@
         background: transparent;
         box-shadow: none;
     }
-    [data-scope="combobox"][data-part="content"],
     [data-scope="menu"][data-part="content"] {
         background: var(--md-surface-container-high);
         color: var(--md-on-surface);
         border-radius: var(--md-shape-medium);
-    }
-    [data-scope="combobox"][data-part="item"] {
-        min-block-size: 3rem;
-        padding: 0.75rem;
-    }
-    [data-scope="combobox"][data-highlighted] {
-        background: var(--md-secondary-container);
-        color: var(--md-on-secondary-container);
-    }
-    [data-scope="listbox"][data-part="content"] {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 0.375rem;
-        border: 1px solid var(--md-outline-variant);
-        border-radius: var(--md-shape-medium);
-        background: var(--md-surface-container);
-        color: var(--md-on-surface);
-        max-block-size: 16rem;
-        overflow: auto;
-    }
-    [data-scope="listbox"][data-part="item"] {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        min-block-size: var(--md-target-size);
-        padding: 0.5rem 0.75rem;
-        border-radius: var(--md-shape-small);
-        cursor: pointer;
-        transition:
-            background-color var(--md-motion-effects),
-            color var(--md-motion-effects);
-    }
-    [data-scope="listbox"][data-part="item"]:hover {
-        background: color-mix(in srgb, var(--md-on-surface) 8%, transparent);
-    }
-    [data-scope="listbox"][data-part="item"]:is([data-state="checked"], [data-highlighted]) {
-        background: var(--md-secondary-container);
-        color: var(--md-on-secondary-container);
-        font-weight: 600;
     }
     .m3-tooltip {
         padding: 0.375rem 0.75rem;
@@ -1612,7 +1563,7 @@
         justify-content: space-between;
         gap: 0.75rem;
     }
-    .m3-account-panel {
+    .m3-account-tab-panel {
         padding-block-start: 1rem;
     }
     .m3-account-card {

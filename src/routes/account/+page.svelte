@@ -32,13 +32,13 @@
     >
         {#snippet content({ value: tabValue })}
             {#if tabValue === "profile"}
-                <div class="m3-account-panel">
+                <div class="m3-account-tab-panel">
                     <div class="m3-card m3-account-card">
                         <EditProfile disabled={profileEditDisabled} user={data.user} />
                     </div>
                 </div>
             {:else if tabValue === "security"}
-                <div class="m3-account-panel m3-account-security-grid">
+                <div class="m3-account-tab-panel m3-account-security-grid">
                     <section class="m3-card m3-account-card">
                         <ChangePassword />
                     </section>

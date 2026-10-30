@@ -224,7 +224,7 @@
                 </label>
                 <div class={["m3-field m3-quantity-stepper", error && "m3-invalid"]}>
                     <div class="m3-field-slot">
-                        <iconify-icon aria-hidden="true" class="text-lg" icon="ion:layers-outline"></iconify-icon>
+                        <iconify-icon class="text-lg" aria-hidden="true" icon="ion:layers-outline"></iconify-icon>
                     </div>
                     <input
                         id={quantityInputId}

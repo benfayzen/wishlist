@@ -240,7 +240,7 @@
     </FormSection>
     <FormSection title={$t("ui.details")}>
         <div class="m3-form-grid">
-            <label class="m3-label col-span-full xl:col-span-3" for="name">
+            <label class="m3-label col-span-full xl:col-span-2" for="name">
                 <span>{$t("wishes.item-name")}*</span>
                 <div class="m3-field grid-cols-[auto_1fr]">
                     <div class="m3-field-slot">
@@ -264,17 +264,17 @@
                 {/if}
             </label>
 
-            <div class="m3-label col-span-full sm:col-span-4 xl:col-span-2">
+            <div class="m3-label col-span-full sm:col-span-3 xl:col-span-2">
                 <label for="formatted-price">{$t("wishes.price")}</label>
                 <CurrencyInput id="price" name="price" currency={userCurrency} bind:value={price} />
             </div>
 
-            <div class="m3-label col-span-full sm:col-span-3 xl:col-span-2">
+            <div class="m3-label col-span-full sm:col-span-4 xl:col-span-3">
                 <label for="quantity">
                     <span>{$t("wishes.quantity")}</span>
                 </label>
-                <div class="flex flex-row items-center gap-2">
-                    <div class="min-w-0 grow">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <div class="min-w-[11rem] flex-1">
                         <div class={["m3-field", !unlimited ? "m3-quantity-stepper" : "grid-cols-[auto_1fr]"]}>
                             <div class="m3-field-slot">
                                 <iconify-icon aria-hidden="true" icon="ion:gift"></iconify-icon>
@@ -323,7 +323,7 @@
                             {/if}
                         </div>
                     </div>
-                    <label class="checkbox-label w-fit" for="unlimited">
+                    <label class="checkbox-label w-fit shrink-0 whitespace-nowrap" for="unlimited">
                         <input id="unlimited" class="checkbox" type="checkbox" bind:checked={unlimited} />
                         <span>{$t("wishes.no-limit")}</span>
                     </label>
@@ -392,7 +392,7 @@
                 ]}
                 aria-labelledby="lists-label"
             >
-                <div class="flex items-end justify-between">
+                <div class="flex items-center justify-between gap-2">
                     <legend id="lists-label">{$t("wishes.lists")}</legend>
                     {#if !item.createdById || item.createdById === userId}
                         <button class="m3-secondary m3-button m3-button-small" onclick={selectAll} type="button">
@@ -427,7 +427,9 @@
                                 <span>
                                     {list.name}
                                 </span>
-                                <span class="font-bold italic">({list.group.name})</span>
+                                {#if list.group?.name}
+                                    <span class="font-bold italic">({list.group.name})</span>
+                                {/if}
                             </div>
                         </label>
                     {/snippet}
@@ -436,7 +438,7 @@
                     {/each}
                     {#each lists.managedLists as list, i (list.id)}
                         {#if i === 0}
-                            <span class="text-subtle">Managed lists</span>
+                            <span class="text-subtle">{$t("wishes.managed-lists")}</span>
                         {/if}
                         {@render displayList(list)}
                     {/each}
