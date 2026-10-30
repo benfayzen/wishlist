@@ -9,6 +9,7 @@
         margin: 0;
         background: var(--md-surface-container);
         color: var(--md-on-surface);
+        font-family: "Google Sans Flex", system-ui, sans-serif;
         font-size: 1rem;
         line-height: 1.5;
     }
