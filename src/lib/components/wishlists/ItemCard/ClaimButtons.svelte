@@ -59,34 +59,52 @@
     <div></div>
 {:else if userClaim}
     {#if isClaimOnList}
-        {@const isSingleUnclaim = item.quantity === 1 && userClaim.quantity === 1}
-        <div class="m3-claim-actions m3-claim-split">
-            <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
-                {#snippet trigger(props)}
-                    <button {...props} class="m3-secondary m3-button m3-button-small m3-claim-button">
-                        <iconify-icon
-                            aria-hidden="true"
-                            icon={isSingleUnclaim ? "ion:bookmark-outline" : "ion:options-outline"}
-                        ></iconify-icon>
-                        <span>
-                            {isSingleUnclaim ? $t("wishes.unclaim") : $t("wishes.update-claim")}
-                        </span>
-                    </button>
-                {/snippet}
-            </ClaimItemModal>
-            <button
-                class="m3-button m3-icon-button m3-toggle-icon-button m3-claim-purchase-button"
-                aria-label={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
-                aria-pressed={userClaim.purchased}
-                onclick={(e) => {
-                    e.stopPropagation();
-                    handlePurchased?.(!userClaim.purchased);
-                }}
-                title={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
-            >
-                <iconify-icon icon={userClaim.purchased ? "ion:bag-check" : "ion:bag"}></iconify-icon>
-            </button>
-        </div>
+        {#if userClaim.purchased}
+            <div class="m3-claim-actions">
+                <button
+                    class="m3-button m3-button-small m3-claim-button m3-claim-purchased-button"
+                    aria-label={$t("a11y.unpurchase")}
+                    aria-pressed={userClaim.purchased}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        handlePurchased?.(false);
+                    }}
+                    title={$t("a11y.unpurchase")}
+                >
+                    <iconify-icon aria-hidden="true" icon="ion:bag-check"></iconify-icon>
+                    <span>{$t("a11y.unpurchase")}</span>
+                </button>
+            </div>
+        {:else}
+            {@const isSingleUnclaim = item.quantity === 1 && userClaim.quantity === 1}
+            <div class="m3-claim-actions m3-claim-split">
+                <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
+                    {#snippet trigger(props)}
+                        <button {...props} class="m3-secondary m3-button m3-button-small m3-claim-button">
+                            <iconify-icon
+                                aria-hidden="true"
+                                icon={isSingleUnclaim ? "ion:bookmark-outline" : "ion:options-outline"}
+                            ></iconify-icon>
+                            <span>
+                                {isSingleUnclaim ? $t("wishes.unclaim") : $t("wishes.update-claim")}
+                            </span>
+                        </button>
+                    {/snippet}
+                </ClaimItemModal>
+                <button
+                    class="m3-button m3-icon-button m3-toggle-icon-button m3-claim-purchase-button"
+                    aria-label={$t("wishes.purchase")}
+                    aria-pressed={userClaim.purchased}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        handlePurchased?.(true);
+                    }}
+                    title={$t("wishes.purchase")}
+                >
+                    <iconify-icon icon="ion:bag"></iconify-icon>
+                </button>
+            </div>
+        {/if}
     {:else}
         <span class="text-subtle line-clamp-2 truncate text-wrap">{$t("wishes.claimed-by-you-on-another-list")}</span>
     {/if}

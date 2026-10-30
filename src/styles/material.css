@@ -799,6 +799,18 @@
     .m3-claim-split .m3-claim-purchase-button[aria-pressed="true"] {
         border-radius: var(--md-shape-medium);
     }
+    .m3-claim-purchased-button {
+        border-radius: var(--md-shape-medium);
+        background-color: var(--md-secondary);
+        color: var(--md-on-secondary);
+    }
+    .m3-claim-purchased-button:hover {
+        background-image: none;
+        background-color: color-mix(in srgb, var(--md-secondary), var(--md-on-secondary) 8%);
+    }
+    .m3-claim-purchased-button:active {
+        border-radius: var(--md-shape-small);
+    }
     @media (min-width: 640px) {
         .m3-item-content > footer > .m3-claim-actions > .m3-claim-button {
             flex: 0 1 auto;
