@@ -754,6 +754,27 @@
         padding: 0;
         flex-wrap: wrap;
     }
+    .m3-claim-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+    }
+    .m3-tile-card > footer > .m3-claim-actions {
+        inline-size: 100%;
+    }
+    .m3-claim-button {
+        flex: 1 1 0%;
+        min-inline-size: 0;
+        padding-inline: 1rem;
+    }
+    @media (min-width: 640px) {
+        .m3-item-content > footer > .m3-claim-actions > .m3-claim-button {
+            flex: 0 1 auto;
+            min-inline-size: 13.5rem;
+        }
+    }
     .m3-tile-media img {
         inline-size: 100%;
         block-size: 100%;

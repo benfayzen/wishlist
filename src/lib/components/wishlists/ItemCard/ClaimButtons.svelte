@@ -59,10 +59,10 @@
     <div></div>
 {:else if userClaim}
     {#if isClaimOnList}
-        <div class="flex min-w-0 flex-wrap items-center gap-2">
+        <div class="m3-claim-actions">
             <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
                 {#snippet trigger(props)}
-                    <button {...props} class="m3-secondary m3-button m3-button-small md:m3-button">
+                    <button {...props} class="m3-secondary m3-button m3-button-small m3-claim-button">
                         {item.quantity === 1 && userClaim.quantity === 1
                             ? $t("wishes.unclaim")
                             : $t("wishes.update-claim")}
@@ -86,10 +86,10 @@
         <span class="text-subtle line-clamp-2 truncate text-wrap">{$t("wishes.claimed-by-you-on-another-list")}</span>
     {/if}
 {:else if item.isClaimable && (item.userId !== user?.id || isSelfClaimable)}
-    <div class="flex flex-row items-center gap-x-2">
+    <div class="m3-claim-actions">
         <ClaimItemModal {groupId} {item} {requireClaimEmail} userId={user?.id}>
             {#snippet trigger(props)}
-                <button {...props} class="m3-button m3-button-small md:m3-button m3-primary">
+                <button {...props} class="m3-button m3-button-small m3-primary m3-claim-button">
                     {$t("wishes.claim")}
                 </button>
             {/snippet}

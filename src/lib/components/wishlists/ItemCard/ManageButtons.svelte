@@ -94,28 +94,30 @@
     </DeleteItemModal>
 {/snippet}
 
-<div class="flex min-w-0 flex-wrap justify-end gap-x-2">
-    {#if !item.approved}
-        {@render approvalButton(true)}
-        {@render approvalButton(false)}
-    {:else if userCanEdit(item, user?.id)}
-        <button
-            class="m3-action-pill"
-            aria-label={$t("wishes.edit")}
-            onclick={(e) => {
-                e.stopPropagation();
-                handleEdit();
-            }}
-            title={$t("wishes.edit")}
-            type="button"
-        >
-            <span class="m3-action-pill-surface">
-                <iconify-icon aria-hidden="true" icon="ion:edit"></iconify-icon>
-                <span>{$t("wishes.edit")}</span>
-            </span>
-        </button>
-        {@render deleteButton()}
-    {:else if userCanManage}
-        {@render deleteButton()}
-    {/if}
-</div>
+{#if !item.approved || userCanEdit(item, user?.id) || userCanManage}
+    <div class="flex min-w-0 flex-wrap justify-end gap-x-2">
+        {#if !item.approved}
+            {@render approvalButton(true)}
+            {@render approvalButton(false)}
+        {:else if userCanEdit(item, user?.id)}
+            <button
+                class="m3-action-pill"
+                aria-label={$t("wishes.edit")}
+                onclick={(e) => {
+                    e.stopPropagation();
+                    handleEdit();
+                }}
+                title={$t("wishes.edit")}
+                type="button"
+            >
+                <span class="m3-action-pill-surface">
+                    <iconify-icon aria-hidden="true" icon="ion:edit"></iconify-icon>
+                    <span>{$t("wishes.edit")}</span>
+                </span>
+            </button>
+            {@render deleteButton()}
+        {:else if userCanManage}
+            {@render deleteButton()}
+        {/if}
+    </div>
+{/if}
