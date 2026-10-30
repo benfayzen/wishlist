@@ -790,12 +790,28 @@
         border-start-end-radius: var(--md-shape-small);
         border-end-end-radius: var(--md-shape-small);
     }
-    .m3-claim-split .m3-claim-purchase-button {
+    .m3-claim-split .m3-claim-purchase-button,
+    .m3-claim-split .m3-claim-delete-button {
         border-start-start-radius: var(--md-shape-small);
         border-end-start-radius: var(--md-shape-small);
         border-start-end-radius: var(--md-shape-full);
         border-end-end-radius: var(--md-shape-full);
         border-color: transparent;
+    }
+    .m3-claim-delete-button,
+    .m3-claim-delete-only-button {
+        background-color: var(--md-error-container);
+        color: var(--md-on-error-container);
+        border-color: transparent;
+    }
+    .m3-claim-delete-button:hover,
+    .m3-claim-delete-only-button:hover {
+        background-image: none;
+        background-color: color-mix(in srgb, var(--md-error-container), var(--md-on-error-container) 10%);
+    }
+    .m3-claim-delete-button:active,
+    .m3-claim-delete-only-button:active {
+        border-radius: var(--md-shape-medium);
     }
     .m3-claim-split .m3-claim-purchase-button[aria-pressed="true"] {
         border-radius: var(--md-shape-medium);

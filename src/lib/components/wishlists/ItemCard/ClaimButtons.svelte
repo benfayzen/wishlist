@@ -19,7 +19,7 @@
         | "requireClaimEmail"
         | "isSelfClaimable"
     > {
-        isClaimableOrClaimed: (ans: boolean) => void;
+        isClaimableOrClaimed?: (ans: boolean) => void;
     }
 
     let {
@@ -41,7 +41,7 @@
     let userClaim = $derived(item.claims.find((claim) => claim.claimedBy && claim.claimedBy.id === user?.id));
     let isClaimOnList = $derived(userClaim?.listId === item.list.id);
 
-    $effect(() => isClaimableOrClaimed(item.isClaimable || (userClaim && isClaimOnList) || false));
+    $effect(() => isClaimableOrClaimed?.(item.isClaimable || (userClaim && isClaimOnList) || false));
 
     const handlePurchased = async (purchased: boolean) => {
         if (userClaim && isClaimOnList) {
@@ -55,9 +55,7 @@
     };
 </script>
 
-{#if !onPublicList && item.userId === user?.id && !showClaimForOwner}
-    <div></div>
-{:else if userClaim}
+{#if !onPublicList && item.userId === user?.id && !showClaimForOwner}{:else if userClaim}
     {#if isClaimOnList}
         {#if userClaim.purchased}
             <div class="m3-claim-actions">
@@ -119,9 +117,7 @@
             {/snippet}
         </ClaimItemModal>
     </div>
-{:else if item.claims.length === 0 || (item.userId === user?.id && item.isClaimable)}
-    <div></div>
-{:else if item.claims.length === 1 && shouldShowName(item, showClaimedName, showNameAcrossGroups, showClaimForOwner, showPublicClaimName, user, item.claims[0])}
+{:else if item.claims.length === 0 || (item.userId === user?.id && item.isClaimable)}{:else if item.claims.length === 1 && shouldShowName(item, showClaimedName, showNameAcrossGroups, showClaimForOwner, showPublicClaimName, user, item.claims[0])}
     <span class="text-subtle line-clamp-2 truncate text-wrap">
         {$t("wishes.claimed-by", {
             values: {
