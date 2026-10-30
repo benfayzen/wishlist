@@ -30,7 +30,7 @@ export class GroupSettingsPage extends BasePage {
     constructor(page: Page, props?: Props) {
         const id = props?.id ?? new URL(page.url()).pathname.split("/").at(-1);
         super(page, `/admin/groups/${id}`);
-        this.header = page.getByRole("heading", { name: "Group Settings" });
+        this.header = page.locator("#main").getByRole("heading", { name: "Group Settings" });
         this.groupNameHeader = page.getByRole("heading", { level: 2, name: props?.name });
         this.editNameButton = page.getByRole("button", { name: "edit group name" });
         this.membersTab = page.getByRole("tab", { name: "Members" });
