@@ -320,12 +320,7 @@
 {#if (data.list.owner.isMe || data.list.isManager) && approvals.length > 0}
     <div class="flex flex-col space-y-4 pb-4 print:hidden">
         <h2 class="m3-headline">{$t("wishes.approvals")}</h2>
-        <div
-            class={isTileView
-                ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-                : "flex flex-col space-y-4"}
-            data-testid="approvals-container"
-        >
+        <div class={isTileView ? "m3-item-grid grid" : "flex flex-col space-y-4"} data-testid="approvals-container">
             {#each approvals as item (item.id)}
                 <div
                     in:receive={{ key: item.id }}
@@ -360,9 +355,7 @@
 {:else}
     <!-- items -->
     <div
-        class={isTileView
-            ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-            : "flex flex-col space-y-4"}
+        class={isTileView ? "m3-item-grid grid" : "flex flex-col space-y-4"}
         data-testid="items-container"
         onconsider={handleDnd}
         onfinalize={handleDnd}

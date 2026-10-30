@@ -82,11 +82,7 @@
                 </div>
             {/if}
             <div
-                class={[
-                    isTileView
-                        ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-                        : "flex flex-col space-y-4"
-                ]}
+                class={[isTileView ? "m3-item-grid grid" : "flex flex-col space-y-4"]}
                 data-testid="category"
                 transition:scale
             >

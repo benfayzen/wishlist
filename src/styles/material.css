@@ -577,6 +577,13 @@
         gap: 1rem;
         align-items: stretch;
     }
+    /* M3E item tile grid: maximum 3 columns; steps down to 2 and 1 columns before action buttons wrap. */
+    .m3-item-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, max(21rem, calc((100% - 2rem) / 3))), 1fr));
+        gap: 1rem;
+        align-items: stretch;
+    }
     .m3-list-card {
         position: relative;
         isolation: isolate;
@@ -761,18 +768,15 @@
         min-inline-size: 0;
         max-inline-size: 100%;
     }
-    .m3-tile-card > footer > .m3-claim-actions {
-        inline-size: 100%;
-    }
     .m3-claim-button {
-        flex: 1 1 0%;
+        flex: 0 1 auto;
         min-inline-size: 0;
         padding-inline: 1rem;
+        white-space: nowrap;
     }
-    @media (min-width: 640px) {
-        .m3-item-content > footer > .m3-claim-actions > .m3-claim-button {
-            flex: 0 1 auto;
-            min-inline-size: 13.5rem;
+    @media (max-width: 359px) {
+        .m3-claim-button {
+            white-space: normal;
         }
     }
     .m3-tile-media img {
