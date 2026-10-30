@@ -1,3 +1,4 @@
+import { registrationAttempt, rejectRegistration } from "$lib/server/registration";
 import { createSession, generateSessionToken, setSessionTokenCookie } from "$lib/server/auth";
 import { handleCallback, REDIRECT_TO_COOKIE } from "$lib/server/openid";
 import { client } from "$lib/server/prisma";
@@ -92,7 +93,13 @@ export const POST: RequestHandler = async (event) => {
         oauthId: userinfo.sub
     };
     logger.debug(userData, "Registering a new user");
-    const newUser = await createUser(userData, Role.USER, "");
+    let newUser;
+    try {
+        const registration = await registrationAttempt(event);
+        newUser = await createUser(userData, Role.USER, "", undefined, registration);
+    } catch (err) {
+        return rejectRegistration(err, event);
+    }
 
     await authenticate(event, newUser.id);
 

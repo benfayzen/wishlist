@@ -10,6 +10,17 @@ import { treeifyError } from "zod";
 
 export const GET: RequestHandler = async ({ url }) => {
     const loggedInUser = await requireLoginOrError();
+    if (url.searchParams.get("registryManagers") === "1") {
+        const username = url.searchParams.get("name")?.trim();
+        const excluded = url.searchParams.get("excludedUserIds")?.split(",") ?? [];
+        const users = username
+            ? await client.user.findMany({
+                  where: { username, id: { notIn: excluded } },
+                  select: { id: true, name: true, username: true }
+              })
+            : [];
+        return new Response(JSON.stringify(users));
+    }
     const memberships = await client.userGroupMembership.findMany({
         where: { userId: loggedInUser.id },
         select: { groupId: true, roleId: true }

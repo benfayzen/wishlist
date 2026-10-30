@@ -6,6 +6,9 @@ interface ItemWithLists extends Pick<ItemOnListDTO, "user" | "createdById"> {
 
 export function userCanEditOnSomeList(item: ItemWithLists, userId: string | undefined) {
     if (!userId) return false;
+    const registries = item.lists.filter(({ list }) => list.listMode === "registry");
+    if (registries.some(({ list }) => !list.managers.some((manager) => manager.userId === userId))) return false;
+    if (registries.length > 0 && registries.length === item.lists.length) return true;
     if (itemIsForUser(item, userId) || itemCreatedByUser(item, userId)) {
         return true;
     }
@@ -20,6 +23,7 @@ export function userCanEditOnSomeList(item: ItemWithLists, userId: string | unde
 
 export function userCanEdit(item: ItemOnListDTO, userId: string | undefined) {
     if (!userId) return false;
+    if (item.list.listMode === "registry") return itemIsOnListManagedByUser(item, userId);
     return (
         itemIsForUser(item, userId) ||
         itemCreatedByUser(item, userId) ||

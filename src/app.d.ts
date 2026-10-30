@@ -12,6 +12,7 @@ declare global {
 
         // Locals must be an interface and not a type
         interface Locals {
+            registrationStatus?: 400 | 429 | 503;
             user: LocalUser | null;
             isProxyUser: boolean;
             session: import("$lib/generated/prisma/client").Session | null;

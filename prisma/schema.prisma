@@ -86,8 +86,9 @@ model UserGroupMembership {
 model List {
     id              String        @id @unique @default(cuid())
     name            String?
-    owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-    ownerId         String
+    owner           User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId         String?
+    listMode        String        @default("standard")
     groupShares     ListGroupShare[]
     managers        ListManager[]
     groupId         String
@@ -220,6 +221,19 @@ model Patch {
     executed_at DateTime @default(now())
 
     @@map("patch")
+}
+
+// Short-lived pseudonymous registration counters; never stores raw IP addresses.
+model RegistrationEvent {
+    id        String   @id @default(uuid())
+    key       String
+    kind      String
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+
+    @@index([key, kind, createdAt])
+    @@index([expiresAt])
+    @@map("registration_event")
 }
 
 // groupId keeps the original settings context; visibility uses group shares.

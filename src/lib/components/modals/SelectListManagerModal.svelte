@@ -9,21 +9,23 @@
     interface Props {
         trigger: BaseModalProps["trigger"];
         groupId: string;
+        registry?: boolean;
         managers: Pick<User, "id">[];
-        onSubmit?: (value: Pick<User, "id" | "name" | "email" | "username">) => void;
+        onSubmit?: (value: Pick<User, "id" | "name" | "username">) => void;
     }
 
-    const { trigger, groupId, managers, onSubmit }: Props = $props();
+    const { trigger, groupId, managers, onSubmit, registry = false }: Props = $props();
     const t = getFormatter();
 
     const searchOptions = $derived({
         groupId,
+        registryManagers: registry,
         excludedUserIds: managers.map(({ id }) => id)
     });
 
     let searchValue: string | undefined = $state();
     let selectedUser: string | undefined = $state();
-    let users: Pick<User, "id" | "name" | "email" | "username">[] = $state([]);
+    let users: Pick<User, "id" | "name" | "username">[] = $state([]);
 
     function resetForm() {
         searchValue = undefined;
@@ -64,7 +66,7 @@
     {/snippet}
 
     <Listbox {collection} onSelect={(e) => (selectedUser = e.value)}>
-        <Listbox.Label class="text-base">{$t("general.search")}</Listbox.Label>
+        <Listbox.Label class="text-base">{$t(registry ? "wishes.manager-username" : "general.search")}</Listbox.Label>
         <Listbox.Input>
             {#snippet element(props)}
                 <div class="m3-field grid-cols-[auto_1fr]">

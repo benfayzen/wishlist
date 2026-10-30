@@ -288,6 +288,9 @@
     },
     "errors": {
         "cannot-leave-as-last-manager": "Bestimme einen anderen Gruppenleiter, bevor du diese Gruppe verlässt.",
+        "registration-rate-limited": "Zu viele Registrierungen aus deinem Netzwerk. Bitte versuche es in {minutes} Minute(n) erneut.",
+        "registration-protection-unavailable": "Die Sicherheitsprüfung ist momentan nicht verfügbar. Bitte lade die Seite neu und versuche es später erneut.",
+        "registration-verification-failed": "Die Sicherheitsprüfung ist fehlgeschlagen oder abgelaufen. Bitte führe sie erneut durch.",
         "group-is-not-in-registry-mode-cannot-get-a-public-link": "Gruppe ist nicht im Registermodus. Kein öffentlicher Link vorhanden",
         "asset-not-found": "Anhang nicht gefunden",
         "cannot-delete-default-group": "Standardgruppe kann nicht gelöscht werden",
@@ -365,6 +368,7 @@
         "this-list-does-not-allow-self-claimed-items": "Diese Liste lässt keine selbst gemeldeten Einträge zu."
     },
     "auth": {
+        "registration-javascript-required": "Bitte aktiviere JavaScript, um die Sicherheitsprüfung bei der Registrierung abzuschließen.",
         "return-to-login": "Zurück zur Anmeldung",
         "reset-password": "Passwort zurücksetzen",
         "passwords-must-match": "Passwörter müssen übereinstimmen",

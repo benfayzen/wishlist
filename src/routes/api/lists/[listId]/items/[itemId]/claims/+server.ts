@@ -35,6 +35,7 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
             id: true,
             public: true,
             groupId: true,
+            listMode: true,
             groupShares: { select: { groupId: true } },
             allowSelfClaims: true,
             notForMe: true,
@@ -89,7 +90,7 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
         error(404, $t("errors.item-not-found-on-list"));
     }
 
-    if (locals.user) {
+    if (locals.user && list.listMode !== "registry") {
         if (locals.user.id !== list.ownerId && !(await getListMembership(list, locals.user.id))) {
             error(403, $t("errors.this-list-is-not-part-of-your-active-group"));
         }
@@ -137,7 +138,7 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
             const permitted = await tx.list.count({
                 where: {
                     id: list.id,
-                    ...(locals.user
+                    ...(locals.user && list.listMode !== "registry"
                         ? {
                               OR: [
                                   { ownerId: locals.user.id },

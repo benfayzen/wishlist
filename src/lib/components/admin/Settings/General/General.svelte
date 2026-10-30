@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { Group } from "$lib/generated/prisma/client";
-    import WishlistMode from "./WishlistMode.svelte";
     import Suggestions from "./Suggestions.svelte";
     import Claims from "./Claims.svelte";
     import Lists from "./Lists.svelte";
@@ -19,16 +18,12 @@
         listCount?: number;
     }
 
-    const { config, groups, hidden = false, forGroup = false, groupUserCount = 0, listCount = 0 }: Props = $props();
+    const { config, groups, hidden = false, forGroup = false }: Props = $props();
     const t = getFormatter();
 </script>
 
 <div class={{ hidden, "flex flex-col gap-4": !hidden }}>
     <h2 class="m3-headline">{$t("admin.general")}</h2>
-
-    {#if forGroup}
-        <WishlistMode {config} {groupUserCount} {listCount} />
-    {/if}
 
     <Suggestions {config} />
 

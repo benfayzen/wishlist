@@ -35,9 +35,7 @@
                 id="allowPublicLists"
                 name="allowPublicLists"
                 class="checkbox"
-                class:disabled={config.listMode === "registry"}
-                checked={config.allowPublicLists || config.listMode === "registry"}
-                disabled={config.listMode === "registry"}
+                checked={config.allowPublicLists}
                 onchange={(e) => (config.allowPublicLists = e.currentTarget.checked)}
                 type="checkbox"
             />

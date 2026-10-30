@@ -38,7 +38,7 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
         filter: url.searchParams.get("filter"),
         sort: url.searchParams.get("sort"),
         sortDir: url.searchParams.get("dir"),
-        suggestionMethod: config.suggestions.method,
+        suggestionMethod: list.listMode === "registry" ? "approval" : config.suggestions.method,
         listOwnerId: list.owner.id,
         listManagers: new Set(list.managers.map(({ userId }) => userId)),
         loggedInUserId: locals.user?.id || null,
@@ -75,13 +75,13 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
                   activeGroupId: activeMembership?.groupId ?? list.groupId
               }
             : undefined,
-        listMode: config.listMode,
+        listMode: list.listMode,
         showClaimedName: config.claims.showName,
         showNameAcrossGroups: config.claims.showNameAcrossGroups,
         showClaimForOwner: config.claims.showForOwner || list.notForMe,
         showPublicClaimName: config.claims.showNamePublic,
         requireClaimEmail: config.claims.requireEmail,
-        suggestionsEnabled: config.suggestions.enable,
+        suggestionsEnabled: list.listMode !== "registry" && config.suggestions.enable,
         initialViewPreference: viewPreference
     };
 }) satisfies PageServerLoad;

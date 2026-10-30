@@ -34,27 +34,19 @@ test("public non-registry list", async ({ page, userData, anonymousPage }) => {
     await new ListPage(anonymousPage, { name: `${userData.name}'s Wishes` }).at();
 });
 
-test("public registry list", async ({ page, userData, anonymousPage }) => {
-    // Set group to registry mode
-    await new UserMenu(page)
-        .manageGroup()
-        .then((p) => p.clickSettingsTab())
-        .then((p) => p.changeWishlistMode("registry"));
-
-    const listsPage = new ListsPage(page);
-    await listsPage.goto({ skipAssert: true });
-
-    const listPage = new ListPage(page, { name: "My Wishes" });
+test("public registry list", async ({ page, anonymousPage }) => {
+    await page.goto("/lists/create");
+    await page.getByLabel("List type").selectOption("registry");
+    await page.getByLabel("Name", { exact: true }).fill("Public celebration registry");
+    await expect(page.getByRole("button", { name: /Select groups/ })).toHaveCount(0);
+    await page.getByRole("button", { name: "Create", exact: true }).click();
+    await expect(page).toHaveURL(/\/lists\/(?!create$)[^/]+$/);
+    const listPage = new ListPage(page, { name: "Public celebration registry" });
+    await listPage.at();
     await expect(await listPage.getShareListButton()).toBeVisible();
     await listPage.assertShareFunctionality();
-
-    // Navigate to the list in a private window
-    await anonymousPage.goto("/");
-    await expect(anonymousPage.getByRole("heading", { name: "Sign in" })).toBeVisible();
-
-    // Navigate to the list in a private window
     await anonymousPage.goto(listPage.getUrl());
-    await new ListPage(anonymousPage, { name: `${userData.name}'s Wishes` }).at();
+    await new ListPage(anonymousPage, { name: "Public celebration registry" }).at();
 });
 
 test("create item via url", async ({ page }) => {

@@ -15,6 +15,7 @@
     import Checkbox from "../Checkbox.svelte";
     import FieldShell from "../FieldShell.svelte";
     import AdaptivePicker from "../AdaptivePicker.svelte";
+    import Select from "../Select.svelte";
 
     interface ListProps extends Partial<
         Pick<
@@ -44,7 +45,7 @@
         editing?: boolean;
         groupOptions?: { id: string; name: string }[];
         selectedGroupIds?: string[];
-        groupPolicies?: { id: string; listMode: ListMode; allowsPublicLists: boolean; claimsVisibleToOwner: boolean }[];
+        groupPolicies?: { id: string; allowsPublicLists: boolean; claimsVisibleToOwner: boolean }[];
     }
 
     const {
@@ -66,7 +67,8 @@
     let groups = $state([...selectedGroupIds]);
     const groupId = $derived(editing ? fallbackGroupId : (groups[0] ?? fallbackGroupId));
     const policy = $derived(editing ? undefined : groupPolicies.find((policy) => policy.id === groupId));
-    const listMode = $derived(policy?.listMode ?? fallbackListMode);
+    // svelte-ignore state_referenced_locally
+    let listMode = $state(fallbackListMode);
     const allowsPublicLists = $derived(policy?.allowsPublicLists ?? fallbackPublicLists);
     const claimsVisibleToOwner = $derived(policy?.claimsVisibleToOwner ?? fallbackOwnerClaims);
     const lockedGroups = $derived(selectedGroupIds.filter((id) => !groupOptions.some((group) => group.id === id)));
@@ -76,6 +78,13 @@
     const defaultColor = DEFAULT_SEED;
     let colorValue = $state(validSeed(list.iconColor));
     let managers = $derived(list.managers);
+    let registryInitialized = $state(false);
+    $effect(() => {
+        if (!editing && listMode === "registry" && !registryInitialized) {
+            if (!managers.some((manager) => manager.id === list.owner.id)) managers = [list.owner, ...managers];
+            registryInitialized = true;
+        }
+    });
 
     const removeManager = (id: string) => {
         managers = managers.filter((user) => user.id !== id);
@@ -97,9 +106,20 @@
     }}
 >
     <input name="groupsProvided" type="hidden" value="1" />
+    <input name="listMode" type="hidden" value={listMode} />
     <div class="m3-form-surface">
         <FormSection title={$t("ui.list-identity")}>
             <div class="grid grid-cols-12 gap-5">
+                <label class="m3-label col-span-full" for="listMode">
+                    <span>{$t("wishes.list-type")}</span>
+                    <Select id="listMode" disabled={editing} bind:value={listMode}>
+                        <option value="standard">{$t("admin.wishlist-mode-wishlist")}</option>
+                        <option value="registry">{$t("admin.wishlist-mode-registry")}</option>
+                    </Select>
+                    <span class="subtext">
+                        {$t(listMode === "registry" ? "wishes.registry-description" : "wishes.wishlist-description")}
+                    </span>
+                </label>
                 <div class="col-span-full flex w-full flex-row flex-wrap gap-4">
                     <label class="m3-label w-fit grow" for="name">
                         <span>{$t("auth.name")}</span>
@@ -110,6 +130,7 @@
                             clearButtonLabel={$t("a11y.clear-name-field")}
                             onValueClear={() => (list.name = null)}
                             placeholder={$t("wishes.wishes-for", { values: { listOwner: list.owner.name } })}
+                            required={listMode === "registry"}
                             showClearButton={() => list.name !== null}
                             type="text"
                             bind:value={list.name}
@@ -155,93 +176,98 @@
         </FormSection>
         <FormSection title={$t("ui.list-sharing")}>
             <div class="grid grid-cols-12 gap-5">
-                <fieldset class="col-span-full min-w-0">
-                    <legend class="m3-label mb-2">{$t("wishes.visible-in-groups")}</legend>
-                    <AdaptivePicker label={$t("wishes.visible-in-groups")} bind:open={groupsOpen}>
-                        {#snippet trigger(props)}
-                            <button {...props} class="m3-secondary m3-button max-w-full" type="button">
-                                <iconify-icon aria-hidden="true" icon="ion:people"></iconify-icon>
-                                <span class="truncate">{$t("wishes.select-groups")} ({groups.length})</span>
-                            </button>
-                        {/snippet}
-                        <div class="m3-choice-list max-h-72 overflow-auto" data-testid="list-group-options">
-                            {#each groupOptions as group (group.id)}
-                                <Checkbox
-                                    checked={groups.includes(group.id)}
-                                    onchange={(event) => {
-                                        groups = event.currentTarget.checked
-                                            ? [...groups, group.id]
-                                            : groups.filter((id) => id !== group.id);
-                                    }}
-                                >
-                                    <span>{group.name}</span>
-                                </Checkbox>
-                            {/each}
+                {#if listMode === "standard"}
+                    <fieldset class="col-span-full min-w-0">
+                        <legend class="m3-label mb-2">{$t("wishes.visible-in-groups")}</legend>
+                        <AdaptivePicker label={$t("wishes.visible-in-groups")} bind:open={groupsOpen}>
+                            {#snippet trigger(props)}
+                                <button {...props} class="m3-secondary m3-button max-w-full" type="button">
+                                    <iconify-icon aria-hidden="true" icon="ion:people"></iconify-icon>
+                                    <span class="truncate">{$t("wishes.select-groups")} ({groups.length})</span>
+                                </button>
+                            {/snippet}
+                            <div class="m3-choice-list max-h-72 overflow-auto" data-testid="list-group-options">
+                                {#each groupOptions as group (group.id)}
+                                    <Checkbox
+                                        checked={groups.includes(group.id)}
+                                        onchange={(event) => {
+                                            groups = event.currentTarget.checked
+                                                ? [...groups, group.id]
+                                                : groups.filter((id) => id !== group.id);
+                                        }}
+                                    >
+                                        <span>{group.name}</span>
+                                    </Checkbox>
+                                {/each}
+                            </div>
+                        </AdaptivePicker>
+                        <p class="subtext mt-2">
+                            {groupOptions
+                                .filter((group) => groups.includes(group.id))
+                                .map((group) => group.name)
+                                .join(", ")}
+                        </p>
+                        <p class="subtext mt-2">{$t("wishes.shared-groups-description")}</p>
+                        {#if !groupOptions.length}
+                            <a class="m3-text-button m3-button" href="/account/groups#create">
+                                {$t("general.create-group")}
+                            </a>
+                        {/if}
+                        {#each [...new Set([...groups, ...lockedGroups])] as groupId (groupId)}
+                            <input name="groups" type="hidden" value={groupId} />
+                        {/each}
+                    </fieldset>
+                    {#if allowsPublicLists}
+                        <div class="col-span-full">
+                            <Checkbox name="public" checked={list.public}>
+                                <span>{$t("wishes.public")}</span>
+                                {#snippet description()}
+                                    {$t("wishes.public-list-option-description")}
+                                {/snippet}
+                            </Checkbox>
                         </div>
-                    </AdaptivePicker>
-                    <p class="subtext mt-2">
-                        {groupOptions
-                            .filter((group) => groups.includes(group.id))
-                            .map((group) => group.name)
-                            .join(", ")}
-                    </p>
-                    <p class="subtext mt-2">{$t("wishes.shared-groups-description")}</p>
-                    {#each [...new Set([...groups, ...lockedGroups])] as groupId (groupId)}
-                        <input name="groups" type="hidden" value={groupId} />
-                    {/each}
-                </fieldset>
-                {#if allowsPublicLists || listMode === "registry"}
+                    {/if}
+
                     <div class="col-span-full">
-                        <Checkbox
-                            name="public"
-                            checked={list.public || listMode === "registry"}
-                            disabled={listMode === "registry"}
-                        >
-                            <span>{$t("wishes.public")}</span>
+                        <Checkbox name="hideOwner" bind:checked={list.hideOwner}>
+                            <span>{$t("wishes.hide-owner")}</span>
                             {#snippet description()}
-                                {$t("wishes.public-list-option-description")}
+                                {$t("wishes.list-hide-owner-description")}
                             {/snippet}
                         </Checkbox>
                     </div>
-                {/if}
 
-                <div class="col-span-full">
-                    <Checkbox name="hideOwner" bind:checked={list.hideOwner}>
-                        <span>{$t("wishes.hide-owner")}</span>
-                        {#snippet description()}
-                            {$t("wishes.list-hide-owner-description")}
-                        {/snippet}
-                    </Checkbox>
-                </div>
-
-                <div class="col-span-full">
-                    <Checkbox name="notForMe" bind:checked={list.notForMe}>
-                        <span>{$t("wishes.list-not-for-me")}</span>
-                        {#snippet description()}
-                            <span>
-                                {$t("wishes.list-not-for-me-description")}
-                            </span>
-                        {/snippet}
-                    </Checkbox>
-                </div>
-
-                <div class="col-span-full">
-                    <Checkbox
-                        name="allowSelfClaims"
-                        disabled={!claimsVisibleToOwner || list.notForMe}
-                        bind:checked={list.allowSelfClaims}
-                    >
-                        <span>{$t("wishes.list-allow-self-claims")}</span>
-                        {#snippet description()}
-                            <span>{$t("wishes.list-allow-self-claims-description")}</span>
-                            {#if !claimsVisibleToOwner}
-                                <span class="text-invalid italic">
-                                    {$t("wishes.list-allow-self-claims-description-helper-text")}
+                    <div class="col-span-full">
+                        <Checkbox name="notForMe" bind:checked={list.notForMe}>
+                            <span>{$t("wishes.list-not-for-me")}</span>
+                            {#snippet description()}
+                                <span>
+                                    {$t("wishes.list-not-for-me-description")}
                                 </span>
-                            {/if}
-                        {/snippet}
-                    </Checkbox>
-                </div>
+                            {/snippet}
+                        </Checkbox>
+                    </div>
+
+                    <div class="col-span-full">
+                        <Checkbox
+                            name="allowSelfClaims"
+                            disabled={!claimsVisibleToOwner || list.notForMe}
+                            bind:checked={list.allowSelfClaims}
+                        >
+                            <span>{$t("wishes.list-allow-self-claims")}</span>
+                            {#snippet description()}
+                                <span>{$t("wishes.list-allow-self-claims-description")}</span>
+                                {#if !claimsVisibleToOwner}
+                                    <span class="text-invalid italic">
+                                        {$t("wishes.list-allow-self-claims-description-helper-text")}
+                                    </span>
+                                {/if}
+                            {/snippet}
+                        </Checkbox>
+                    </div>
+                {:else}
+                    <p class="subtext col-span-full">{$t("wishes.registry-always-public")}</p>
+                {/if}
             </div>
         </FormSection>
         <FormSection title={$t("ui.list-management")}>
@@ -274,8 +300,9 @@
 
                         <SelectListManagerModal
                             {groupId}
-                            managers={[list.owner, ...managers]}
+                            managers={listMode === "registry" ? managers : [list.owner, ...managers]}
                             onSubmit={(newManager) => (managers = [...managers, newManager])}
+                            registry={listMode === "registry"}
                         >
                             {#snippet trigger(props)}
                                 <button {...props} class="m3-secondary m3-button m3-button-small" type="button">
@@ -300,6 +327,8 @@
                                 </div>
                                 <button
                                     class="flex items-center"
+                                    disabled={listMode === "registry" &&
+                                        (managers.length === 1 || (!editing && manager.id === list.owner.id))}
                                     onclick={() => removeManager(manager.id)}
                                     type="button"
                                 >
@@ -327,7 +356,11 @@
                 <div class="col-span-full">
                     <div class="flex flex-col space-y-2">
                         <span>{$t("wishes.preview")}</span>
-                        <ListCard hideCount {list} preventNavigate />
+                        <ListCard
+                            hideCount
+                            list={{ ...list, hideOwner: listMode === "registry" || list.hideOwner }}
+                            preventNavigate
+                        />
                     </div>
                 </div>
             </div>

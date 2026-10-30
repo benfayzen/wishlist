@@ -17,7 +17,7 @@ Wishlist is a self-hosted wishlist application that you can share with your frie
 - [x] Options for [suggestions](#suggestions)
 - [x] PWA Support
 - [x] Multiple groups
-- [x] Registry Mode (single list)
+- [x] Public registries with list managers
 - [x] OAuth Authentication
 
 ## Screenshots
@@ -140,17 +140,34 @@ open the groups you manage. Your lists and reservations are kept when you leave.
 
 Currently, anyone can create a group. The group creator is automatically added as a "manager" of the group. A Group Manager can invite users to Wishlist and add/remove existing users to the group they manage. The Group Manager can also delete the group. An Admin will have the same permissions as the Group Manager.
 
-## Registry Mode
+## Registries
 
-Wishlist has the ability to turn a group into a Registry. In this mode, only a single user can be part of the group and there is only one list. The owner of the group can add items to the list as normal and then get a public link to share out to friends and family. Users accessing this link will not need to sign in or create an account. Public users can view the items on the list and also claim items. In order to claim an item, the user just needs to enter some identifier (email for example) and can optionally add their name. Currently there is no way to un-claim items that are claimed in this manner.
+When creating a list, choose Wishlist or Registry. A wishlist belongs to its owner
+and can be shared with several groups. A registry belongs to no group, is always
+public through its link, and has list managers instead of an owner. The creator
+becomes its first manager. A registry can also be created without joining a group.
 
-To activate this mode, go to the admin panel of your group and change the mode from "Wishlist" to "Registry".
+Managers can edit the registry, add items, and add or remove managers by exact
+username. At least one manager must remain. Removing a manager removes their
+management rights, including those of the original creator. My Lists shows the
+wishlists you own and the registries you manage once each. Group filters apply to
+wishlists; registries appear when no group filter is selected.
+
+Registries use the installation-wide claim settings. Visitors can view and reserve
+registry items without an account. The list type is
+fixed after creation. During an upgrade, existing public lists configured as
+registries become independent registries, retaining their contents and
+reservations. Their former owners become managers. Private lists remain private.
 
 ## Configuration
 
 There are several configuration options in the admin panel.
 
 ### Public Signup
+
+Optional Cloudflare Turnstile and configurable registration limits protect signup.
+See
+[registration protection](./docs/registration-protection.md) for setup and proxy requirements.
 
 By default, anyone with the url can signup for an account. You can turn this off and have it be invite only.
 

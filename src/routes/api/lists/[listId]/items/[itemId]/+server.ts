@@ -19,6 +19,7 @@ export const PATCH: RequestHandler = async ({ request, params }) => {
     const list = await client.list.findUnique({
         select: {
             ownerId: true,
+            listMode: true,
             managers: {
                 select: {
                     userId: true
@@ -88,6 +89,7 @@ export const DELETE: RequestHandler = async ({ params }) => {
         client.list.findUnique({
             select: {
                 ownerId: true,
+                listMode: true,
                 managers: {
                     select: {
                         userId: true
@@ -148,7 +150,7 @@ export const DELETE: RequestHandler = async ({ params }) => {
     }
 
     if (
-        listItem.addedById !== user.id &&
+        (list.listMode === "registry" || listItem.addedById !== user.id) &&
         list.ownerId !== user.id &&
         !list.managers.find(({ userId }) => userId === user.id)
     ) {
