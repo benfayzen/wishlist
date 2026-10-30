@@ -225,13 +225,24 @@
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+    .admin-member-actions.m3-claim-split {
+        flex-wrap: nowrap;
+        gap: 2px;
+    }
+    .m3-danger-zone {
+        margin-block-start: 2rem;
+        padding: 1.25rem;
+        border: 1px solid color-mix(in srgb, var(--md-error) 35%, var(--md-outline-variant));
+        border-radius: var(--md-shape-large);
+        background: color-mix(in srgb, var(--md-error-container) 22%, var(--md-surface-container-low));
+    }
     .admin-danger-actions {
-        padding-block-start: 1.5rem;
-        margin-block-start: 1.5rem;
-        border-block-start: 1px solid var(--md-outline-variant);
+        padding-block-start: 0;
+        margin-block-start: 0;
+        border-block-start: 0;
     }
     .admin-member-actions .m3-button {
-        flex: 1 1 8rem;
+        flex: 1 1 0%;
         min-inline-size: 0;
     }
     @container admin (width < 48rem) {
