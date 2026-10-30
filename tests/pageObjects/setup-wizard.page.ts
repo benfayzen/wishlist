@@ -50,6 +50,10 @@ export class SetupWizardPage {
         await this.page.waitForURL("/setup-wizard/step/2", { waitUntil: "domcontentloaded" });
 
         // Step 2: Settings
+        // Most existing scenarios explicitly exercise automatic default lists.
+        const automaticLists = this.page.locator("#enableDefaultListCreation");
+        await expect(automaticLists).not.toBeChecked();
+        await automaticLists.check();
         await this.next();
         await this.page.waitForURL("/setup-wizard/step/3", { waitUntil: "domcontentloaded" });
 

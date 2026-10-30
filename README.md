@@ -36,19 +36,20 @@ adapts from a desktop rail to a bottom bar on mobile.
     <img src="./assets/homepage-mobile.png" alt="Marsh Family overview on a phone with bottom navigation and an add-list button" width="25%" />
 </p>
 
-Switch groups to keep gifts for family and friends separate, using the same account.
+Filter the overview by group, or share a list with several groups while keeping
+reservations in sync.
 
-<img src="./assets/friends-desktop.png" alt="South Park Friends wishlists for Stan, Kyle, Kenny and Eric, with the group picker open" />
+<img src="./assets/friends-desktop.png" alt="South Park Friends wishlists for Stan, Kyle, Kenny and Eric, with the group filter open" />
 
 ### Make a wish, plan a gift
 
 Manage your own wishes in a compact text-only list on mobile, approve suggestions,
-browse a friend's list, or change your group, language and theme from the account menu.
+browse a friend's list, or open your groups, language and theme from the account menu.
 
 <p align="center">
     <img src="./assets/my-wishes-mobile.png?v=text-only" alt="Stan's Winter Adventures in the mobile list layout, with owner controls and full-width text" width="32%" />
     <img src="./assets/wishes-mobile.png?v=text-only" alt="Shelly's wishlist in the mobile text-only list layout, with prices, notes and claim controls" width="32%" />
-    <img src="./assets/account-menu-mobile.png" alt="Stan's mobile account menu with group switching, language and theme controls" width="32%" />
+    <img src="./assets/account-menu-mobile.png" alt="Stan's mobile account menu with group management, language and theme controls" width="32%" />
 </p>
 
 List colors carry through the interface in light and dark themes. Mark a favorite
@@ -128,7 +129,14 @@ proxy_busy_buffers_size   256k;
 
 ## Groups
 
-Wishlist has support for multiple wishlist groups. For example, you can have one group for friends and one for family. The wishes on these lists will be completely separate. You can switch between groups using the menu when you click on your profile picture.
+Each list has one owner and can be shared with several groups, such as friends
+and family. Shared lists use the same wishes and reservations, helping prevent
+duplicate gifts. Change visibility in the list's group selection. My Lists shows
+all your own lists; the overview defaults to all your groups and offers a group
+filter without changing a global group selection.
+
+Open Account → Groups to see your memberships, create groups, leave groups or
+open the groups you manage. Your lists and reservations are kept when you leave.
 
 Currently, anyone can create a group. The group creator is automatically added as a "manager" of the group. A Group Manager can invite users to Wishlist and add/remove existing users to the group they manage. The Group Manager can also delete the group. An Admin will have the same permissions as the Group Manager.
 
@@ -144,8 +152,8 @@ There are several configuration options in the admin panel.
 
 ### Public Signup
 
-Optional Cloudflare Turnstile and configurable registration limits are available
-in the `registration-protection` feature image. See
+Optional Cloudflare Turnstile and configurable registration limits protect signup.
+See
 [registration protection](./docs/registration-protection.md) for setup and proxy requirements.
 
 By default, anyone with the url can signup for an account. You can turn this off and have it be invite only.

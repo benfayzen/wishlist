@@ -109,7 +109,7 @@ const getDefaultConfig = (): Config => ({
         passwordStrength: 2,
         disablePasswordLogin: false
     },
-    enableDefaultListCreation: true,
+    enableDefaultListCreation: false,
     allowPublicLists: false,
     oidc: {
         enable: false

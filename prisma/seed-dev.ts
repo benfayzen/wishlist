@@ -283,6 +283,7 @@ async function main() {
                         id,
                         ownerId,
                         groupId: groups[definition.group],
+                        groupShares: { create: { groupId: groups[definition.group] } },
                         name: definition.name,
                         icon: definition.icon,
                         iconColor: definition.color,

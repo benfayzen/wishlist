@@ -6,7 +6,6 @@
     import Avatar from "../../Avatar.svelte";
     import GroupSubMenu from "./GroupSubMenu.svelte";
     import { getFormatter } from "$lib/i18n";
-    import GroupSelectChip from "$lib/components/wishlists/chips/GroupSelectChip.svelte";
     import ChangeLanguageModal from "$lib/components/modals/ChangeLanguageModal.svelte";
     import LightSwitch from "./LightSwitch.svelte";
 
@@ -31,11 +30,6 @@
 
 {#if user}
     <div class="flex min-w-0 items-center gap-4">
-        {#if groups && groups.length > 1}
-            <div class="hidden min-w-0 min-[840px]:flex">
-                <GroupSelectChip {groups} {user} />
-            </div>
-        {/if}
         <Dialog onOpenChange={(event) => (open = event.open)} {open}>
             <Dialog.Trigger class="m3-avatar-trigger" disabled={!interactive}>
                 <Avatar class="size-10 text-xs" {user} />
@@ -98,7 +92,7 @@
                             <section aria-label={$t("admin.groups")}>
                                 <h2 class="m3-account-section-title">{$t("admin.groups")}</h2>
                                 <ul class="m3-account-section">
-                                    <GroupSubMenu {groups} onSelect={closeMenu} {user} />
+                                    <GroupSubMenu {groups} onSelect={closeMenu} />
                                 </ul>
                             </section>
                             <section aria-label={$t("admin.settings")}>

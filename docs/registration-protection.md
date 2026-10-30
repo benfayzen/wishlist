@@ -1,6 +1,8 @@
 # Registration protection
 
-## Feature image
+## Container images
+
+Registration protection is included in the `latest` image published from `main`.
 
 The `registration-protection` image tag follows the `codex/registration-protection`
 branch after source checks, security/browser tests and container smoke tests pass

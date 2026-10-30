@@ -118,7 +118,7 @@ export const listItemUpdateSchema = z.object({
 });
 
 export const listItemClaimSchema = z.object({
-    quantity: z.number(),
+    quantity: z.number().int().positive(),
     claimedById: z.string().nullish(),
     publicClaimedById: z.string().nullish()
 });

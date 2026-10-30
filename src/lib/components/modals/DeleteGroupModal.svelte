@@ -4,6 +4,8 @@
     import { goto } from "$app/navigation";
     import AlertModal from "./AlertModal.svelte";
     import ConfirmModal from "./ConfirmModal.svelte";
+    import { page } from "$app/state";
+    import { Role } from "$lib/schema";
 
     interface Props {
         groupId: string;
@@ -19,7 +21,7 @@
     const onConfirm = async () => {
         const group = await groupAPI.delete();
         if (group) {
-            goto("/admin/groups", { invalidateAll: true });
+            goto(page.data.user?.roleId === Role.ADMIN ? "/admin/groups" : "/account/groups", { invalidateAll: true });
         }
     };
 </script>

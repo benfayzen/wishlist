@@ -5,7 +5,9 @@ import { error } from "@sveltejs/kit";
 import { getConfig } from "$lib/server/config";
 import { getFormatter } from "$lib/server/i18n";
 import { getById } from "$lib/server/list";
-import { getActiveMembership } from "$lib/server/group-membership";
+import { getListMembership } from "$lib/server/list-sharing";
+import { visibleClaims } from "$lib/server/claim-visibility";
+import type { ItemOnListDTO } from "$lib/dtos/item-dto";
 import { ItemCreateHandler, ItemDeleteHandler, ItemsUpdateHandler, ItemUpdateHandler } from "$lib/events";
 
 export const GET = (async ({ locals, params }) => {
@@ -21,8 +23,10 @@ export const GET = (async ({ locals, params }) => {
         }
     } else {
         // Logged in users must be in the correct group, or viewing a public list
-        const activeMembership = await getActiveMembership(locals.user);
-        if (!list || (!list.public && list.groupId !== activeMembership.groupId)) {
+        if (
+            !list ||
+            (!list.public && list.owner.id !== locals.user.id && !(await getListMembership(list, locals.user.id)))
+        ) {
             error(404, $t("errors.list-not-found"));
         }
     }
@@ -38,7 +42,29 @@ export const GET = (async ({ locals, params }) => {
         return new Response();
     }
 
-    const { readable, subscribeToEvent } = createSSE();
+    const membership = locals.user ? await getListMembership(list, locals.user.id) : undefined;
+    const { readable, subscribeToEvent } = createSSE(
+        0,
+        async () => {
+            const current = await getById(params.id);
+            if (!current) return false;
+            if (current.public || current.owner.id === locals.user?.id) return true;
+            if (!locals.user) return false;
+            return !!(await getListMembership(current, locals.user.id));
+        },
+        (data) => {
+            if (data && typeof data === "object" && "claims" in data && "userId" in data) {
+                return visibleClaims(
+                    data as ItemOnListDTO,
+                    config,
+                    locals.user?.id,
+                    membership?.groupId,
+                    list.notForMe
+                );
+            }
+            return data;
+        }
+    );
 
     subscribeToEvent(itemEmitter, new ItemUpdateHandler(params.id));
     subscribeToEvent(itemEmitter, new ItemCreateHandler(params.id));

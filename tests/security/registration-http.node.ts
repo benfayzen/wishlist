@@ -130,6 +130,31 @@ test("registration protection HTTP and browser flows", { timeout: 180000 }, asyn
             assert.equal(responses.filter((response) => response.status === 429).length, 3);
             assert.equal(await db.user.count({ where: { username: { startsWith: "parallel-" } } }), 3);
         });
+        await t.test("automatic account lists keep their group share", async () => {
+            await db.systemConfig.createMany({
+                data: [
+                    { key: "defaultGroup", groupId: "global", value: group.id },
+                    { key: "enableDefaultListCreation", groupId: "global", value: "true" }
+                ]
+            });
+            try {
+                const response = await signup("automatic-list-user", "192.0.2.10");
+                assert.equal(response.status, 200, await response.text());
+                const user = await db.user.findUniqueOrThrow({
+                    where: { username: "automatic-list-user" },
+                    include: { lists: { include: { groupShares: true } } }
+                });
+                assert.equal(user.lists.length, 1);
+                assert.deepEqual(
+                    user.lists[0].groupShares.map((share) => share.groupId),
+                    [group.id]
+                );
+            } finally {
+                await db.systemConfig.deleteMany({
+                    where: { groupId: "global", key: { in: ["defaultGroup", "enableDefaultListCreation"] } }
+                });
+            }
+        });
         await t.test("invalid requests consume attempt quota independently", async () => {
             for (let i = 0; i < 10; i++)
                 assert.equal((await (await signup("", "192.0.2.3", { password: "" })).json()).status, 400);

@@ -1,5 +1,4 @@
 import { getConfig } from "$lib/server/config";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { getFormatter } from "$lib/server/i18n";
@@ -11,17 +10,20 @@ import { requireLogin } from "$lib/server/auth";
 import { logger } from "$lib/server/logger";
 import z from "zod";
 import { resolve } from "$app/paths";
+import { getShareableGroups, ListSharingError } from "$lib/server/list-sharing";
 
 export const load = (async () => {
     const user = requireLogin();
 
-    const activeMembership = await getActiveMembership(user);
-    const config = await getConfig(activeMembership.groupId);
-    if (config.listMode === "registry") {
+    const groupOptions = await getShareableGroups(user.id, user.id);
+    if (!groupOptions.length) redirect(302, "/account/groups#create");
+    const groupId = groupOptions[0].id;
+    const config = await getConfig(groupId);
+    if (config.listMode === "registry" && groupOptions.length === 1) {
         const listCount = await client.list.count({
             where: {
                 ownerId: user.id,
-                groupId: activeMembership.groupId
+                groupId
             }
         });
         if (listCount === 1) {
@@ -30,6 +32,19 @@ export const load = (async () => {
     }
 
     return {
+        groupOptions,
+        groupPolicies: await Promise.all(
+            groupOptions.map(async ({ id }) => {
+                const rules = await getConfig(id);
+                return {
+                    id,
+                    listMode: rules.listMode,
+                    allowsPublicLists: rules.allowPublicLists,
+                    claimsVisibleToOwner: rules.claims.showForOwner
+                };
+            })
+        ),
+        selectedGroupIds: [groupId],
         list: {
             name: null,
             icon: null,
@@ -46,7 +61,7 @@ export const load = (async () => {
         listMode: config.listMode,
         allowsPublicLists: config.allowPublicLists,
         claimsVisibleToOwner: config.claims.showForOwner,
-        groupId: activeMembership.groupId
+        groupId
     };
 }) satisfies PageServerLoad;
 
@@ -55,13 +70,22 @@ export const actions: Actions = {
         const user = requireLogin();
         const $t = await getFormatter();
 
-        const activeMembership = await getActiveMembership(user);
-        const config = await getConfig(activeMembership.groupId);
+        const form = await request.formData();
+        const allowedGroups = await getShareableGroups(user.id, user.id);
+        const groups =
+            form.has("groupsProvided") || form.has("groups")
+                ? [...new Set(form.getAll("groups").map(String))]
+                : allowedGroups.slice(0, 1).map(({ id }) => id);
+        if (!groups.length || groups.some((id) => !allowedGroups.some((group) => group.id === id))) {
+            return fail(403, { success: false, error: $t("errors.not-authorized") });
+        }
+        const groupId = groups[0];
+        const config = await getConfig(groupId);
         if (config.listMode === "registry") {
             const listCount = await client.list.count({
                 where: {
                     ownerId: user.id,
-                    groupId: activeMembership.groupId
+                    groupId
                 }
             });
             if (listCount === 1) {
@@ -72,7 +96,6 @@ export const actions: Actions = {
             }
         }
 
-        const form = await request.formData();
         const listPropertiesSchema = getListPropertiesSchema();
         const listProperties = listPropertiesSchema.safeParse({
             name: form.get("name"),
@@ -121,9 +144,13 @@ export const actions: Actions = {
                 notForMe: listProperties.data.notForMe,
                 description: trimToNull(listProperties.data.description)
             };
-            list = await create(user.id, activeMembership.groupId, data);
+            list = await create(user.id, groupId, data, groups);
             await adjustListManagers(list.id, listProperties.data.managers);
         } catch (err) {
+            if (list) await client.list.delete({ where: { id: list.id } });
+            if (err instanceof ListSharingError) {
+                return fail(403, { success: false, error: $t("errors.not-authorized") });
+            }
             logger.error({ err }, "Unable to create list");
             return fail(500, { success: false, error: $t("errors.unable-to-create-list") });
         }

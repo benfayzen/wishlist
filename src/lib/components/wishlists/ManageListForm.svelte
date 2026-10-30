@@ -14,6 +14,7 @@
     import { validSeed, DEFAULT_SEED } from "$lib/theme";
     import Checkbox from "../Checkbox.svelte";
     import FieldShell from "../FieldShell.svelte";
+    import AdaptivePicker from "../AdaptivePicker.svelte";
 
     interface ListProps extends Partial<
         Pick<
@@ -41,19 +42,34 @@
         claimsVisibleToOwner: boolean;
         groupId: string;
         editing?: boolean;
+        groupOptions?: { id: string; name: string }[];
+        selectedGroupIds?: string[];
+        groupPolicies?: { id: string; listMode: ListMode; allowsPublicLists: boolean; claimsVisibleToOwner: boolean }[];
     }
 
     const {
         list: list_,
         persistButtonName,
-        listMode,
-        allowsPublicLists,
-        claimsVisibleToOwner,
-        groupId,
-        editing = false
+        listMode: fallbackListMode,
+        allowsPublicLists: fallbackPublicLists,
+        claimsVisibleToOwner: fallbackOwnerClaims,
+        groupId: fallbackGroupId,
+        editing = false,
+        groupOptions = [],
+        selectedGroupIds = [],
+        groupPolicies = []
     }: Props = $props();
     const t = getFormatter();
     const formId: string = $props.id();
+    let groupsOpen = $state(false);
+    // svelte-ignore state_referenced_locally
+    let groups = $state([...selectedGroupIds]);
+    const groupId = $derived(editing ? fallbackGroupId : (groups[0] ?? fallbackGroupId));
+    const policy = $derived(editing ? undefined : groupPolicies.find((policy) => policy.id === groupId));
+    const listMode = $derived(policy?.listMode ?? fallbackListMode);
+    const allowsPublicLists = $derived(policy?.allowsPublicLists ?? fallbackPublicLists);
+    const claimsVisibleToOwner = $derived(policy?.claimsVisibleToOwner ?? fallbackOwnerClaims);
+    const lockedGroups = $derived(selectedGroupIds.filter((id) => !groupOptions.some((group) => group.id === id)));
 
     // svelte-ignore state_referenced_locally
     let list = $state(list_);
@@ -80,6 +96,7 @@
         }
     }}
 >
+    <input name="groupsProvided" type="hidden" value="1" />
     <div class="m3-form-surface">
         <FormSection title={$t("ui.list-identity")}>
             <div class="grid grid-cols-12 gap-5">
@@ -138,6 +155,41 @@
         </FormSection>
         <FormSection title={$t("ui.list-sharing")}>
             <div class="grid grid-cols-12 gap-5">
+                <fieldset class="col-span-full min-w-0">
+                    <legend class="m3-label mb-2">{$t("wishes.visible-in-groups")}</legend>
+                    <AdaptivePicker label={$t("wishes.visible-in-groups")} bind:open={groupsOpen}>
+                        {#snippet trigger(props)}
+                            <button {...props} class="m3-secondary m3-button max-w-full" type="button">
+                                <iconify-icon aria-hidden="true" icon="ion:people"></iconify-icon>
+                                <span class="truncate">{$t("wishes.select-groups")} ({groups.length})</span>
+                            </button>
+                        {/snippet}
+                        <div class="m3-choice-list max-h-72 overflow-auto" data-testid="list-group-options">
+                            {#each groupOptions as group (group.id)}
+                                <Checkbox
+                                    checked={groups.includes(group.id)}
+                                    onchange={(event) => {
+                                        groups = event.currentTarget.checked
+                                            ? [...groups, group.id]
+                                            : groups.filter((id) => id !== group.id);
+                                    }}
+                                >
+                                    <span>{group.name}</span>
+                                </Checkbox>
+                            {/each}
+                        </div>
+                    </AdaptivePicker>
+                    <p class="subtext mt-2">
+                        {groupOptions
+                            .filter((group) => groups.includes(group.id))
+                            .map((group) => group.name)
+                            .join(", ")}
+                    </p>
+                    <p class="subtext mt-2">{$t("wishes.shared-groups-description")}</p>
+                    {#each [...new Set([...groups, ...lockedGroups])] as groupId (groupId)}
+                        <input name="groups" type="hidden" value={groupId} />
+                    {/each}
+                </fieldset>
                 {#if allowsPublicLists || listMode === "registry"}
                     <div class="col-span-full">
                         <Checkbox

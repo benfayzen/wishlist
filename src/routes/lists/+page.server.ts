@@ -1,24 +1,28 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { client } from "$lib/server/prisma";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { getConfig } from "$lib/server/config";
 import { decodeMultiValueFilter } from "$lib/server/sort-filter-util";
 import { requireLogin } from "$lib/server/auth";
+import { sharedWithGroup } from "$lib/server/list-sharing";
 
 export const load = (async ({ url }) => {
     const user = requireLogin();
 
-    const activeMembership = await getActiveMembership(user);
-    const config = await getConfig(activeMembership.groupId);
-    if (config.listMode === "registry") {
+    const memberships = await client.userGroupMembership.findMany({
+        where: { userId: user.id },
+        select: { groupId: true }
+    });
+    const soleGroupId = memberships.length === 1 ? memberships[0].groupId : undefined;
+    const config = await getConfig(soleGroupId);
+    if (config.listMode === "registry" && memberships.length === 1 && url.searchParams.get("users") !== user.id) {
         const list = await client.list.findFirst({
             select: {
                 id: true
             },
             where: {
                 ownerId: user.id,
-                groupId: activeMembership.groupId
+                ...sharedWithGroup(soleGroupId!)
             }
         });
         if (list) {
@@ -38,17 +42,24 @@ export const load = (async ({ url }) => {
     }
 
     const userIdFilter = decodeMultiValueFilter(url.searchParams.get("users"));
+    const ownView = userIdFilter.length === 1 && userIdFilter[0] === user.id;
+    const requestedGroups = decodeMultiValueFilter(url.searchParams.get("groups"));
+    const groupIds = memberships
+        .map(({ groupId }) => groupId)
+        .filter((id) => requestedGroups.length === 0 || requestedGroups.includes(id));
+    const visibleGroups = { groupShares: { some: { groupId: { in: groupIds } } } };
 
     const userListsQuery = client.list.findMany({
         where: {
             ownerId: user.id,
-            groupId: activeMembership.groupId
+            ...(ownView ? {} : visibleGroups)
         },
         orderBy: {
             name: "asc"
         },
         select: {
             id: true,
+            groupId: true,
             name: true,
             icon: true,
             iconColor: true,
@@ -64,17 +75,12 @@ export const load = (async ({ url }) => {
             items: {
                 select: {
                     id: true,
+                    addedById: true,
                     item: {
                         select: {
                             quantity: true
                         }
                     }
-                },
-                where: {
-                    addedBy:
-                        config.suggestions.enable && config.suggestions.method === "surprise"
-                            ? { username: user.username }
-                            : undefined
                 }
             },
             _count: {
@@ -94,7 +100,7 @@ export const load = (async ({ url }) => {
             ownerId: {
                 not: user.id
             },
-            groupId: activeMembership.groupId
+            ...visibleGroups
         },
         orderBy: [
             {
@@ -142,6 +148,11 @@ export const load = (async ({ url }) => {
     });
 
     const [myLists, otherLists] = await Promise.all([userListsQuery, otherListsQuery]);
+    const listConfigs = new Map(
+        await Promise.all(
+            [...new Set(myLists.map((list) => list.groupId))].map(async (id) => [id, await getConfig(id)] as const)
+        )
+    );
 
     const users = [
         {
@@ -162,6 +173,13 @@ export const load = (async ({ url }) => {
         myLists: myLists
             .filter((list) => userIdFilter.length === 0 || userIdFilter.includes(list.owner.id))
             .map((list) => {
+                const listConfig = listConfigs.get(list.groupId)!;
+                const visibleItems = list.items.filter(
+                    (item) =>
+                        !listConfig.suggestions.enable ||
+                        listConfig.suggestions.method !== "surprise" ||
+                        item.addedById === user.id
+                );
                 return {
                     id: list.id,
                     name: list.name,
@@ -170,7 +188,7 @@ export const load = (async ({ url }) => {
                     hideOwner: list.hideOwner,
                     owner: list.owner,
                     claimedCount: undefined,
-                    itemCount: list.items.reduce((accum, { item }) => accum + (item.quantity || 1), 0),
+                    itemCount: visibleItems.reduce((accum, { item }) => accum + (item.quantity || 1), 0),
                     unapprovedCount: list._count.items
                 };
             }),

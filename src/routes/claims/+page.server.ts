@@ -1,130 +1,38 @@
 import type { PageServerLoad } from "./$types";
 import { client } from "$lib/server/prisma";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { toItemOnListDTO } from "$lib/dtos/item-mapper";
 import { requireLogin } from "$lib/server/auth";
 import { decodeMultiValueFilter } from "$lib/server/sort-filter-util";
 import { getConfig } from "$lib/server/config";
+import { getItemInclusions } from "$lib/server/items";
 
-export const load: PageServerLoad = async ({ url, cookies }) => {
+export const load: PageServerLoad = async ({ url, cookies, depends }) => {
+    depends("data:claims");
     const user = requireLogin();
-
-    const activeMembership = await getActiveMembership(user);
-    const config = await getConfig(activeMembership.groupId);
-
-    // Read view preference from cookie (for SSR to prevent flicker)
-    const viewPreference: "list" | "tile" = cookies.get("listViewPreference") === "list" ? "list" : "tile";
-
     const userIdFilter = decodeMultiValueFilter(url.searchParams.get("users"));
-    const items = await client.item.findMany({
-        where: {
-            claims: {
-                some: {
-                    claimedById: user.id,
-                    list: {
-                        groupId: activeMembership.groupId
-                    }
-                }
-            },
-            lists: {
-                some: {
-                    list: {
-                        groupId: activeMembership.groupId
-                    }
-                }
-            },
-            userId: {
-                in: userIdFilter.length > 0 ? userIdFilter : undefined
-            }
-        },
-        include: {
-            lists: {
-                select: {
-                    listId: true,
-                    list: {
-                        select: {
-                            id: true,
-                            ownerId: true,
-                            managers: {
-                                select: {
-                                    userId: true
-                                }
-                            }
-                        }
-                    },
-                    approved: true,
-                    displayOrder: true,
-                    addedBy: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                },
-                where: {
-                    list: {
-                        groupId: activeMembership.groupId
-                    }
-                }
-            },
-            claims: {
-                select: {
-                    id: true,
-                    listId: true,
-                    purchased: true,
-                    quantity: true,
-                    claimedBy: {
-                        select: {
-                            id: true,
-                            name: true,
-                            UserGroupMembership: {
-                                select: {
-                                    groupId: true
-                                }
-                            }
-                        }
-                    },
-                    publicClaimedBy: {
-                        select: {
-                            id: true,
-                            name: true
-                        }
-                    }
-                },
-                where: {
-                    claimedById: user.id,
-                    list: {
-                        groupId: activeMembership.groupId
-                    }
-                }
-            },
-            user: {
-                select: {
-                    id: true,
-                    name: true
-                }
-            },
-            itemPrice: true,
-            _count: {
-                select: {
-                    lists: true
-                }
-            }
-        }
+    // Own reservations remain manageable even after a group share is revoked.
+    const claims = await client.itemClaim.findMany({
+        where: { claimedById: user.id, item: { userId: userIdFilter.length ? { in: userIdFilter } : undefined } },
+        include: { item: { include: getItemInclusions() }, list: { select: { groupId: true, notForMe: true } } },
+        orderBy: { id: "asc" }
     });
-
-    const itemDTOs = items.map((item) => {
-        const claim = item.claims[0];
-        return toItemOnListDTO(item, claim.listId);
-    });
-
+    const configs = new Map(
+        await Promise.all(
+            [...new Set(claims.map((claim) => claim.list.groupId))].map(
+                async (id) => [id, await getConfig(id)] as const
+            )
+        )
+    );
     return {
-        user: {
-            ...user,
-            activeGroupId: activeMembership.groupId
-        },
-        items: itemDTOs,
-        initialViewPreference: viewPreference,
-        config
+        user,
+        items: claims.map((claim) => ({
+            ...toItemOnListDTO(
+                { ...claim.item, claims: claim.item.claims.filter(({ id }) => id === claim.id) },
+                claim.listId
+            ),
+            groupId: claim.list.groupId,
+            showClaimForOwner: configs.get(claim.list.groupId)!.claims.showForOwner || claim.list.notForMe
+        })),
+        initialViewPreference: cookies.get("listViewPreference") === "list" ? ("list" as const) : ("tile" as const)
     };
 };

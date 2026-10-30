@@ -73,7 +73,14 @@ export const createUser = async (
 
         if (groupId) {
             const createList = groupConfig?.enableDefaultListCreation
-                ? tx.list.create({ data: { id: init({ length: 10 })(), ownerId: newUser.id, groupId } })
+                ? tx.list.create({
+                      data: {
+                          id: init({ length: 10 })(),
+                          ownerId: newUser.id,
+                          groupId,
+                          groupShares: { create: { groupId } }
+                      }
+                  })
                 : Promise.resolve();
             await Promise.all([
                 tx.userGroupMembership.create({

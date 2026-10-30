@@ -52,7 +52,7 @@ test("user login/logout", async ({ anonymousPage: page, adminPage }) => {
     await signinPage.at();
 });
 
-test("add user to a group", async ({ page, userData, adminPage, anonymousPage: newUserPage }) => {
+test("add user to a group", async ({ page, adminPage, anonymousPage: newUserPage }) => {
     const newUser = await createUser(adminPage.request);
 
     await page.goto("/");
@@ -66,8 +66,7 @@ test("add user to a group", async ({ page, userData, adminPage, anonymousPage: n
     await signinPage.goto();
     await signinPage.login(newUser);
 
-    const newUserMenu = new UserMenu(newUserPage);
-    await newUserMenu.changeGroup(userData.groups[0].name);
+    // All memberships are visible without switching the active group.
     const newUserlistsPage = new ListsPage(newUserPage);
-    await newUserlistsPage.goto().then((p) => p.expectListCount(2));
+    await newUserlistsPage.goto().then((p) => p.expectListCount(3));
 });

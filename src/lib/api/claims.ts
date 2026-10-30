@@ -1,3 +1,5 @@
+import { invalidate } from "$app/navigation";
+
 export class ClaimAPI {
     private claimId: string;
     constructor(claimId: string) {
@@ -18,7 +20,9 @@ export class ClaimAPI {
         }
 
         const url = `/api/claims/${this.claimId}`;
-        return await fetch(url, options);
+        const response = await fetch(url, options);
+        if (response.ok) await invalidate("data:claims");
+        return response;
     };
 
     purchase = async () => {
