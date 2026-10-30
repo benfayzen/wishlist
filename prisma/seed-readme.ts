@@ -265,7 +265,15 @@ async function main() {
             }
             for (const definition of lists) {
                 const listId = `${prefix}${definition.key}`;
-                if (await tx.list.findUnique({ where: { id: listId } })) continue;
+                if (await tx.list.findUnique({ where: { id: listId } })) {
+                    const groupId = `${prefix}${definition.group}`;
+                    await tx.listGroupShare.upsert({
+                        where: { listId_groupId: { listId, groupId } },
+                        create: { listId, groupId },
+                        update: {}
+                    });
+                    continue;
+                }
                 const ownerId = `${prefix}${definition.owner}`;
                 const members = groups
                     .find((g) => g.key === definition.group)!
@@ -278,6 +286,7 @@ async function main() {
                         name: definition.name,
                         ownerId,
                         groupId: `${prefix}${definition.group}`,
+                        groupShares: { create: { groupId: `${prefix}${definition.group}` } },
                         icon: definition.icon,
                         iconColor: definition.color,
                         description: definition.description,
