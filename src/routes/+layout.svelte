@@ -156,9 +156,6 @@
     const webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : "");
 
     let railExpanded = $state(false);
-    let footerHeight: number | undefined = $state();
-    const hasListFab = $derived(/^\/lists\/[^/]+$/.test(page.url.pathname) && !!data.user);
-    let toasterYShift: number | undefined = $derived((footerHeight || 0) + (hasListFab ? 112 : 16));
 </script>
 
 <div class="m3-app-shell" class:has-navigation={!!data.user} class:rail-expanded={railExpanded}>
@@ -188,12 +185,12 @@
         </main>
     </div>
 
-    <footer class="m3-navigation-footer print:hidden" bind:clientHeight={footerHeight}>
+    <footer class="m3-navigation-footer print:hidden">
         <BottomTabs {navItems} user={data.user} />
     </footer>
 </div>
 
-<Toaster yShift={toasterYShift} />
+<Toaster />
 
 <svelte:head>
     {@html webManifestLink}
