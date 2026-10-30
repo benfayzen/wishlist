@@ -223,6 +223,19 @@ model Patch {
     @@map("patch")
 }
 
+// Short-lived pseudonymous registration counters; never stores raw IP addresses.
+model RegistrationEvent {
+    id        String   @id @default(uuid())
+    key       String
+    kind      String
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+
+    @@index([key, kind, createdAt])
+    @@index([expiresAt])
+    @@map("registration_event")
+}
+
 // groupId keeps the original settings context; visibility uses group shares.
 model ListGroupShare {
     listId  String
