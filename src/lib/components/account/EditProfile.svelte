@@ -22,6 +22,8 @@
     const t = getFormatter();
 
     let form = $derived(page.form);
+    let selectedFiles: File[] = $state([]);
+    let saving = $state(false);
 </script>
 
 <div class="m3-profile-editor">
@@ -34,8 +36,11 @@
                 <FileUpload
                     name="profilePic"
                     accept="image/*"
+                    acceptedFiles={selectedFiles}
+                    disabled={saving}
                     form="profile"
                     label={$t("general.update-profile-picture")}
+                    onFileChange={({ acceptedFiles }) => (selectedFiles = acceptedFiles)}
                 />
             </div>
         </div>
@@ -44,17 +49,24 @@
     <form
         id="profile"
         class="m3-profile-form"
-        action="?/profile"
+        action={disabled ? "?/profilePicture" : "?/profile"}
         enctype="multipart/form-data"
         method="POST"
         use:enhance={() => {
+            saving = true;
             return async ({ result, update }) => {
-                if (result.type === "success") {
-                    toaster.info({ description: $t("general.profile-updated") });
-                } else if (result.type === "error") {
-                    toaster.error({ description: $t("general.oops") });
+                try {
+                    if (result.type === "success") {
+                        selectedFiles = [];
+                        toaster.info({ description: $t("general.profile-updated") });
+                    } else if (result.type === "error" || result.type === "failure") {
+                        const message = result.type === "failure" ? result.data?.message : undefined;
+                        toaster.error({ description: (message as string) || $t("general.oops") });
+                    }
+                    await update({ reset: false });
+                } finally {
+                    saving = false;
                 }
-                update({ reset: false });
             };
         }}
     >
@@ -96,10 +108,15 @@
         />
 
         {#if disabled}
-            <p class="subtext">{$t("auth.profile-disabled")}</p>
+            <p class="subtext">{$t("admin.profile-disabled")}</p>
         {/if}
         <div class="m3-profile-actions">
-            <button class="m3-primary m3-button w-full sm:w-fit" {disabled} form="profile" type="submit">
+            <button
+                class="m3-primary m3-button w-full sm:w-fit"
+                disabled={saving || (disabled && selectedFiles.length === 0)}
+                form="profile"
+                type="submit"
+            >
                 <iconify-icon aria-hidden="true" icon="ion:checkmark"></iconify-icon>
                 <span>{$t("general.save")}</span>
             </button>

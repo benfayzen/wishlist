@@ -42,6 +42,11 @@ export const updatePicture = async (userId: string, username: string, formData: 
 
     const filename = await createImage(username, image);
 
+    if (!filename) {
+        const $t = await getFormatter();
+        return fail(400, { message: $t("general.profile-picture-upload-failed") });
+    }
+
     if (filename) {
         const user = await client.user.findUniqueOrThrow({
             select: {
