@@ -28,12 +28,14 @@ export const replaceListGroups = async (
             where: { id: listId },
             select: {
                 ownerId: true,
+                listMode: true,
                 groupId: true,
                 managers: { select: { userId: true } },
                 groupShares: { select: { groupId: true } }
             }
         });
         if (!list) throw new ListSharingError("not-found");
+        if (list.listMode === "registry" || !list.ownerId) throw new ListSharingError("forbidden");
         if (list.ownerId !== actorId && !list.managers.some((manager) => manager.userId === actorId)) {
             throw new ListSharingError("forbidden");
         }

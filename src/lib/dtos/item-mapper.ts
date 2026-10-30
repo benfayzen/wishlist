@@ -24,7 +24,7 @@ interface ItemClaim extends Pick<PrismaItemClaim, "id" | "purchased" | "quantity
 
 type ListManager = Pick<PrismaListManager, "userId">;
 
-interface List extends Pick<PrismaList, "id" | "ownerId"> {
+interface List extends Pick<PrismaList, "id" | "ownerId" | "listMode"> {
     managers: ListManager[];
 }
 

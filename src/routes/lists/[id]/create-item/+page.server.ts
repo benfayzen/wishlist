@@ -30,14 +30,28 @@ export const load: PageServerLoad = async ({ params }) => {
     const config = await getConfig(list.groupId);
 
     if (
-        !config.suggestions.enable &&
+        (list.listMode === "registry" || !config.suggestions.enable) &&
         user.id !== list.owner.id &&
         !list.managers.find(({ userId }) => userId === user.id)
     ) {
         error(401, $t("errors.suggestions-are-disabled"));
     }
 
-    const lists = await getAvailableLists(list.owner.id, user.id);
+    const lists =
+        list.listMode === "registry"
+            ? {
+                  usersLists: [],
+                  managedLists: [
+                      {
+                          id: list.id,
+                          name: list.name,
+                          public: true,
+                          owner: { name: list.name ?? "Registry" },
+                          group: { id: "", name: "" }
+                      }
+                  ]
+              }
+            : await getAvailableLists(list.owner.id, user.id);
 
     const isOwnerOrManager =
         list.owner.id === user.id || list.managers.find(({ userId }) => userId === user.id) !== undefined;
@@ -78,7 +92,13 @@ export const actions: Actions = {
             return fail(400, { errors: z.flattenError(form.error).fieldErrors });
         }
         const { url, imageUrl, image, name, price, currency, quantity, note, lists: listIds, mostWanted } = form.data;
-        const available = await getAvailableLists(list.owner.id, user.id);
+        if (list.listMode === "registry" && !list.managers.some(({ userId }) => userId === user.id)) {
+            return fail(403, { success: false, message: $t("errors.not-authorized") });
+        }
+        const available =
+            list.listMode === "registry"
+                ? { usersLists: [], managedLists: [{ id: list.id }] }
+                : await getAvailableLists(list.owner.id, user.id);
         const allowedIds = new Set([...available.usersLists, ...available.managedLists].map(({ id }) => id));
         if (listIds.some((id) => !allowedIds.has(id))) {
             return fail(403, { success: false, message: $t("errors.not-authorized") });
@@ -137,7 +157,7 @@ export const actions: Actions = {
 
         const item = await client.item.create({
             data: {
-                userId: list.owner.id,
+                userId: list.listMode === "registry" ? user.id : list.owner.id,
                 name,
                 url,
                 note,

@@ -26,12 +26,15 @@ export const load: PageServerLoad = async ({ url }) => {
             }
         },
         where: {
-            ownerId: user.id
+            OR: [
+                { ownerId: user.id, listMode: "standard" },
+                { listMode: "registry", managers: { some: { userId: user.id } } }
+            ]
         }
     });
 
     return {
-        lists,
+        lists: lists.map((list) => ({ ...list, owner: list.owner ?? { name: "Registry" } })),
         url: productUrl || extractUrl(productText) || extractUrl(productTitle)
     };
 };
@@ -52,7 +55,13 @@ export const actions: Actions = {
         }
 
         const selectedList = await client.list.findFirst({
-            where: { id: result.data.list, ownerId: user.id },
+            where: {
+                id: result.data.list,
+                OR: [
+                    { ownerId: user.id, listMode: "standard" },
+                    { listMode: "registry", managers: { some: { userId: user.id } } }
+                ]
+            },
             select: { id: true }
         });
         if (!selectedList) return fail(403, { list: ["Not authorized"] });

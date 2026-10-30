@@ -32,7 +32,8 @@ interface MinimalManager {
 
 interface List {
     id: string;
-    ownerId: string;
+    ownerId: string | null;
+    listMode: string;
     managers: MinimalManager[];
 }
 

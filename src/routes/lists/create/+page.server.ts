@@ -10,27 +10,14 @@ import { requireLogin } from "$lib/server/auth";
 import { logger } from "$lib/server/logger";
 import z from "zod";
 import { resolve } from "$app/paths";
-import { getShareableGroups, ListSharingError } from "$lib/server/list-sharing";
+import { getShareableGroups } from "$lib/server/list-sharing";
+import { createRegistry, RegistryListError } from "$lib/server/registry-list";
 
 export const load = (async () => {
     const user = requireLogin();
-
     const groupOptions = await getShareableGroups(user.id, user.id);
-    if (!groupOptions.length) redirect(302, "/account/groups#create");
-    const groupId = groupOptions[0].id;
-    const config = await getConfig(groupId);
-    if (config.listMode === "registry" && groupOptions.length === 1) {
-        const listCount = await client.list.count({
-            where: {
-                ownerId: user.id,
-                groupId
-            }
-        });
-        if (listCount === 1) {
-            redirect(302, "/wishlists/me");
-        }
-    }
-
+    const groupId = groupOptions[0]?.id ?? "";
+    const config = await getConfig(groupId || undefined);
     return {
         groupOptions,
         groupPolicies: await Promise.all(
@@ -38,27 +25,21 @@ export const load = (async () => {
                 const rules = await getConfig(id);
                 return {
                     id,
-                    listMode: rules.listMode,
                     allowsPublicLists: rules.allowPublicLists,
                     claimsVisibleToOwner: rules.claims.showForOwner
                 };
             })
         ),
-        selectedGroupIds: [groupId],
+        selectedGroupIds: groupId ? [groupId] : [],
         list: {
             name: null,
             icon: null,
-            owner: {
-                id: user.id,
-                name: user.name,
-                username: user.username,
-                picture: user.picture || null
-            },
+            owner: { id: user.id, name: user.name, username: user.username, picture: user.picture || null },
             description: null,
             hideOwner: false,
             managers: []
         },
-        listMode: config.listMode,
+        listMode: "standard" as ListMode,
         allowsPublicLists: config.allowPublicLists,
         claimsVisibleToOwner: config.claims.showForOwner,
         groupId
@@ -69,35 +50,27 @@ export const actions: Actions = {
     persist: async ({ request }) => {
         const user = requireLogin();
         const $t = await getFormatter();
-
         const form = await request.formData();
+        const mode = z.enum(["standard", "registry"]).safeParse(form.get("listMode") ?? "standard");
+        if (!mode.success) return fail(422, { success: false, error: $t("errors.not-authorized") });
+        const isRegistry = mode.data === "registry";
         const allowedGroups = await getShareableGroups(user.id, user.id);
         const groups =
             form.has("groupsProvided") || form.has("groups")
                 ? [...new Set(form.getAll("groups").map(String))]
-                : allowedGroups.slice(0, 1).map(({ id }) => id);
-        if (!groups.length || groups.some((id) => !allowedGroups.some((group) => group.id === id))) {
-            return fail(403, { success: false, error: $t("errors.not-authorized") });
+                : isRegistry
+                  ? []
+                  : allowedGroups.slice(0, 1).map(({ id }) => id);
+        if (
+            isRegistry
+                ? groups.length > 0
+                : !groups.length || groups.some((id) => !allowedGroups.some((group) => group.id === id))
+        ) {
+            return fail(422, { success: false, error: $t("wishes.invalid-list-groups") });
         }
-        const groupId = groups[0];
+        const groupId = isRegistry ? "global" : groups[0];
         const config = await getConfig(groupId);
-        if (config.listMode === "registry") {
-            const listCount = await client.list.count({
-                where: {
-                    ownerId: user.id,
-                    groupId
-                }
-            });
-            if (listCount === 1) {
-                return fail(400, {
-                    success: false,
-                    error: $t("errors.in-registry-mode-you-can-only-have-one-list")
-                });
-            }
-        }
-
-        const listPropertiesSchema = getListPropertiesSchema();
-        const listProperties = listPropertiesSchema.safeParse({
+        const properties = getListPropertiesSchema().safeParse({
             name: form.get("name"),
             icon: form.get("icon"),
             iconColor: form.get("iconColor"),
@@ -108,53 +81,45 @@ export const actions: Actions = {
             allowSelfClaims: form.get("allowSelfClaims"),
             notForMe: form.get("notForMe")
         });
-        if (listProperties.error) {
-            return fail(422, {
-                success: false,
-                formErrors: z.flattenError(listProperties.error).fieldErrors
-            });
+        if (!properties.success)
+            return fail(422, { success: false, formErrors: z.flattenError(properties.error).fieldErrors });
+        if (!isRegistry && properties.data.public && !config.allowPublicLists) {
+            return fail(400, { success: false, error: $t("errors.public-lists-not-allowed") });
         }
-        if (listProperties.data.public && !config.allowPublicLists) {
-            return fail(400, {
-                action: "create",
-                success: false,
-                message: $t("errors.public-lists-not-allowed")
-            });
+        if (!isRegistry && properties.data.allowSelfClaims && !config.claims.showForOwner) {
+            return fail(400, { success: false, error: $t("errors.self-claims-not-available") });
         }
-        if (!listProperties.data.public && config.listMode === "registry") {
-            listProperties.data.public = true;
-        }
-        if (listProperties.data.allowSelfClaims && !config.claims.showForOwner) {
-            return fail(400, {
-                action: "create",
-                success: false,
-                message: $t("errors.self-claims-not-available")
-            });
-        }
-
         let list;
         try {
             const data = {
-                name: trimToNull(listProperties.data.name),
-                icon: trimToNull(listProperties.data.icon),
-                iconColor: trimToNull(listProperties.data.iconColor),
-                public: listProperties.data.public,
-                hideOwner: listProperties.data.hideOwner,
-                allowSelfClaims: listProperties.data.allowSelfClaims,
-                notForMe: listProperties.data.notForMe,
-                description: trimToNull(listProperties.data.description)
+                name: trimToNull(properties.data.name),
+                icon: trimToNull(properties.data.icon),
+                iconColor: trimToNull(properties.data.iconColor),
+                description: trimToNull(properties.data.description)
             };
-            list = await create(user.id, groupId, data, groups);
-            await adjustListManagers(list.id, listProperties.data.managers);
+            if (isRegistry) list = await createRegistry(user.id, data, properties.data.managers ?? []);
+            else {
+                list = await create(
+                    user.id,
+                    groupId,
+                    {
+                        ...data,
+                        public: properties.data.public,
+                        hideOwner: properties.data.hideOwner,
+                        allowSelfClaims: properties.data.allowSelfClaims,
+                        notForMe: properties.data.notForMe
+                    },
+                    groups
+                );
+                await adjustListManagers(list.id, properties.data.managers);
+            }
         } catch (err) {
             if (list) await client.list.delete({ where: { id: list.id } });
-            if (err instanceof ListSharingError) {
-                return fail(403, { success: false, error: $t("errors.not-authorized") });
-            }
+            if (err instanceof RegistryListError)
+                return fail(422, { success: false, error: $t(`wishes.registry-${err.reason}`) });
             logger.error({ err }, "Unable to create list");
             return fail(500, { success: false, error: $t("errors.unable-to-create-list") });
         }
-
-        return redirect(302, resolve("/lists/[id]", { id: list.id }));
+        redirect(302, resolve("/lists/[id]", { id: list.id }));
     }
 };

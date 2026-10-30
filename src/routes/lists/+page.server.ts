@@ -1,10 +1,8 @@
-import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { client } from "$lib/server/prisma";
 import { getConfig } from "$lib/server/config";
 import { decodeMultiValueFilter } from "$lib/server/sort-filter-util";
 import { requireLogin } from "$lib/server/auth";
-import { sharedWithGroup } from "$lib/server/list-sharing";
 
 export const load = (async ({ url }) => {
     const user = requireLogin();
@@ -13,34 +11,6 @@ export const load = (async ({ url }) => {
         where: { userId: user.id },
         select: { groupId: true }
     });
-    const soleGroupId = memberships.length === 1 ? memberships[0].groupId : undefined;
-    const config = await getConfig(soleGroupId);
-    if (config.listMode === "registry" && memberships.length === 1 && url.searchParams.get("users") !== user.id) {
-        const list = await client.list.findFirst({
-            select: {
-                id: true
-            },
-            where: {
-                ownerId: user.id,
-                ...sharedWithGroup(soleGroupId!)
-            }
-        });
-        if (list) {
-            redirect(302, `/lists/${list.id}`);
-        }
-        return {
-            myLists: [],
-            otherLists: [],
-            users: [
-                {
-                    id: user.id,
-                    name: user.name,
-                    picture: user.picture || null
-                }
-            ]
-        };
-    }
-
     const userIdFilter = decodeMultiValueFilter(url.searchParams.get("users"));
     const ownView = userIdFilter.length === 1 && userIdFilter[0] === user.id;
     const requestedGroups = decodeMultiValueFilter(url.searchParams.get("groups"));
@@ -51,8 +21,12 @@ export const load = (async ({ url }) => {
 
     const userListsQuery = client.list.findMany({
         where: {
-            ownerId: user.id,
-            ...(ownView ? {} : visibleGroups)
+            OR: [
+                { ownerId: user.id, listMode: "standard", ...(ownView ? {} : visibleGroups) },
+                ...(ownView || requestedGroups.length === 0
+                    ? [{ listMode: "registry", managers: { some: { userId: user.id } } }]
+                    : [])
+            ]
         },
         orderBy: {
             name: "asc"
@@ -60,6 +34,7 @@ export const load = (async ({ url }) => {
         select: {
             id: true,
             groupId: true,
+            listMode: true,
             name: true,
             icon: true,
             iconColor: true,
@@ -97,9 +72,8 @@ export const load = (async ({ url }) => {
 
     const otherListsQuery = client.list.findMany({
         where: {
-            ownerId: {
-                not: user.id
-            },
+            listMode: "standard",
+            ownerId: { not: user.id },
             ...visibleGroups
         },
         orderBy: [
@@ -147,7 +121,10 @@ export const load = (async ({ url }) => {
         }
     });
 
-    const [myLists, otherLists] = await Promise.all([userListsQuery, otherListsQuery]);
+    const [ownRows, otherRows] = await Promise.all([userListsQuery, otherListsQuery]);
+    const fallbackOwner = { id: user.id, name: "", username: "", picture: null };
+    const myLists = ownRows.map((list) => ({ ...list, owner: list.owner ?? fallbackOwner }));
+    const otherLists = otherRows.map((list) => ({ ...list, owner: list.owner ?? fallbackOwner }));
     const listConfigs = new Map(
         await Promise.all(
             [...new Set(myLists.map((list) => list.groupId))].map(async (id) => [id, await getConfig(id)] as const)
@@ -176,6 +153,7 @@ export const load = (async ({ url }) => {
                 const listConfig = listConfigs.get(list.groupId)!;
                 const visibleItems = list.items.filter(
                     (item) =>
+                        list.listMode === "registry" ||
                         !listConfig.suggestions.enable ||
                         listConfig.suggestions.method !== "surprise" ||
                         item.addedById === user.id

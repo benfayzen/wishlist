@@ -33,6 +33,7 @@ export class UserAPI {
 
 type UsersSearchOptions = {
     groupId?: string;
+    registryManagers?: boolean;
     excludedUserIds?: string[];
 };
 
@@ -56,6 +57,7 @@ export class UsersAPI {
         const params = new URLSearchParams();
         params.append("name", search);
         if (options?.groupId) params.append("groupId", options.groupId);
+        if (options?.registryManagers) params.append("registryManagers", "1");
         if (options?.excludedUserIds) params.append("excludedUserIds", options.excludedUserIds.join(","));
         return await this._makeRequest("GET", params.toString());
     };

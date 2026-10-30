@@ -7,7 +7,7 @@ import { error, type RequestHandler } from "@sveltejs/kit";
 import { requireLoginOrError } from "$lib/server/auth";
 import type { List as PrismaList, Item as PrismaItem } from "$lib/generated/prisma/client";
 
-interface List extends Pick<PrismaList, "groupId"> {
+interface List extends Pick<PrismaList, "groupId" | "listMode"> {
     managers: string[];
 }
 
@@ -37,6 +37,7 @@ const validateItem = async (itemId: string | undefined) => {
                     list: {
                         select: {
                             groupId: true,
+                            listMode: true,
                             managers: {
                                 select: {
                                     userId: true
@@ -58,6 +59,7 @@ const validateItem = async (itemId: string | undefined) => {
         ...rest,
         lists: lists.map((li) => ({
             groupId: li.list.groupId,
+            listMode: li.list.listMode,
             managers: li.list.managers.map(({ userId }) => userId)
         }))
     };
@@ -77,7 +79,14 @@ export const DELETE: RequestHandler = async ({ params }) => {
 
     // item is not created by the user or for the user and
     // item is not on a list which is managed by the user
-    if (user.id !== item.createdById && user.id !== item.userId && !isItemOnManagedList(item, user)) {
+    const registryOnly = item.lists.length > 0 && item.lists.every((list) => list.listMode === "registry");
+    const canManageRegistries = item.lists
+        .filter((list) => list.listMode === "registry")
+        .every((list) => list.managers.includes(user.id));
+    if (
+        !canManageRegistries ||
+        (!registryOnly && user.id !== item.createdById && user.id !== item.userId && !isItemOnManagedList(item, user))
+    ) {
         error(403, $t("errors.not-authorized"));
     }
 
