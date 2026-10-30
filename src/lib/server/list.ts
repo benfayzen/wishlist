@@ -26,6 +26,9 @@ export interface ListProperties {
     iconColor?: string | null;
     public?: boolean;
     hideOwner?: boolean;
+    description?: string | null;
+    allowSelfClaims?: boolean;
+    notForMe?: boolean;
 }
 
 export const create = async (
@@ -156,9 +159,10 @@ export const deleteLists = async (ownerId: string | undefined, groupId: string) 
 };
 
 export const getById = async (id: string) => {
-    return await client.list.findUnique({
+    const list = await client.list.findUnique({
         select: {
             id: true,
+            listMode: true,
             name: true,
             iconColor: true,
             owner: {
@@ -184,6 +188,7 @@ export const getById = async (id: string) => {
             id
         }
     });
+    return list ? { ...list, owner: list.owner ?? { id: "", name: list.name ?? "Registry", username: "" } } : null;
 };
 
 export const getItems = async (listId: string, options: GetItemsOptions) => {
@@ -281,6 +286,13 @@ export const getAvailableLists = async (ownerId: string, loggedInUserId: string)
             where: { group: { UserGroupMembership: { some: { userId: loggedInUserId } } } }
         }
     };
+    if (ownerId === "") {
+        const managed = await client.list.findMany({
+            select: selection,
+            where: { listMode: "registry", managers: { some: { userId: loggedInUserId } } }
+        });
+        return { usersLists: [], managedLists: managed.map(withGroupLabel) };
+    }
     if (ownerId === loggedInUserId) {
         // TODO: also add managed lists here
         const usersLists = await client.list.findMany({
@@ -292,6 +304,7 @@ export const getAvailableLists = async (ownerId: string, loggedInUserId: string)
         const managedLists = await client.list.findMany({
             select: selection,
             where: {
+                listMode: "standard",
                 managers: {
                     some: {
                         userId: ownerId
@@ -410,6 +423,7 @@ export const getNextDisplayOrderForLists = async (listIds: string[], mostWanted 
 };
 
 type ListForManageCheck = {
+    listMode: string;
     owner: {
         id: string;
     };
@@ -421,11 +435,17 @@ export const verifyUserCanManageList = async (userId: string, list: ListForManag
     const $t = await getFormatter();
 
     const managerIds = new Set(list.managers.map(({ userId }) => userId));
-    if (list.owner.id !== userId && !managerIds.has(userId)) {
+    if (!managerIds.has(userId) && (list.listMode === "registry" || list.owner.id !== userId)) {
         error(403, $t("errors.not-authorized"));
     }
 };
 
-function withGroupLabel<T extends { groupShares: { group: { id: string; name: string } }[] }>(list: T) {
-    return { ...list, group: list.groupShares[0]?.group ?? { id: "", name: "" } };
+function withGroupLabel<
+    T extends { owner: { name: string } | null; groupShares: { group: { id: string; name: string } }[] }
+>(list: T) {
+    return {
+        ...list,
+        owner: list.owner ?? { name: "Registry" },
+        group: list.groupShares[0]?.group ?? { id: "", name: "" }
+    };
 }

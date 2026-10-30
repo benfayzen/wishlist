@@ -6,7 +6,6 @@
     import InviteUser from "$lib/components/admin/InviteUser.svelte";
     import ClearListsButton from "$lib/components/admin/Actions/ClearListsButton.svelte";
     import { enhance } from "$app/forms";
-    import Alert from "$lib/components/Alert.svelte";
     import { getFormatter } from "$lib/i18n";
     import DeleteGroupModal from "$lib/components/modals/DeleteGroupModal.svelte";
     import ConfirmModal from "$lib/components/modals/ConfirmModal.svelte";
@@ -85,23 +84,19 @@
     <span class="admin-count">{data.group.users.length}</span>
 </div>
 
-{#if data.config.listMode !== "registry"}
-    <div class="admin-toolbar">
-        <AddUserModal excludedUserIds={data.group.users.map(({ id }) => id)} groupId={data.group.id}>
-            {#snippet trigger(props)}
-                <button class="m3-primary m3-button" type="button" {...props}>
-                    <iconify-icon aria-hidden="true" icon="ion:person-add"></iconify-icon>
-                    <span>{$t("admin.add-member")}</span>
-                </button>
-            {/snippet}
-        </AddUserModal>
-        <form method="POST" use:enhance>
-            <InviteUser config={data.config} defaultGroup={data.group} />
-        </form>
-    </div>
-{:else}
-    <Alert type="info">{@html $t("admin.registry-mode-alert-text")}</Alert>
-{/if}
+<div class="admin-toolbar">
+    <AddUserModal excludedUserIds={data.group.users.map(({ id }) => id)} groupId={data.group.id}>
+        {#snippet trigger(props)}
+            <button class="m3-primary m3-button" type="button" {...props}>
+                <iconify-icon aria-hidden="true" icon="ion:person-add"></iconify-icon>
+                <span>{$t("admin.add-member")}</span>
+            </button>
+        {/snippet}
+    </AddUserModal>
+    <form method="POST" use:enhance>
+        <InviteUser config={data.config} defaultGroup={data.group} />
+    </form>
+</div>
 
 <ul class="admin-records admin-mobile-records" aria-label={$t("admin.members")}>
     {#each data.group.users as user (user.id)}

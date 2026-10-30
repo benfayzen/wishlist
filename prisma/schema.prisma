@@ -86,8 +86,9 @@ model UserGroupMembership {
 model List {
     id              String        @id @unique @default(cuid())
     name            String?
-    owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-    ownerId         String
+    owner           User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId         String?
+    listMode        String        @default("standard")
     groupShares     ListGroupShare[]
     managers        ListManager[]
     groupId         String

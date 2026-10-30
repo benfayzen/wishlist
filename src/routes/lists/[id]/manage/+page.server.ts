@@ -11,73 +11,48 @@ import { logger } from "$lib/server/logger";
 import z from "zod";
 import { resolve } from "$app/paths";
 import { getShareableGroups, replaceListGroups, ListSharingError } from "$lib/server/list-sharing";
+import { updateRegistry, RegistryListError } from "$lib/server/registry-list";
+
+async function canManage(id: string, userId: string) {
+    const $t = await getFormatter();
+    const list = await client.list.findUnique({ where: { id }, include: { managers: true } });
+    if (!list) error(404, $t("errors.list-not-found"));
+    const manager = list.managers.some((manager) => manager.userId === userId);
+    if (!manager && (list.listMode === "registry" || list.ownerId !== userId)) error(403, $t("errors.not-authorized"));
+    return list;
+}
 
 export const load: PageServerLoad = async ({ params }) => {
     const user = requireLogin();
-
-    const $t = await getFormatter();
-
-    const list = await client.list
-        .findUnique({
-            where: {
-                id: params.id
-            },
-            select: {
-                id: true,
-                name: true,
-                icon: true,
-                iconColor: true,
-                public: true,
-                hideOwner: true,
-                allowSelfClaims: true,
-                notForMe: true,
-                owner: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        picture: true
-                    }
-                },
-                managers: {
-                    select: {
-                        user: {
-                            select: {
-                                id: true,
-                                name: true,
-                                username: true
-                            }
-                        }
-                    }
-                },
-                groupId: true,
-                groupShares: { select: { groupId: true } },
-                description: true
-            }
-        })
-        .then((list) => list ?? error(404, $t("errors.list-not-found")));
-
-    // Logged in users must be in the correct group, or viewing a public list
-    if (list.owner.id !== user.id && !list.managers.find(({ user: manager }) => manager.id === user.id)) {
-        error(401, $t("errors.not-authorized"));
-    }
+    await canManage(params.id, user.id);
+    const list = await client.list.findUniqueOrThrow({
+        where: { id: params.id },
+        include: {
+            owner: { select: { id: true, name: true, username: true, picture: true } },
+            managers: { select: { user: { select: { id: true, name: true, username: true } } } },
+            groupShares: { select: { groupId: true } }
+        }
+    });
     const config = await getConfig(list.groupId);
-
+    const groupOptions = list.listMode === "registry" ? [] : await getShareableGroups(list.ownerId!, user.id);
     return {
         themeSeed: list.iconColor,
-        groupOptions: await getShareableGroups(list.owner.id, user.id),
+        groupOptions,
         selectedGroupIds: list.groupShares.map(({ groupId }) => groupId),
         list: {
             ...list,
-            managers: list.managers.map(({ user }) => ({ ...user }))
+            owner: list.owner ?? {
+                id: user.id,
+                name: user.name,
+                username: user.username,
+                picture: user.picture ?? null
+            },
+            managers: list.managers.map(({ user }) => user)
         },
-        listMode: config.listMode,
+        listMode: list.listMode as ListMode,
         allowsPublicLists: config.allowPublicLists,
         claimsVisibleToOwner: config.claims.showForOwner,
-        groupId:
-            (await getShareableGroups(list.owner.id, user.id)).find((group) =>
-                list.groupShares.some((share) => share.groupId === group.id)
-            )?.id ?? ""
+        groupId: groupOptions.find((group) => list.groupShares.some((share) => share.groupId === group.id))?.id ?? ""
     };
 };
 
@@ -85,14 +60,13 @@ export const actions: Actions = {
     persist: async ({ request, params }) => {
         const user = requireLogin();
         const $t = await getFormatter();
-
-        await canManage(params.id, user);
-        const settings = await client.list.findUniqueOrThrow({ where: { id: params.id }, select: { groupId: true } });
-        const config = await getConfig(settings.groupId);
-
+        const list = await canManage(params.id, user.id);
+        const config = await getConfig(list.groupId);
         const form = await request.formData();
-        const listPropertiesSchema = getListPropertiesSchema();
-        const listProperties = listPropertiesSchema.safeParse({
+        if (form.has("listMode") && form.get("listMode") !== list.listMode) {
+            return fail(422, { action: "persist", success: false, message: $t("wishes.list-type-fixed") });
+        }
+        const parsed = getListPropertiesSchema().safeParse({
             name: form.get("name"),
             icon: form.get("icon"),
             iconColor: form.get("iconColor"),
@@ -103,56 +77,52 @@ export const actions: Actions = {
             allowSelfClaims: form.get("allowSelfClaims"),
             notForMe: form.get("notForMe")
         });
-        if (listProperties.error) {
-            return fail(422, {
-                success: false,
-                errors: z.flattenError(listProperties.error).fieldErrors
-            });
-        }
-        if (listProperties.data.public && !config.allowPublicLists) {
-            return fail(400, {
-                action: "persist",
-                success: false,
-                message: $t("errors.public-lists-not-allowed")
-            });
-        }
-        if (!listProperties.data.public && config.listMode === "registry") {
-            listProperties.data.public = true;
-        }
-        if (listProperties.data.allowSelfClaims && !config.claims.showForOwner) {
-            return fail(400, {
-                action: "persist",
-                success: false,
-                message: $t("errors.self-claims-not-available")
-            });
-        }
-
+        if (!parsed.success) return fail(422, { success: false, errors: z.flattenError(parsed.error).fieldErrors });
+        const properties = parsed.data;
+        const isRegistry = list.listMode === "registry";
+        if (!isRegistry && properties.public && !config.allowPublicLists)
+            return fail(400, { action: "persist", success: false, message: $t("errors.public-lists-not-allowed") });
+        if (!isRegistry && properties.allowSelfClaims && !config.claims.showForOwner)
+            return fail(400, { action: "persist", success: false, message: $t("errors.self-claims-not-available") });
         try {
-            const groupIds =
-                form.has("groupsProvided") || form.has("groups")
-                    ? form.getAll("groups").map(String)
-                    : (
-                          await client.listGroupShare.findMany({
-                              where: { listId: params.id },
-                              select: { groupId: true }
-                          })
-                      ).map(({ groupId }) => groupId);
-            await replaceListGroups(params.id, user.id, groupIds, {
-                name: trimToNull(listProperties.data.name),
-                icon: trimToNull(listProperties.data.icon),
-                iconColor: trimToNull(listProperties.data.iconColor),
-                public: listProperties.data.public,
-                hideOwner: listProperties.data.hideOwner,
-                allowSelfClaims: listProperties.data.allowSelfClaims,
-                notForMe: listProperties.data.notForMe,
-                description: trimToNull(listProperties.data.description)
-            });
-
-            await adjustListManagers(params.id, listProperties.data.managers);
-        } catch (err) {
-            if (err instanceof ListSharingError) {
-                return fail(403, { action: "persist", success: false, message: $t("errors.not-authorized") });
+            const identity = {
+                name: trimToNull(properties.name),
+                icon: trimToNull(properties.icon),
+                iconColor: trimToNull(properties.iconColor),
+                description: trimToNull(properties.description)
+            };
+            if (isRegistry) {
+                if (form.getAll("groups").length)
+                    return fail(422, { action: "persist", success: false, message: $t("wishes.invalid-list-groups") });
+                await updateRegistry(list.id, user.id, identity, properties.managers ?? []);
+            } else {
+                const groupIds =
+                    form.has("groupsProvided") || form.has("groups")
+                        ? form.getAll("groups").map(String)
+                        : (
+                              await client.listGroupShare.findMany({
+                                  where: { listId: list.id },
+                                  select: { groupId: true }
+                              })
+                          ).map(({ groupId }) => groupId);
+                await replaceListGroups(list.id, user.id, groupIds, {
+                    ...identity,
+                    public: properties.public,
+                    hideOwner: properties.hideOwner,
+                    allowSelfClaims: properties.allowSelfClaims,
+                    notForMe: properties.notForMe
+                });
+                await adjustListManagers(list.id, properties.managers);
             }
+        } catch (err) {
+            if (err instanceof RegistryListError)
+                return fail(err.reason === "forbidden" ? 403 : 422, {
+                    action: "persist",
+                    success: false,
+                    message: $t(`wishes.registry-${err.reason}`)
+                });
+            if (err instanceof ListSharingError)
+                return fail(403, { action: "persist", success: false, message: $t("errors.not-authorized") });
             logger.error({ err }, "Unable to update list settings");
             return fail(500, {
                 action: "persist",
@@ -160,56 +130,14 @@ export const actions: Actions = {
                 message: $t("errors.unable-to-update-list-settings")
             });
         }
-
-        return redirect(302, resolve("/lists/[id]", { id: params.id }));
+        redirect(302, resolve("/lists/[id]", { id: list.id }));
     },
     delete: async ({ params }) => {
         const user = requireLogin();
         const $t = await getFormatter();
-
-        const listOwner = await client.list.findUnique({
-            select: {
-                ownerId: true
-            },
-            where: {
-                id: params.id
-            }
-        });
-        if (user.id !== listOwner?.ownerId) {
-            error(401, $t("errors.not-authorized"));
-        }
-
-        try {
-            await deleteList(params.id);
-        } catch (err) {
-            logger.error({ err }, "Unable to delete list");
-            return fail(500, { action: "delete", success: false, message: $t("errors.unable-to-delete-list") });
-        }
-
-        return redirect(302, resolve("/lists"));
+        const list = await canManage(params.id, user.id);
+        if (list.listMode !== "registry" && list.ownerId !== user.id) error(403, $t("errors.not-authorized"));
+        await deleteList(list.id);
+        redirect(302, resolve("/lists"));
     }
 };
-
-async function canManage(id: string, user: LocalUser) {
-    const $t = await getFormatter();
-
-    const list = await client.list.findUnique({
-        select: {
-            ownerId: true,
-            managers: {
-                select: {
-                    userId: true
-                }
-            }
-        },
-        where: {
-            id
-        }
-    });
-    if (!list) {
-        error(404, $t("errors.list-not-found"));
-    }
-    if (user.id !== list.ownerId && !list.managers.find(({ userId }) => userId === user.id)) {
-        error(401, $t("errors.not-authorized"));
-    }
-}

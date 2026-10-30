@@ -83,7 +83,7 @@ for (const width of [390, 1440]) {
             headers,
             form: { name: "Birthday", groups: groupB.id }
         });
-        expect(forbidden.status()).toBe(401);
+        expect(forbidden.status()).toBe(403);
 
         for (const participant of [family, friends]) {
             await participant.page.goto(`/lists/${listId}`);

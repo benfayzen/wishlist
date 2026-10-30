@@ -36,6 +36,8 @@ for (const width of [390, 1440]) {
         await member.page.goto(`/lists?users=${member.user.id}`);
         await expect(member.page.locator(`a[href="${originalList}"]`)).toBeVisible();
         await member.page.goto("/lists/create");
+        await expect(member.page.getByLabel("List type")).toBeVisible();
+        await member.page.getByRole("link", { name: "Create Group", exact: true }).click();
         await expect(member.page).toHaveURL(/\/account\/groups#create$/);
         const newName = `My group ${randomString()}`;
         await member.page.getByLabel("Group Name", { exact: true }).fill(newName);

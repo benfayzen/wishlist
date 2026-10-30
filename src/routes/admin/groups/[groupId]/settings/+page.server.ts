@@ -52,7 +52,6 @@ export const actions: Actions = {
             claimsShowForOwner: true,
             claimsShowNamePublic: true,
             claimsRequireEmail: true,
-            listMode: true,
             enableDefaultListCreation: true,
             allowPublicLists: true
         });
@@ -63,7 +62,6 @@ export const actions: Actions = {
             return fail(400, { action: "settings", error: z.prettifyError(configData.error) });
         }
 
-        const existingConfig = await getConfig(params.groupId);
         const newConfig: Pick<
             Config,
             "suggestions" | "claims" | "listMode" | "enableDefaultListCreation" | "allowPublicLists"
@@ -79,48 +77,12 @@ export const actions: Actions = {
                 showNamePublic: configData.data.claimsShowNamePublic,
                 requireEmail: configData.data.claimsRequireEmail
             },
-            listMode: configData.data.listMode,
+            listMode: "standard",
             enableDefaultListCreation: configData.data.enableDefaultListCreation,
             allowPublicLists: configData.data.allowPublicLists
         };
 
-        let changingToRegistry = false;
-        if (existingConfig.listMode !== newConfig.listMode && newConfig.listMode === "registry") {
-            changingToRegistry = true;
-            const [membershipCount, listCount] = await Promise.all([
-                client.userGroupMembership.count({
-                    where: {
-                        groupId: params.groupId
-                    }
-                }),
-                client.list.count({
-                    where: {
-                        groupId: params.groupId
-                    }
-                })
-            ]);
-            if (membershipCount > 1 || listCount > 1) {
-                fail(422, {
-                    action: "settings",
-                    error: "Unable to switch list mode",
-                    errors: [{ field: "listMode", message: "" }]
-                });
-            }
-        }
-
         await writeConfig(newConfig, params.groupId);
-
-        if (changingToRegistry) {
-            // make all lists public in the group (should only be one)
-            await client.list.updateMany({
-                data: {
-                    public: true
-                },
-                where: {
-                    groupId: params.groupId
-                }
-            });
-        }
 
         return { success: true };
     }

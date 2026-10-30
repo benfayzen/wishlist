@@ -1,7 +1,6 @@
 import { client } from "$lib/server/prisma";
 import { publicListCreateSchema } from "$lib/server/validations";
 import { error } from "@sveltejs/kit";
-import { getConfig } from "$lib/server/config";
 import { getFormatter } from "$lib/server/i18n";
 import { getById, verifyUserCanManageList } from "$lib/server/list";
 import type { Prisma } from "$lib/generated/prisma/client";
@@ -19,8 +18,7 @@ export const PATCH: RequestHandler = async ({ request, params }) => {
 
     await verifyUserCanManageList(user.id, list);
 
-    const config = await getConfig(list.groupId);
-    if (config.listMode !== "registry") {
+    if (list.listMode !== "registry") {
         error(422, $t("errors.group-is-not-in-registry-mode-cannot-get-a-public-link"));
     }
 
@@ -30,6 +28,7 @@ export const PATCH: RequestHandler = async ({ request, params }) => {
         error(422, data.error.message);
     }
     const publicList = data.data.public;
+    if (publicList === false) error(422, $t("wishes.registry-always-public"));
 
     const updateData: Prisma.ListUpdateInput = {};
     if (publicList !== undefined) updateData.public = publicList;

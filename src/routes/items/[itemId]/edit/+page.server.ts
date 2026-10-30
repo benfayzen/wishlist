@@ -42,6 +42,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
                         select: {
                             id: true,
                             ownerId: true,
+                            listMode: true,
                             iconColor: true,
                             public: true,
                             groupId: true,
@@ -64,7 +65,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
         error(403, $t("errors.user-is-not-allowed-to-edit-this-item"));
     }
 
-    const lists = await getAvailableLists(item.userId, user.id);
+    const registryOnly = item.lists.every(({ list }) => list.listMode === "registry");
+    const lists = await getAvailableLists(registryOnly ? "" : item.userId, user.id);
 
     const originPath = url.searchParams.get("redirectTo");
     const originId = originPath?.match(/^\/lists\/([^/?#]+)(?:[?#].*)?$/)?.[1];
@@ -95,7 +97,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
                 id: list.id,
                 canModify:
                     list.ownerId === user.id ||
-                    addedById === user.id ||
+                    (list.listMode !== "registry" && addedById === user.id) ||
                     list.managers.find(({ userId }) => userId === user.id) !== undefined
             }))
         },
@@ -133,6 +135,7 @@ export const actions: Actions = {
                             select: {
                                 id: true,
                                 ownerId: true,
+                                listMode: true,
                                 managers: {
                                     select: {
                                         userId: true
@@ -235,7 +238,9 @@ interface ItemForListDetermination {
         addedById: string;
         list: {
             id: string;
-            ownerId: string;
+            ownerId: string | null;
+            listMode: string;
+            managers: { userId: string }[];
         };
     }[];
 }
@@ -246,17 +251,27 @@ const determineListsForUpdate = async (
     mostWanted: boolean
 ) => {
     // User who did not create the item cannot update the lists
-    if (item.createdById !== user.id) {
+    const registryOnly = item.lists.length > 0 && item.lists.every(({ list }) => list.listMode === "registry");
+    if (item.createdById !== user.id && !registryOnly) {
         return undefined;
     }
     if (lists === undefined) {
         return null;
     }
 
+    const available = await getAvailableLists(
+        registryOnly
+            ? ""
+            : (await client.item.findUniqueOrThrow({ where: { id: item.id }, select: { userId: true } })).userId,
+        user.id
+    );
+    const allowedIds = new Set([...available.usersLists, ...available.managedLists].map(({ id }) => id));
+    if (lists.some((id) => !allowedIds.has(id))) error(403, "Not authorized");
     const desiredLists = await client.list.findMany({
         select: {
             id: true,
             ownerId: true,
+            listMode: true,
             groupId: true,
             managers: {
                 select: {
@@ -280,7 +295,9 @@ const determineListsForUpdate = async (
         .filter(
             (listItem) =>
                 !desiredListIds.has(listItem.list.id) &&
-                (listItem.addedById === user.id || listItem.list.ownerId === user.id)
+                (registryOnly
+                    ? listItem.list.managers.some((manager) => manager.userId === user.id)
+                    : listItem.addedById === user.id || listItem.list.ownerId === user.id)
         )
         .map(({ id }) => id);
 

@@ -15,7 +15,6 @@
         "main-navigation": "Main navigation",
         "expand-navigation": "Expand navigation",
         "collapse-navigation": "Collapse navigation",
-
         "a-person-looking-at-an-empty-board": "A person looking at an empty board",
         "cancel-editing": "cancel editing",
         "claimed-progress": "Claimed progress",
@@ -522,7 +521,18 @@
         "view-item": "View Item",
         "view-wishes": "View Wishes",
         "wishes-for": "{listOwner}'s Wishes",
-        "write": "Write"
+        "write": "Write",
+        "list-type": "List type",
+        "wishlist-description": "A personal wishlist shared with selected groups.",
+        "registry-description": "A public registry without groups, managed by its list managers.",
+        "registry-always-public": "Registries are always public, belong to no group and are managed only by their list managers.",
+        "invalid-list-groups": "Select valid groups for this wishlist. Registries cannot belong to groups.",
+        "list-type-fixed": "The list type cannot be changed after creation.",
+        "registry-forbidden": "Only current list managers can manage this registry.",
+        "registry-invalid-name": "Enter a name for the registry.",
+        "registry-invalid-managers": "A registry needs at least one valid list manager.",
+        "manager-username": "Exact username",
+        "registry-last-manager-delete": "Assign another registry manager before deleting this account."
     },
     "ui": {
         "create-options": "More create options",

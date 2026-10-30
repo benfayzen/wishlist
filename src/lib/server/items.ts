@@ -8,6 +8,7 @@ export const getItemInclusions = (listId?: string) => {
                     select: {
                         id: true,
                         ownerId: true,
+                        listMode: true,
                         managers: {
                             select: {
                                 userId: true
