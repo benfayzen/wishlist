@@ -218,6 +218,7 @@
         "test-subject": "Test from Wishlist"
     },
     "errors": {
+        "cannot-leave-as-last-manager": "Assign another group manager before leaving this group.",
         "an-item-must-be-added-to-at-least-one-list": "An item must be added to at least one list",
         "asset-not-found": "Asset not found",
         "cannot-delete-default-group": "Cannot Delete Default Group",
@@ -296,6 +297,7 @@
         "valid-url-not-provided": "Valid url not provided"
     },
     "general": {
+        "active": "Active",
         "add-a-description": "Add a description",
         "add-user": "Add User",
         "all": "All",
@@ -318,6 +320,7 @@
         "enter-group-name": "Enter Group Name",
         "enter-user-email": "Enter the user's email and select a group for the user to join",
         "group": "Group",
+        "group-name": "Group Name",
         "group-created-successfully": "Group created successfully!",
         "icon": "Icon",
         "icon-bg-color": "Icon Background Color",
@@ -327,6 +330,8 @@
         "invite-sent": "Invite sent!",
         "invite-user": "Invite User",
         "language": "Language",
+        "leave-group": "Leave group",
+        "leave-group-confirmation": "Leave this group? Your lists and existing reservations are kept, and your lists stop being shared with this group.",
         "light": "Light",
         "loading": "Loading...",
         "manage-group": "Manage Group",

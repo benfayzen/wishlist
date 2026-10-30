@@ -13,6 +13,7 @@ export const load: PageServerLoad = async () => {
         select: {
             id: true,
             roleId: true,
+            active: true,
             group: {
                 select: {
                     id: true,
@@ -23,13 +24,16 @@ export const load: PageServerLoad = async () => {
         },
         orderBy: { group: { name: "asc" } }
     });
+    const mapped = memberships.map(({ group, ...membership }) => ({
+        ...membership,
+        group: { id: group.id, name: group.name },
+        canManage: user.roleId === Role.ADMIN || membership.roleId === Role.GROUP_MANAGER,
+        isManager: user.roleId === Role.ADMIN || membership.roleId === Role.GROUP_MANAGER,
+        canLeave: membership.roleId !== Role.GROUP_MANAGER || group.UserGroupMembership.length > 1
+    }));
     return {
-        memberships: memberships.map(({ group, ...membership }) => ({
-            ...membership,
-            group: { id: group.id, name: group.name },
-            canManage: user.roleId === Role.ADMIN || membership.roleId === Role.GROUP_MANAGER,
-            canLeave: membership.roleId !== Role.GROUP_MANAGER || group.UserGroupMembership.length > 1
-        }))
+        groups: mapped,
+        memberships: mapped
     };
 };
 
@@ -39,10 +43,10 @@ export const actions: Actions = {
         const $t = await getFormatter();
         const name = (await request.formData()).get("name");
         if (typeof name !== "string" || name.trim().length < 3 || name.trim().length > 32) {
-            return fail(422, { message: $t("groups.invalid-name") });
+            return fail(422, { error: $t("groups.invalid-name"), message: $t("groups.invalid-name") });
         }
         if (await client.group.findUnique({ where: { name: name.trim() }, select: { id: true } })) {
-            return fail(409, { message: $t("groups.name-taken") });
+            return fail(409, { error: $t("groups.name-taken"), message: $t("groups.name-taken") });
         }
         const config = await getConfig();
         const group = await client.$transaction(async (tx) => {
@@ -68,7 +72,9 @@ export const actions: Actions = {
         const user = requireLogin();
         const $t = await getFormatter();
         const groupId = (await request.formData()).get("groupId");
-        if (typeof groupId !== "string") return fail(422, { message: $t("errors.not-authorized") });
+        if (typeof groupId !== "string") {
+            return fail(422, { error: $t("errors.not-authorized"), message: $t("errors.not-authorized") });
+        }
         const result = await client.$transaction(async (tx) => {
             const membership = await tx.userGroupMembership.findFirst({ where: { userId: user.id, groupId } });
             if (!membership) return "forbidden";
@@ -83,10 +89,13 @@ export const actions: Actions = {
             await tx.userGroupMembership.delete({ where: { id: membership.id } });
             return "ok";
         });
-        if (result !== "ok")
+        if (result !== "ok") {
+            const err = $t(result === "forbidden" ? "errors.not-authorized" : "groups.last-manager");
             return fail(result === "forbidden" ? 403 : 409, {
-                message: $t(result === "forbidden" ? "errors.not-authorized" : "groups.last-manager")
+                error: err,
+                message: err
             });
+        }
         redirect(303, "/account/groups");
     }
 };

@@ -285,6 +285,7 @@
         "list-not-for-me-description": "Wenn du diese Liste für eine andere Person verwaltest, ermöglicht diese Einstellung dem Listeneigentümer, Ansprüche und Anspruchspositionen in der Liste einzusehen."
     },
     "errors": {
+        "cannot-leave-as-last-manager": "Bestimme einen anderen Gruppenleiter, bevor du diese Gruppe verlässt.",
         "group-is-not-in-registry-mode-cannot-get-a-public-link": "Gruppe ist nicht im Registermodus. Kein öffentlicher Link vorhanden",
         "asset-not-found": "Anhang nicht gefunden",
         "cannot-delete-default-group": "Standardgruppe kann nicht gelöscht werden",
@@ -401,6 +402,7 @@
         "your-account-is-currently-linked-with-oauth": "Dein Account ist momentan mit {providerName} verknüpft"
     },
     "general": {
+        "active": "Aktiv",
         "search": "Suche",
         "change-group": "Gruppe wechseln",
         "confirm": "Bestätigen",
@@ -417,12 +419,15 @@
         "enter-group-name": "Name der Gruppe",
         "enter-user-email": "Gib die E-Mail-Adresse des Benutzers ein und wähle eine Gruppe der er beitreten soll",
         "group": "Gruppe",
+        "group-name": "Gruppenname",
         "group-created-successfully": "Gruppe erfolgreich erstellt!",
         "invite": "Einladen",
         "invite-link": "Einladungslink",
         "invite-sent": "Einladung gesendet!",
         "invite-user": "Benutzer einladen",
         "manage-group": "Gruppe bearbeiten",
+        "leave-group": "Gruppe verlassen",
+        "leave-group-confirmation": "Möchtest du diese Gruppe wirklich verlassen? Deine Listen und Reservierungen bleiben erhalten, aber deine Listen werden nicht mehr mit dieser Gruppe geteilt.",
         "name-optional": "Name (optional)",
         "mode": "Modus",
         "moderate": "Moderat",
