@@ -13,7 +13,7 @@
 </script>
 
 {#if !smtpAcknowledged.current && !smtpEnable}
-    <aside class="alert preset-tonal-warning border-warning-500 mb-2 border">
+    <aside class="alert m3-alert-warning mb-2 border">
         <div class="alert-message flex flex-row items-center space-y-0 gap-x-4">
             <span><iconify-icon class="text-4xl" icon="ion:warning"></iconify-icon></span>
             <div>

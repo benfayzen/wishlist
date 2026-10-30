@@ -44,75 +44,90 @@
     };
 </script>
 
-<EditProfile autocomplete={false} disabled={profileEditDisabled} user={data.editingUser}></EditProfile>
-
-<form
-    bind:this={formEl}
-    class="mt-4 flex flex-col flex-wrap gap-4"
-    method="POST"
-    use:enhance={() => {
-        return ({ action, result, update }) => {
-            if (action.search === "?/clear-sessions" && result.type === "success") {
-                toaster.info({
-                    description: $t("admin.clear-sessions-success")
-                });
-            } else if (result.type === "error") {
-                toaster.error({ description: $t("general.oops") });
-            }
-            update();
-        };
-    }}
->
-    <div class="flex flex-wrap gap-4">
-        <button class="m3-primary m3-button w-full sm:w-fit" formaction="?/reset-password">
-            {$t("admin.generate-reset-password-link")}
-        </button>
-        {#if form?.success && form?.url}
-            <TokenCopy url={form.url}>{$t("admin.password-reset-link")}</TokenCopy>
-        {/if}
-        {#if data.editingUser.role.name == "ADMIN"}
-            <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/remove-admin">
-                {$t("admin.remove-admin")}
-            </button>
-        {:else}
-            <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/make-admin">
-                {$t("admin.make-admin")}
-            </button>
-        {/if}
+<div class="m3-account-shell">
+    <div>
+        <a class="m3-text-button m3-button w-fit" href={resolve("/admin/users")}>
+            <iconify-icon aria-hidden="true" icon="ion:arrow-back"></iconify-icon>
+            <span>{$t("admin.users")}</span>
+        </a>
     </div>
 
-    <div class="flex flex-wrap gap-4">
-        {#if data.editingUser.oauthId}
-            <button class="m3-primary m3-button w-fit" formaction="?/unlinkoauth">
-                {$t("auth.unlink-oauth", { values: { providerName: data.oidcConfig.providerName } })}
-            </button>
-        {/if}
-
-        <ConfirmModal
-            description={$t("admin.clear-sessions-confirmation")}
-            onConfirm={handleClearSessions}
-            title={$t("general.please-confirm")}
-        >
-            {#snippet trigger(props)}
-                <button class="m3-danger-tonal m3-button w-full sm:w-fit" {...props}>
-                    {$t("admin.clear-sessions")}
-                </button>
-            {/snippet}
-        </ConfirmModal>
-
-        <ConfirmModal
-            description={$t("admin.delete-user-confirmation", { values: { username: data.editingUser.username } })}
-            onConfirm={handleDelete}
-            title={$t("general.please-confirm")}
-        >
-            {#snippet trigger(props)}
-                <button class="m3-danger m3-button w-full sm:w-fit" {...props}>
-                    {$t("admin.delete-user")}
-                </button>
-            {/snippet}
-        </ConfirmModal>
+    <div class="m3-card m3-account-card">
+        <EditProfile autocomplete={false} disabled={profileEditDisabled} user={data.editingUser}></EditProfile>
     </div>
-</form>
+
+    <div class="m3-card m3-account-card">
+        <form
+            bind:this={formEl}
+            class="flex flex-col flex-wrap gap-4"
+            method="POST"
+            use:enhance={() => {
+                return ({ action, result, update }) => {
+                    if (action.search === "?/clear-sessions" && result.type === "success") {
+                        toaster.info({
+                            description: $t("admin.clear-sessions-success")
+                        });
+                    } else if (result.type === "error") {
+                        toaster.error({ description: $t("general.oops") });
+                    }
+                    update();
+                };
+            }}
+        >
+            <div class="flex flex-wrap gap-4">
+                <button class="m3-primary m3-button w-full sm:w-fit" formaction="?/reset-password">
+                    {$t("admin.generate-reset-password-link")}
+                </button>
+                {#if form?.success && form?.url}
+                    <TokenCopy url={form.url}>{$t("admin.password-reset-link")}</TokenCopy>
+                {/if}
+                {#if data.editingUser.role.name == "ADMIN"}
+                    <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/remove-admin">
+                        {$t("admin.remove-admin")}
+                    </button>
+                {:else}
+                    <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/make-admin">
+                        {$t("admin.make-admin")}
+                    </button>
+                {/if}
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+                {#if data.editingUser.oauthId}
+                    <button class="m3-primary m3-button w-fit" formaction="?/unlinkoauth">
+                        {$t("auth.unlink-oauth", { values: { providerName: data.oidcConfig.providerName } })}
+                    </button>
+                {/if}
+
+                <ConfirmModal
+                    description={$t("admin.clear-sessions-confirmation")}
+                    onConfirm={handleClearSessions}
+                    title={$t("general.please-confirm")}
+                >
+                    {#snippet trigger(props)}
+                        <button class="m3-danger-tonal m3-button w-full sm:w-fit" {...props}>
+                            {$t("admin.clear-sessions")}
+                        </button>
+                    {/snippet}
+                </ConfirmModal>
+
+                <ConfirmModal
+                    description={$t("admin.delete-user-confirmation", {
+                        values: { username: data.editingUser.username }
+                    })}
+                    onConfirm={handleDelete}
+                    title={$t("general.please-confirm")}
+                >
+                    {#snippet trigger(props)}
+                        <button class="m3-danger m3-button w-full sm:w-fit" {...props}>
+                            {$t("admin.delete-user")}
+                        </button>
+                    {/snippet}
+                </ConfirmModal>
+            </div>
+        </form>
+    </div>
+</div>
 
 <svelte:head>
     <title>{data.editingUser.name} - {$t("admin.administration")}</title>

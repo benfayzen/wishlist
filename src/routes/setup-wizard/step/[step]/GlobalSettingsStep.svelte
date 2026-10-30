@@ -61,19 +61,12 @@
         <div class="flex w-full flex-col gap-4 md:flex-row">
             <!-- Sidebar nav for larger screens -->
             <aside class="hidden md:block md:w-1/3 lg:w-1/4">
-                <nav class="list-nav">
-                    <ul>
-                        {#each options as option}
-                            <li>
-                                <a
-                                    class={[currentHash === option.hash && "preset-filled-primary-500!"]}
-                                    href={option.hash}
-                                >
-                                    {option.label($t)}
-                                </a>
-                            </li>
-                        {/each}
-                    </ul>
+                <nav class="admin-settings-navigation">
+                    {#each options as option}
+                        <a aria-current={currentHash === option.hash ? "page" : undefined} href={option.hash}>
+                            {option.label($t)}
+                        </a>
+                    {/each}
                 </nav>
             </aside>
             <!-- Select nav for small screens -->

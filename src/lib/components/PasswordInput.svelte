@@ -108,7 +108,10 @@
                             </button>
                         {/snippet}
                         {#snippet content(props)}
-                            <div {...props} class={["m3-card preset-filled p-4", props?.class]}>
+                            <div
+                                {...props}
+                                class={["m3-card bg-[var(--md-surface-container-high)] p-4 shadow-lg", props?.class]}
+                            >
                                 {#if strength.feedback.warning}
                                     <div class="flex flex-row items-center gap-x-4 pb-1">
                                         <iconify-icon icon="ion:alert-circle"></iconify-icon>

@@ -24,10 +24,12 @@
         "clear-url-field": "clear url field",
         "close": "close",
         "decrease-priority": "decrease priority for {name}",
+        "decrease-quantity": "decrease quantity",
         "default-item-image": "default item image",
         "drag-handle": "drag handle for {name}",
         "edit-group-name": "edit group name",
         "increase-priority": "increase priority for {name}",
+        "increase-quantity": "increase quantity",
         "menu": "menu",
         "password-strength": "Password Strength",
         "refresh-item-data": "refresh item data",
@@ -197,6 +199,7 @@
         "sign-in-with": "Sign in with {provider}",
         "sign-out": "Sign out",
         "sign-out-of-all-devices": "Sign out of all devices?",
+        "link-oauth": "Link with {providerName}",
         "unlink-oauth": "Unlink {providerName}",
         "update-password": "Update Password",
         "username": "Username",
@@ -217,6 +220,7 @@
         "test-subject": "Test from Wishlist"
     },
     "errors": {
+        "cannot-leave-as-last-manager": "Assign another group manager before leaving this group.",
         "registration-rate-limited": "Too many registrations from your network. Please try again in {minutes} minute(s).",
         "registration-protection-unavailable": "Registration verification is currently unavailable. Please reload the page and try again later.",
         "registration-verification-failed": "Verification failed or expired. Please complete the check again.",
@@ -298,6 +302,7 @@
         "valid-url-not-provided": "Valid url not provided"
     },
     "general": {
+        "active": "Active",
         "add-a-description": "Add a description",
         "add-user": "Add User",
         "all": "All",
@@ -320,6 +325,7 @@
         "enter-group-name": "Enter Group Name",
         "enter-user-email": "Enter the user's email and select a group for the user to join",
         "group": "Group",
+        "group-name": "Group Name",
         "group-created-successfully": "Group created successfully!",
         "icon": "Icon",
         "icon-bg-color": "Icon Background Color",
@@ -329,6 +335,8 @@
         "invite-sent": "Invite sent!",
         "invite-user": "Invite User",
         "language": "Language",
+        "leave-group": "Leave group",
+        "leave-group-confirmation": "Leave this group? Your lists and existing reservations are kept, and your lists stop being shared with this group.",
         "light": "Light",
         "loading": "Loading...",
         "manage-group": "Manage Group",
@@ -365,6 +373,8 @@
         "system": "System",
         "this-invite-link-is-only-valid-for-one-signup": "This invite link is only valid for one signup",
         "toggle-dark-mode": "Toggle light or dark mode",
+        "profile-updated": "Profile updated",
+        "update-profile-picture": "Update profile picture",
         "update": "Update",
         "use-system-language": "Use system language",
         "user": "User",
@@ -536,7 +546,8 @@
         "registry-invalid-name": "Enter a name for the registry.",
         "registry-invalid-managers": "A registry needs at least one valid list manager.",
         "manager-username": "Exact username",
-        "registry-last-manager-delete": "Assign another registry manager before deleting this account."
+        "registry-last-manager-delete": "Assign another registry manager before deleting this account.",
+        "managed-lists": "Managed lists"
     },
     "ui": {
         "create-options": "More create options",

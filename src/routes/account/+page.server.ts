@@ -31,7 +31,12 @@ export const load: PageServerLoad = async ({ locals, fetch }) => {
 export const actions: Actions = {
     profile: async ({ request }) => {
         const user = requireLogin();
-        return request.formData().then((fd) => updateProfile(user.id, fd));
+        const fd = await request.formData();
+        const profilePic = fd.get("profilePic");
+        if (profilePic && profilePic instanceof File && profilePic.size > 0) {
+            await updatePicture(user.id, user.username, fd);
+        }
+        return updateProfile(user.id, fd);
     },
 
     profilePicture: async ({ request }) => {

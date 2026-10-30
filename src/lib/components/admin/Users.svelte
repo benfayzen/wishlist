@@ -73,7 +73,7 @@
     {/each}
 </ul>
 
-<div class="admin-desktop-table table-wrap preset-outlined-surface-200-800 rounded-container">
+<div class="admin-desktop-table m3-table-wrapper table-wrap">
     <table class="table-hover table">
         <thead>
             <tr>
@@ -103,7 +103,7 @@
                     </td>
                     <td class="flex flex-wrap gap-1">
                         {#each user.groups?.toSorted() as group}
-                            <span class="badge preset-tonal-secondary inset-ring-secondary-500 inset-ring">
+                            <span class="admin-tag">
                                 {group}
                             </span>
                         {/each}

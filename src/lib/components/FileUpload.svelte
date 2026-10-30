@@ -2,7 +2,7 @@
     import { getFormatter } from "$lib/i18n";
     import { FileUpload, type FileUploadRootProps } from "@skeletonlabs/skeleton-svelte";
 
-    const { label, ...props }: FileUploadRootProps & { label?: string } = $props();
+    const { label, form, ...props }: FileUploadRootProps & { label?: string; form?: string } = $props();
 
     const t = getFormatter();
 </script>
@@ -12,7 +12,7 @@
         {$t("general.select-file")}
     </FileUpload.Trigger>
     <FileUpload.Label class="sr-only">{label ?? $t("wishes.upload-image")}</FileUpload.Label>
-    <FileUpload.HiddenInput />
+    <FileUpload.HiddenInput {form} />
     <FileUpload.ItemGroup>
         <FileUpload.Context>
             {#snippet children(fileUpload)}
@@ -23,7 +23,7 @@
                         <FileUpload.ItemDeleteTrigger />
                     </FileUpload.Item>
                 {:else}
-                    <span class="pl-2 text-base">
+                    <span class="text-subtle px-1 text-sm">
                         {$t("general.no-file-selected")}
                     </span>
                 {/if}

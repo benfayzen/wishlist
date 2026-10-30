@@ -43,6 +43,9 @@ export class ItemUpdateHandler implements BaseEventHandler<FullItem, ItemOnListD
     static listen(source: EventSource, callback: (data: ItemOnListDTO) => void) {
         source.addEventListener(ItemUpdateHandler.event, (e) => {
             const message = JSON.parse(e.data) as ItemOnListDTO;
+            if (message.quantity === null) {
+                (message as { remainingQuantity: number }).remainingQuantity = Infinity;
+            }
             callback(message);
         });
     }
@@ -70,6 +73,9 @@ export class ItemCreateHandler implements BaseEventHandler<FullItem, ItemOnListD
     static listen(source: EventSource, callback: (data: ItemOnListDTO) => void) {
         source.addEventListener(ItemCreateHandler.event, (e) => {
             const message = JSON.parse(e.data) as ItemOnListDTO;
+            if (message.quantity === null) {
+                (message as { remainingQuantity: number }).remainingQuantity = Infinity;
+            }
             callback(message);
         });
     }

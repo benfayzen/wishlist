@@ -1,39 +1,57 @@
 <script lang="ts">
     import ChangePassword from "$lib/components/account/ChangePassword.svelte";
     import EditProfile from "$lib/components/account/EditProfile.svelte";
-    import { Tabs } from "@skeletonlabs/skeleton-svelte";
-    import type { PageProps } from "./$types";
     import LinkOAuth from "$lib/components/account/LinkOAuth.svelte";
+    import Tabs from "$lib/components/Tabs.svelte";
+    import type { PageProps } from "./$types";
     import { getFormatter } from "$lib/i18n";
 
-    let { data }: PageProps = $props();
+    const { data }: PageProps = $props();
     const t = getFormatter();
 
-    const profileEditDisabled = $derived(
+    let profileEditDisabled = $derived(
         data.oidcConfig.ready && data.oidcConfig.enableSync === true && data.user.oauthId !== null
     );
 </script>
 
-<a class="m3-secondary m3-button mb-4" href="/account/groups">{$t("admin.groups")}</a>
-<Tabs defaultValue="profile">
-    <Tabs.List class="flex overflow-auto">
-        <Tabs.Trigger value="profile">{$t("admin.profile")}</Tabs.Trigger>
-        <Tabs.Trigger value="security">{$t("admin.security")}</Tabs.Trigger>
-        <Tabs.Indicator />
-    </Tabs.List>
-    <Tabs.Content value="profile">
-        <EditProfile disabled={profileEditDisabled} user={data.user} />
-    </Tabs.Content>
+<div class="m3-account-shell">
+    <header class="m3-account-page-header">
+        <h1 class="m3-page-title">{$t("admin.account")}</h1>
+        <a class="m3-secondary m3-button" href="/account/groups">
+            <iconify-icon aria-hidden="true" icon="ion:people"></iconify-icon>
+            <span>{$t("admin.groups")}</span>
+        </a>
+    </header>
 
-    <Tabs.Content class="grid grid-cols-1 gap-4 md:grid-cols-2" value="security">
-        {#if !(data.isProxyUser || (data.oidcConfig.ready && data.user.oauthId))}
-            <ChangePassword />
-        {/if}
-        {#if data.oidcConfig.ready}
-            <LinkOAuth oauthId={data.user.oauthId} providerName={data.oidcConfig.providerName} />
-        {/if}
-    </Tabs.Content>
-</Tabs>
+    <Tabs
+        defaultValue="profile"
+        tabs={[
+            { id: "profile", label: $t("admin.profile") },
+            { id: "security", label: $t("admin.security") }
+        ]}
+    >
+        {#snippet content({ value: tabValue })}
+            {#if tabValue === "profile"}
+                <div class="m3-account-tab-panel">
+                    <div class="m3-card m3-account-card">
+                        <EditProfile disabled={profileEditDisabled} user={data.user} />
+                    </div>
+                </div>
+            {:else if tabValue === "security"}
+                <div class="m3-account-tab-panel m3-account-security-grid">
+                    <section class="m3-card m3-account-card">
+                        <ChangePassword />
+                    </section>
+                    {#if data.oidcConfig.ready}
+                        <section class="m3-card m3-account-card">
+                            <LinkOAuth oauthId={data.user.oauthId} providerName={data.oidcConfig.providerName} />
+                        </section>
+                    {/if}
+                </div>
+            {/if}
+        {/snippet}
+    </Tabs>
+</div>
 
 <svelte:head>
     <title>{$t("admin.account")}</title>

@@ -49,73 +49,103 @@
             {@html $t("wishes.approval-confirmation", { values: { name: item.addedBy?.name, approve } })}
         {/snippet}
         {#snippet trigger(props)}
-            <button
-                {...props}
-                class="m3-action-pill"
-                aria-label={approve ? $t("wishes.approve") : $t("wishes.deny")}
-                data-tone={approve ? undefined : "danger"}
-                onclick={(e) => {
-                    e.stopPropagation();
-                    props.onclick?.(e);
-                }}
-                title={approve ? $t("wishes.approve") : $t("wishes.deny")}
-                type="button"
-            >
-                <span class="m3-action-pill-surface">
-                    <iconify-icon aria-hidden="true" icon={approve ? "ion:checkmark" : "ion:close"}></iconify-icon>
-                    <span>{approve ? $t("wishes.approve") : $t("wishes.deny")}</span>
-                </span>
-            </button>
+            {#if approve}
+                <button
+                    {...props}
+                    class="m3-secondary m3-button m3-button-small m3-claim-button"
+                    aria-label={$t("wishes.approve")}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        props.onclick?.(e);
+                    }}
+                    title={$t("wishes.approve")}
+                    type="button"
+                >
+                    <iconify-icon aria-hidden="true" icon="ion:checkmark"></iconify-icon>
+                    <span>{$t("wishes.approve")}</span>
+                </button>
+            {:else}
+                <button
+                    {...props}
+                    class="m3-button m3-icon-button m3-claim-delete-button"
+                    aria-label={$t("wishes.deny")}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        props.onclick?.(e);
+                    }}
+                    title={$t("wishes.deny")}
+                    type="button"
+                >
+                    <iconify-icon aria-hidden="true" icon="ion:close"></iconify-icon>
+                </button>
+            {/if}
         {/snippet}
     </ConfirmModal>
 {/snippet}
 
-{#snippet deleteButton()}
+{#snippet deleteButton(standalone = false)}
     <DeleteItemModal {isOnlyManager} {item} {itemNameShort}>
         {#snippet trigger(props)}
-            <button
-                {...props}
-                class="m3-action-pill"
-                aria-label={$t("wishes.delete")}
-                data-tone="danger"
-                onclick={(e) => {
-                    e.stopPropagation();
-                    props.onclick?.(e);
-                }}
-                title={$t("wishes.delete")}
-                type="button"
-            >
-                <span class="m3-action-pill-surface">
+            {#if standalone}
+                <button
+                    {...props}
+                    class="m3-button m3-button-small m3-claim-button m3-claim-delete-only-button"
+                    aria-label={$t("wishes.delete")}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        props.onclick?.(e);
+                    }}
+                    title={$t("wishes.delete")}
+                    type="button"
+                >
                     <iconify-icon aria-hidden="true" icon="ion:trash"></iconify-icon>
                     <span>{$t("wishes.delete")}</span>
-                </span>
-            </button>
+                </button>
+            {:else}
+                <button
+                    {...props}
+                    class="m3-button m3-icon-button m3-claim-delete-button"
+                    aria-label={$t("wishes.delete")}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        props.onclick?.(e);
+                    }}
+                    title={$t("wishes.delete")}
+                    type="button"
+                >
+                    <iconify-icon aria-hidden="true" icon="ion:trash"></iconify-icon>
+                </button>
+            {/if}
         {/snippet}
     </DeleteItemModal>
 {/snippet}
 
-<div class="flex min-w-0 flex-wrap justify-end gap-x-2">
+{#if !item.approved || userCanEdit(item, user?.id) || userCanManage}
     {#if !item.approved}
-        {@render approvalButton(true)}
-        {@render approvalButton(false)}
+        <div class="m3-claim-actions m3-claim-split">
+            {@render approvalButton(true)}
+            {@render approvalButton(false)}
+        </div>
     {:else if userCanEdit(item, user?.id)}
-        <button
-            class="m3-action-pill"
-            aria-label={$t("wishes.edit")}
-            onclick={(e) => {
-                e.stopPropagation();
-                handleEdit();
-            }}
-            title={$t("wishes.edit")}
-            type="button"
-        >
-            <span class="m3-action-pill-surface">
+        <div class="m3-claim-actions m3-claim-split">
+            <button
+                class="m3-secondary m3-button m3-button-small m3-claim-button"
+                aria-label={$t("wishes.edit")}
+                onclick={(e) => {
+                    e.stopPropagation();
+                    handleEdit();
+                }}
+                title={$t("wishes.edit")}
+                type="button"
+            >
                 <iconify-icon aria-hidden="true" icon="ion:edit"></iconify-icon>
                 <span>{$t("wishes.edit")}</span>
-            </span>
-        </button>
-        {@render deleteButton()}
+            </button>
+            {@render deleteButton(false)}
+        </div>
     {:else if userCanManage}
-        {@render deleteButton()}
+        <div class="m3-claim-actions">
+            {@render deleteButton(true)}
+        </div>
     {/if}
-</div>
+{/if}

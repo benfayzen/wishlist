@@ -240,7 +240,7 @@
     </FormSection>
     <FormSection title={$t("ui.details")}>
         <div class="m3-form-grid">
-            <label class="m3-label col-span-full xl:col-span-3" for="name">
+            <label class="m3-label col-span-full xl:col-span-2" for="name">
                 <span>{$t("wishes.item-name")}*</span>
                 <div class="m3-field grid-cols-[auto_1fr]">
                     <div class="m3-field-slot">
@@ -264,20 +264,20 @@
                 {/if}
             </label>
 
-            <div class="m3-label col-span-full sm:col-span-4 xl:col-span-2">
+            <div class="m3-label col-span-full sm:col-span-3 xl:col-span-2">
                 <label for="formatted-price">{$t("wishes.price")}</label>
                 <CurrencyInput id="price" name="price" currency={userCurrency} bind:value={price} />
             </div>
 
-            <div class="m3-label col-span-full sm:col-span-3 xl:col-span-2">
+            <div class="m3-label col-span-full sm:col-span-4 xl:col-span-3">
                 <label for="quantity">
                     <span>{$t("wishes.quantity")}</span>
                 </label>
-                <div class="flex flex-row items-center gap-2">
-                    <div class="min-w-0 grow">
-                        <div class="m3-field grid-cols-[auto_1fr]">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <div class="min-w-[11rem] flex-1">
+                        <div class={["m3-field", !unlimited ? "m3-quantity-stepper" : "grid-cols-[auto_1fr]"]}>
                             <div class="m3-field-slot">
-                                <iconify-icon icon="ion:gift"></iconify-icon>
+                                <iconify-icon aria-hidden="true" icon="ion:gift"></iconify-icon>
                             </div>
                             <input
                                 id="quantity"
@@ -299,9 +299,31 @@
                                 type={unlimited ? "text" : "number"}
                                 value={unlimited ? $t("general.na") : quantity}
                             />
+                            {#if !unlimited}
+                                <div class="m3-quantity-stepper-controls">
+                                    <button
+                                        class="m3-quantity-step-btn"
+                                        aria-label={$t("a11y.decrease-quantity")}
+                                        disabled={quantity <= 1}
+                                        onclick={() => (quantity = Math.max(1, quantity - 1))}
+                                        type="button"
+                                    >
+                                        <iconify-icon aria-hidden="true" icon="ion:remove"></iconify-icon>
+                                    </button>
+                                    <button
+                                        class="m3-quantity-step-btn"
+                                        aria-label={$t("a11y.increase-quantity")}
+                                        disabled={quantity >= 999}
+                                        onclick={() => (quantity = Math.min(999, quantity + 1))}
+                                        type="button"
+                                    >
+                                        <iconify-icon aria-hidden="true" icon="ion:add"></iconify-icon>
+                                    </button>
+                                </div>
+                            {/if}
                         </div>
                     </div>
-                    <label class="checkbox-label w-fit" for="unlimited">
+                    <label class="checkbox-label w-fit shrink-0 whitespace-nowrap" for="unlimited">
                         <input id="unlimited" class="checkbox" type="checkbox" bind:checked={unlimited} />
                         <span>{$t("wishes.no-limit")}</span>
                     </label>
@@ -370,7 +392,7 @@
                 ]}
                 aria-labelledby="lists-label"
             >
-                <div class="flex items-end justify-between">
+                <div class="flex items-center justify-between gap-2">
                     <legend id="lists-label">{$t("wishes.lists")}</legend>
                     {#if !item.createdById || item.createdById === userId}
                         <button class="m3-secondary m3-button m3-button-small" onclick={selectAll} type="button">
@@ -405,7 +427,9 @@
                                 <span>
                                     {list.name}
                                 </span>
-                                <span class="font-bold italic">({list.group.name})</span>
+                                {#if list.group?.name}
+                                    <span class="font-bold italic">({list.group.name})</span>
+                                {/if}
                             </div>
                         </label>
                     {/snippet}
@@ -414,7 +438,7 @@
                     {/each}
                     {#each lists.managedLists as list, i (list.id)}
                         {#if i === 0}
-                            <span class="text-subtle">Managed lists</span>
+                            <span class="text-subtle">{$t("wishes.managed-lists")}</span>
                         {/if}
                         {@render displayList(list)}
                     {/each}
@@ -428,7 +452,7 @@
     <span class="text-subtle text-sm">*{$t("general.required-field")}</span>
 
     <div class="m3-form-actions">
-        <button class="m3-text-button m3-button" disabled={fetching || saving} onclick={onCancel} type="button">
+        <button class="m3-secondary m3-button" disabled={fetching || saving} onclick={onCancel} type="button">
             {$t("general.cancel")}
         </button>
         {#if !item.id}

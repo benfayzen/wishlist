@@ -76,14 +76,13 @@
             {@const sortedItems =
                 groupBy !== "purchased" ? items.toSorted((a, b) => isPurchased(a) - isPurchased(b)) : items}
             {#if category !== "_default"}
-                <span transition:fade>{category}</span>
+                <div class="m3-claims-group-header" transition:fade>
+                    <h2 class="m3-title">{category}</h2>
+                    <span class="admin-count">{sortedItems.length}</span>
+                </div>
             {/if}
             <div
-                class={[
-                    isTileView
-                        ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-                        : "flex flex-col space-y-4"
-                ]}
+                class={[isTileView ? "m3-item-grid grid" : "flex flex-col space-y-4"]}
                 data-testid="category"
                 transition:scale
             >
@@ -138,6 +137,12 @@
     }
     .claims-view {
         margin-inline-start: auto;
+    }
+    .m3-claims-group-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-block-start: 0.25rem;
     }
     @media (max-width: 599px) {
         .claims-toolbar {

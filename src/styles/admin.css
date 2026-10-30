@@ -78,10 +78,26 @@
         background: var(--md-surface-container-low);
         color: var(--md-on-surface);
         overflow-wrap: anywhere;
+        transition:
+            background-color var(--md-motion-effects),
+            border-radius var(--md-motion-spatial);
+    }
+    .admin-records > li:not(:first-child) > .admin-record,
+    .admin-records > li.admin-record:not(:first-child) {
+        border-start-start-radius: var(--md-shape-small);
+        border-start-end-radius: var(--md-shape-small);
+    }
+    .admin-records > li:not(:last-child) > .admin-record,
+    .admin-records > li.admin-record:not(:last-child) {
+        border-end-start-radius: var(--md-shape-small);
+        border-end-end-radius: var(--md-shape-small);
+    }
+    .admin-records > li > .admin-record:is(:hover, :focus-visible),
+    .admin-records > li.admin-record:is(:hover, :focus-visible) {
+        border-radius: var(--md-shape-large);
     }
     .admin-record-link {
         text-decoration: none;
-        transition: background-color var(--md-motion-effects);
     }
     .admin-record-link:hover {
         background: var(--md-surface-container-high);
@@ -209,13 +225,24 @@
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+    .admin-member-actions.m3-claim-split {
+        flex-wrap: nowrap;
+        gap: 2px;
+    }
+    .m3-danger-zone {
+        margin-block-start: 2rem;
+        padding: 1.25rem;
+        border: 1px solid color-mix(in srgb, var(--md-error) 35%, var(--md-outline-variant));
+        border-radius: var(--md-shape-large);
+        background: color-mix(in srgb, var(--md-error-container) 22%, var(--md-surface-container-low));
+    }
     .admin-danger-actions {
-        padding-block-start: 1.5rem;
-        margin-block-start: 1.5rem;
-        border-block-start: 1px solid var(--md-outline-variant);
+        padding-block-start: 0;
+        margin-block-start: 0;
+        border-block-start: 0;
     }
     .admin-member-actions .m3-button {
-        flex: 1 1 8rem;
+        flex: 1 1 0%;
         min-inline-size: 0;
     }
     @container admin (width < 48rem) {

@@ -11,21 +11,24 @@
     const t = getFormatter();
 
     const providerName = $derived(providerName_ || $t("general.oauth"));
+
+    const authenticate = () => {
+        window.location.assign("/login/oidc");
+    };
 </script>
 
-<div class="flex flex-col gap-4">
-    <h3 class="m3-title">{$t("general.oauth")}</h3>
-
+<form class="flex flex-col gap-4" method="POST" use:enhance>
+    <div class="flex flex-col gap-1">
+        <h3 class="h3">{$t("admin.sso")}</h3>
+        <p class="subtext">{providerName || $t("general.oauth")}</p>
+    </div>
     {#if oauthId}
-        <form class="flex flex-col gap-4" action="?/unlinkoauth" method="POST" use:enhance>
-            <span>{$t("auth.your-account-is-currently-linked-with-oauth", { values: { providerName } })}</span>
-            <button class="m3-primary m3-button w-fit">
-                {$t("auth.unlink-oauth", { values: { providerName } })}
-            </button>
-        </form>
+        <button class="m3-secondary m3-button w-full sm:w-fit" formaction="?/unlinkoauth">
+            {$t("auth.unlink-oauth", { values: { providerName: providerName || $t("general.oauth") } })}
+        </button>
     {:else}
-        <span>
-            {$t("auth.account-is-not-linked-with-oauth", { values: { providerName } })}
-        </span>
+        <button class="m3-primary m3-button w-full sm:w-fit" onclick={() => authenticate()} type="button">
+            {$t("auth.link-oauth", { values: { providerName: providerName || $t("general.oauth") } })}
+        </button>
     {/if}
-</div>
+</form>

@@ -30,8 +30,11 @@
             ? Math.min(100, Math.round(((list.claimedCount ?? 0) / list.itemCount) * 100))
             : 0
     );
-    let iconColor = $derived(hexFromArgb(createTheme(validSeed(list.iconColor)).light.primaryContainer));
-    let onIconColor = $derived(hexFromArgb(createTheme(validSeed(list.iconColor)).light.onPrimaryContainer));
+    let iconTheme = $derived(createTheme(validSeed(list.iconColor)));
+    let iconBgLight = $derived(hexFromArgb(iconTheme.light.primaryContainer));
+    let iconFgLight = $derived(hexFromArgb(iconTheme.light.onPrimaryContainer));
+    let iconBgDark = $derived(hexFromArgb(iconTheme.dark.primaryContainer));
+    let iconFgDark = $derived(hexFromArgb(iconTheme.dark.onPrimaryContainer));
     let elementTag = $derived(preventNavigate ? "div" : "a");
 </script>
 
@@ -52,21 +55,22 @@
 
     <div class="m3-card m3-list-card-content grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 p-4">
         <div
-            style:background-color={iconColor}
-            style:color={onIconColor}
-            class="text-surface-50 flex aspect-square w-12 items-center justify-center overflow-hidden rounded-full font-semibold md:w-14"
-            class:bg-primary-500={!iconColor}
+            style:--list-icon-bg-light={iconBgLight}
+            style:--list-icon-fg-light={iconFgLight}
+            style:--list-icon-bg-dark={iconBgDark}
+            style:--list-icon-fg-dark={iconFgDark}
+            class="m3-list-card-icon"
         >
             <iconify-icon class="text-2xl" icon={"ion:" + (list.icon ?? "gift")}></iconify-icon>
         </div>
         <div class="flex flex-col gap-1">
-            <span class="text-primary-900-100 line-clamp-2 text-xl font-bold" data-testid="list-name">
+            <span class="line-clamp-2 text-xl font-bold text-[var(--md-on-surface)]" data-testid="list-name">
                 {listName}
             </span>
             {#if !list.hideOwner}
                 <div class="grid grid-cols-[1.5rem_auto] items-center gap-2 text-sm md:text-base">
                     <Avatar class="text-tiny size-5 justify-self-center md:size-6" user={list.owner} />
-                    <span class="text-surface-800-200" data-testid="list-owner">{list.owner.name}</span>
+                    <span class="text-subtle" data-testid="list-owner">{list.owner.name}</span>
                 </div>
             {/if}
             <div class="contents" data-testid="item-count">
@@ -96,7 +100,7 @@
 
                     {#if hasNewItems}
                         <iconify-icon
-                            class="text-primary-800-200 flex size-2 justify-center opacity-40"
+                            class="flex size-2 justify-center text-[var(--md-primary)] opacity-60"
                             height="none"
                             icon="ion:ellipse-sharp"
                             width="none"

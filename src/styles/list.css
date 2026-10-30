@@ -32,16 +32,18 @@
     .list-nav a,
     .list-nav button,
     .list-option {
-        @apply flex items-center space-x-4;
-        /* Padding */
-        @apply px-4 py-2;
-        /* Hover */
-        @apply hover:preset-filled-primary-50-950;
-        /* Focus */
-        @apply focus:preset-tonal-primary outline-none;
-        /* Cursor */
-        @apply cursor-pointer;
-        /* Theme: Rounded */
-        @apply rounded-base;
+        @apply flex cursor-pointer items-center space-x-4 px-4 py-2;
+        border-radius: var(--md-shape-medium);
+        transition: background-color var(--md-motion-effects);
+
+        &:hover {
+            background: var(--md-surface-container-highest);
+        }
+
+        &:focus {
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+            outline: none;
+        }
     }
 }

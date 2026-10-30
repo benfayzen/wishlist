@@ -38,6 +38,10 @@
     let open = $state(false);
 
     const claim = $derived(item.claims.find((claim) => claim.claimId === claimId));
+    const isUnlimited = $derived(item.quantity === null || !Number.isFinite(item.remainingQuantity));
+    const maxClaimable = $derived(isUnlimited ? undefined : item.remainingQuantity + (claim?.quantity || 0));
+    const minClaimable = $derived(claim ? 0 : 1);
+    const quantityInputId = $props.id();
 
     let title = $derived(
         claim
@@ -51,8 +55,16 @@
     let quantity = $derived(claim?.quantity || 1);
     let error: string | undefined = $state();
 
+    function stepQuantity(delta: number) {
+        const current = Number(quantity) || minClaimable;
+        const next = Math.max(minClaimable, current + delta);
+        quantity = maxClaimable !== undefined ? Math.min(maxClaimable, next) : next;
+        error = undefined;
+    }
+
     async function handleTrigger(e: MouseEvent) {
         e.stopPropagation();
+        error = undefined;
         if (!userId || alwaysShow) {
             open = true;
             return;
@@ -60,7 +72,7 @@
         if (claim && item.quantity === 1 && claim.quantity === 1) {
             return onUnclaim();
         }
-        if (!claim && item.remainingQuantity === 1) {
+        if (!claim && !isUnlimited && item.remainingQuantity === 1) {
             quantity = 1;
             return onFormSubmit();
         }
@@ -73,7 +85,7 @@
     }
 
     async function onFormSubmit() {
-        if (quantity > item.remainingQuantity + (claim?.quantity || 0)) {
+        if (maxClaimable !== undefined && quantity > maxClaimable) {
             error = $t("errors.could-not-claim-quantity-items", {
                 values: { quantity, availableQuantity: item.remainingQuantity }
             });
@@ -161,14 +173,21 @@
     {/if}
 {/snippet}
 
-<BaseModal {description} onOpenChange={(e) => (open = e.open)} {open} {title} {...rest}>
+<BaseModal
+    closeButtonLabel={claim ? $t("general.cancel") : undefined}
+    {description}
+    onOpenChange={(e) => (open = e.open)}
+    {open}
+    {title}
+    {...rest}
+>
     {#snippet trigger(props)}
         {@render inputTrigger({ ...props, onclick: handleTrigger })}
     {/snippet}
 
     {#if !userId}
-        <div class="flex flex-col gap-2">
-            <label class="m3-label w-fit">
+        <div class="flex flex-col gap-3">
+            <label class="m3-label w-full">
                 <span>{$t("general.name-optional")}</span>
                 <div class="m3-field grid-cols-[auto_1fr_auto]">
                     <div class="m3-field-slot">
@@ -179,11 +198,11 @@
             </label>
 
             {#if requireClaimEmail}
-                <label class="m3-label w-fit">
+                <label class="m3-label w-full">
                     <span>{$t("auth.email")}</span>
                     <div class="m3-field grid-cols-[auto_1fr_auto]">
                         <div class="m3-field-slot">
-                            <iconify-icon class="text-lg" icon="ion:person"></iconify-icon>
+                            <iconify-icon class="text-lg" icon="ion:mail"></iconify-icon>
                         </div>
                         <input class="m3-field-input" required type="email" bind:value={username} />
                     </div>
@@ -192,59 +211,121 @@
         </div>
     {/if}
 
-    {#if item.remainingQuantity > 1 || claim}
-        <div class="flex flex-col gap-1">
-            <label class="m3-label w-fit">
-                <span>{$t("wishes.enter-the-quantity-to-claim")}</span>
-                <input
-                    class={["m3-input", error && "m3-invalid"]}
-                    inputmode="numeric"
-                    max={item.remainingQuantity + (claim?.quantity || 0)}
-                    min={claim ? 0 : 1}
-                    required
-                    step="1"
-                    type="number"
-                    bind:value={quantity}
-                />
-            </label>
-            {#if error}
-                <span class="text-invalid">{error}</span>
-            {/if}
-            {#if claim}
-                <span class="subtext">
-                    {#if claimName}
-                        {$t("wishes.claimed-info-text-for-name", {
-                            values: { claimedQuantity: claim.quantity, name: claimName }
-                        })}
-                    {:else}
-                        {$t("wishes.claimed-info-text", {
-                            values: { claimedQuantity: claim.quantity }
-                        })}
-                    {/if}
-                    {#if item.quantity}
-                        {$t("wishes.additional-items-requested", {
-                            values: { remainingQuantity: item.remainingQuantity }
-                        })}
-                    {/if}
-                </span>
-            {/if}
+    <div class="m3-claim-modal-body">
+        <div class="m3-claim-modal-item">
+            <iconify-icon aria-hidden="true" icon="ion:gift-outline"></iconify-icon>
+            <span>{item.name}</span>
         </div>
-    {/if}
+
+        {#if isUnlimited || item.remainingQuantity > 1 || claim}
+            <div class="flex flex-col gap-2">
+                <label class="m3-label w-full" for={quantityInputId}>
+                    <span>{$t("wishes.enter-the-quantity-to-claim")}</span>
+                </label>
+                <div class={["m3-field m3-quantity-stepper", error && "m3-invalid"]}>
+                    <div class="m3-field-slot">
+                        <iconify-icon class="text-lg" aria-hidden="true" icon="ion:layers-outline"></iconify-icon>
+                    </div>
+                    <input
+                        id={quantityInputId}
+                        class={["m3-field-input", error && "m3-invalid"]}
+                        inputmode="numeric"
+                        max={maxClaimable}
+                        min={minClaimable}
+                        oninput={() => (error = undefined)}
+                        required
+                        step="1"
+                        type="number"
+                        bind:value={quantity}
+                    />
+                    <div class="m3-quantity-stepper-controls">
+                        <button
+                            class="m3-quantity-step-btn"
+                            aria-label="-"
+                            disabled={quantity <= minClaimable}
+                            onclick={() => stepQuantity(-1)}
+                            tabindex="-1"
+                            type="button"
+                        >
+                            <iconify-icon aria-hidden="true" icon="ion:remove"></iconify-icon>
+                        </button>
+                        <button
+                            class="m3-quantity-step-btn"
+                            aria-label="+"
+                            disabled={maxClaimable !== undefined && quantity >= maxClaimable}
+                            onclick={() => stepQuantity(1)}
+                            tabindex="-1"
+                            type="button"
+                        >
+                            <iconify-icon aria-hidden="true" icon="ion:add"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+                {#if claim}
+                    <div class="m3-claim-modal-info">
+                        <iconify-icon aria-hidden="true" icon="ion:information-circle-outline"></iconify-icon>
+                        <span>
+                            {#if claimName}
+                                {$t("wishes.claimed-info-text-for-name", {
+                                    values: { claimedQuantity: claim.quantity, name: claimName }
+                                })}
+                            {:else}
+                                {$t("wishes.claimed-info-text", {
+                                    values: { claimedQuantity: claim.quantity }
+                                })}
+                            {/if}
+                            {#if !isUnlimited && item.quantity}
+                                {$t("wishes.additional-items-requested", {
+                                    values: { remainingQuantity: item.remainingQuantity }
+                                })}
+                            {/if}
+                        </span>
+                    </div>
+                {:else if !isUnlimited && item.quantity}
+                    <div class="m3-claim-modal-info">
+                        <iconify-icon aria-hidden="true" icon="ion:information-circle-outline"></iconify-icon>
+                        <span>
+                            {$t("wishes.additional-items-requested", {
+                                values: { remainingQuantity: item.remainingQuantity }
+                            })}
+                        </span>
+                    </div>
+                {:else if isUnlimited}
+                    <div class="m3-claim-modal-info">
+                        <iconify-icon aria-hidden="true" icon="ion:infinite-outline"></iconify-icon>
+                        <span>{$t("wishes.no-limit")}</span>
+                    </div>
+                {/if}
+            </div>
+        {/if}
+
+        {#if error}
+            <span class="text-invalid">{error}</span>
+        {/if}
+    </div>
 
     {#snippet actions({ neutralStyle, negativeStyle, positiveStyle })}
-        <Dialog.CloseTrigger class={neutralStyle} type="button">
-            {$t("general.cancel")}
-        </Dialog.CloseTrigger>
-
-        <div class="flex flex-wrap gap-2">
-            {#if claim}
-                <button class={negativeStyle} onclick={onUnclaim} type="button">
-                    {$t("wishes.unclaim")}
+        {#if claim}
+            <div class="m3-claim-actions m3-claim-split m3-dialog-split-actions">
+                <button class={[negativeStyle, "m3-claim-split-left"]} onclick={onUnclaim} type="button">
+                    <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
+                    <span>{$t("wishes.unclaim")}</span>
                 </button>
-            {/if}
-            <button class={positiveStyle} onclick={onFormSubmit} type="button">
-                {$t("wishes.claim")}
-            </button>
-        </div>
+                <button class={[positiveStyle, "m3-claim-split-right"]} onclick={onFormSubmit} type="button">
+                    <iconify-icon aria-hidden="true" icon="ion:checkmark"></iconify-icon>
+                    <span>{$t("wishes.claim")}</span>
+                </button>
+            </div>
+        {:else}
+            <div class="m3-claim-actions m3-claim-split m3-dialog-split-actions">
+                <Dialog.CloseTrigger class={[neutralStyle, "m3-claim-split-left"]} type="button">
+                    <span>{$t("general.cancel")}</span>
+                </Dialog.CloseTrigger>
+                <button class={[positiveStyle, "m3-claim-split-right"]} onclick={onFormSubmit} type="button">
+                    <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
+                    <span>{$t("wishes.claim")}</span>
+                </button>
+            </div>
+        {/if}
     {/snippet}
 </BaseModal>

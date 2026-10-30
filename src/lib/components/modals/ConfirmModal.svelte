@@ -31,14 +31,24 @@
     }: ConfirmModalProps = $props();
 </script>
 
-<BaseModal {title} {...rest}>
-    {#snippet actions({ neutralStyle, positiveStyle })}
-        <Dialog.CloseTrigger class={neutralStyle} onclick={onCancel} {...cancelButtonProps}>
-            {cancelText}
-        </Dialog.CloseTrigger>
+<BaseModal closeButtonLabel={$t("a11y.close")} {title} {...rest}>
+    {#snippet actions()}
+        <div class="m3-claim-actions m3-claim-split m3-dialog-split-actions">
+            <Dialog.CloseTrigger
+                class="m3-secondary m3-button m3-claim-button m3-claim-split-left"
+                onclick={onCancel}
+                {...cancelButtonProps}
+            >
+                {cancelText}
+            </Dialog.CloseTrigger>
 
-        <Dialog.CloseTrigger class={positiveStyle} onclick={onConfirm} {...confirmButtonProps}>
-            {confirmText}
-        </Dialog.CloseTrigger>
+            <Dialog.CloseTrigger
+                class="m3-primary m3-button m3-claim-button m3-claim-split-right"
+                onclick={onConfirm}
+                {...confirmButtonProps}
+            >
+                {confirmText}
+            </Dialog.CloseTrigger>
+        </div>
     {/snippet}
 </BaseModal>

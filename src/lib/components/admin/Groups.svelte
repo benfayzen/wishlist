@@ -84,7 +84,7 @@
     {/each}
 </ul>
 
-<div class="admin-desktop-table table-wrap preset-outlined-surface-200-800 rounded-container">
+<div class="admin-desktop-table m3-table-wrapper table-wrap">
     <table class="table-hover table table-auto">
         <thead>
             <tr>

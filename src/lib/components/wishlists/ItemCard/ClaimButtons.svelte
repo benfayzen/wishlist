@@ -19,7 +19,7 @@
         | "requireClaimEmail"
         | "isSelfClaimable"
     > {
-        isClaimableOrClaimed: (ans: boolean) => void;
+        isClaimableOrClaimed?: (ans: boolean) => void;
     }
 
     let {
@@ -41,7 +41,7 @@
     let userClaim = $derived(item.claims.find((claim) => claim.claimedBy && claim.claimedBy.id === user?.id));
     let isClaimOnList = $derived(userClaim?.listId === item.list.id);
 
-    $effect(() => isClaimableOrClaimed(item.isClaimable || (userClaim && isClaimOnList) || false));
+    $effect(() => isClaimableOrClaimed?.(item.isClaimable || (userClaim && isClaimOnList) || false));
 
     const handlePurchased = async (purchased: boolean) => {
         if (userClaim && isClaimOnList) {
@@ -55,53 +55,69 @@
     };
 </script>
 
-{#if !onPublicList && item.userId === user?.id && !showClaimForOwner}
-    <div></div>
-{:else if userClaim}
+{#if !onPublicList && item.userId === user?.id && !showClaimForOwner}{:else if userClaim}
     {#if isClaimOnList}
-        <div class="flex min-w-0 flex-wrap items-center gap-2">
-            <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
-                {#snippet trigger(props)}
-                    <button {...props} class="m3-secondary m3-button m3-button-small md:m3-button">
-                        {item.quantity === 1 && userClaim.quantity === 1
-                            ? $t("wishes.unclaim")
-                            : $t("wishes.update-claim")}
-                    </button>
-                {/snippet}
-            </ClaimItemModal>
-            <button
-                class={[
-                    "m3-button m3-icon-button",
-                    userClaim.purchased && "preset-tonal-secondary inset-ring-secondary-500 inset-ring",
-                    !userClaim.purchased && "inset-ring-secondary-500 inset-ring"
-                ]}
-                aria-label={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
-                aria-pressed={userClaim.purchased}
-                onclick={(e) => {
-                    e.stopPropagation();
-                    handlePurchased?.(!userClaim.purchased);
-                }}
-                title={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
-            >
-                <iconify-icon icon={userClaim.purchased ? "ion:bag-check" : "ion:bag"}></iconify-icon>
-            </button>
-        </div>
+        {#if userClaim.purchased}
+            <div class="m3-claim-actions">
+                <button
+                    class="m3-button m3-button-small m3-claim-button m3-claim-purchased-button"
+                    aria-label={$t("a11y.unpurchase")}
+                    aria-pressed={userClaim.purchased}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        handlePurchased?.(false);
+                    }}
+                    title={$t("a11y.unpurchase")}
+                >
+                    <iconify-icon aria-hidden="true" icon="ion:bag-check"></iconify-icon>
+                    <span>{$t("a11y.unpurchase")}</span>
+                </button>
+            </div>
+        {:else}
+            {@const isSingleUnclaim = item.quantity === 1 && userClaim.quantity === 1}
+            <div class="m3-claim-actions m3-claim-split">
+                <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
+                    {#snippet trigger(props)}
+                        <button {...props} class="m3-secondary m3-button m3-button-small m3-claim-button">
+                            <iconify-icon
+                                aria-hidden="true"
+                                icon={isSingleUnclaim ? "ion:bookmark-outline" : "ion:options-outline"}
+                            ></iconify-icon>
+                            <span>
+                                {isSingleUnclaim ? $t("wishes.unclaim") : $t("wishes.update-claim")}
+                            </span>
+                        </button>
+                    {/snippet}
+                </ClaimItemModal>
+                <button
+                    class="m3-button m3-icon-button m3-toggle-icon-button m3-claim-purchase-button"
+                    aria-label={$t("wishes.purchase")}
+                    aria-pressed={userClaim.purchased}
+                    onclick={(e) => {
+                        e.stopPropagation();
+                        handlePurchased?.(true);
+                    }}
+                    title={$t("wishes.purchase")}
+                >
+                    <iconify-icon icon="ion:bag"></iconify-icon>
+                </button>
+            </div>
+        {/if}
     {:else}
         <span class="text-subtle line-clamp-2 truncate text-wrap">{$t("wishes.claimed-by-you-on-another-list")}</span>
     {/if}
 {:else if item.isClaimable && (item.userId !== user?.id || isSelfClaimable)}
-    <div class="flex flex-row items-center gap-x-2">
+    <div class="m3-claim-actions">
         <ClaimItemModal {groupId} {item} {requireClaimEmail} userId={user?.id}>
             {#snippet trigger(props)}
-                <button {...props} class="m3-button m3-button-small md:m3-button m3-primary">
-                    {$t("wishes.claim")}
+                <button {...props} class="m3-button m3-button-small m3-primary m3-claim-button">
+                    <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
+                    <span>{$t("wishes.claim")}</span>
                 </button>
             {/snippet}
         </ClaimItemModal>
     </div>
-{:else if item.claims.length === 0 || (item.userId === user?.id && item.isClaimable)}
-    <div></div>
-{:else if item.claims.length === 1 && shouldShowName(item, showClaimedName, showNameAcrossGroups, showClaimForOwner, showPublicClaimName, user, item.claims[0])}
+{:else if item.claims.length === 0 || (item.userId === user?.id && item.isClaimable)}{:else if item.claims.length === 1 && shouldShowName(item, showClaimedName, showNameAcrossGroups, showClaimForOwner, showPublicClaimName, user, item.claims[0])}
     <span class="text-subtle line-clamp-2 truncate text-wrap">
         {$t("wishes.claimed-by", {
             values: {

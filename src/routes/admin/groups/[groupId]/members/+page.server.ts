@@ -23,6 +23,7 @@ export const load = (async ({ params }) => {
                                 username: true,
                                 name: true,
                                 email: true,
+                                picture: true,
                                 role: {
                                     select: {
                                         id: true

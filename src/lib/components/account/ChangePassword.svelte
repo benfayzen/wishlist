@@ -15,6 +15,7 @@
 </script>
 
 <form
+    class="flex w-full flex-col gap-4"
     method="POST"
     use:enhance={() => {
         return async ({ result, update }) => {
@@ -29,9 +30,9 @@
         };
     }}
 >
-    <div class="flex w-full flex-col items-start space-y-4 md:w-11/12 md:max-w-96">
+    <div class="flex w-full flex-col gap-4">
         <h3 class="m3-title">{$t("admin.credentials")}</h3>
-        <div class="flex w-full space-y-1">
+        <div class="flex w-full flex-col gap-1">
             <PasswordInput
                 id="oldpassword"
                 name="oldPassword"
@@ -73,7 +74,7 @@
         </label>
 
         <button
-            class="m3-primary m3-button w-fit"
+            class="m3-primary m3-button w-full sm:w-fit"
             disabled={passwordReset.current === "" ||
                 passwordReset.new === "" ||
                 passwordReset.new !== passwordReset.confirm}

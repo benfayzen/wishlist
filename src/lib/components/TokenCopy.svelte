@@ -42,10 +42,10 @@
             </Tooltip.Trigger>
             <Portal>
                 <Tooltip.Positioner>
-                    <Tooltip.Content class="m3-card preset-filled-secondary-500 p-2">
+                    <Tooltip.Content class="m3-tooltip">
                         <span>{$t("general.copy-to-clipboard")}</span>
                         <Tooltip.Arrow
-                            class="[--arrow-background:var(--color-secondary-500)] [--arrow-size:--spacing(2)]"
+                            class="[--arrow-background:var(--md-inverse-surface)] [--arrow-size:--spacing(2)]"
                         >
                             <Tooltip.ArrowTip />
                         </Tooltip.Arrow>

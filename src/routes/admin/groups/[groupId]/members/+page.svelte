@@ -1,6 +1,5 @@
 <script lang="ts">
     import { invalidateAll } from "$app/navigation";
-    import { page } from "$app/state";
     import { GroupAPI } from "$lib/api/groups";
     import type { PageData, PageProps } from "./$types";
     import InviteUser from "$lib/components/admin/InviteUser.svelte";
@@ -10,6 +9,7 @@
     import DeleteGroupModal from "$lib/components/modals/DeleteGroupModal.svelte";
     import ConfirmModal from "$lib/components/modals/ConfirmModal.svelte";
     import AddUserModal from "$lib/components/modals/AddUserModal.svelte";
+    import Avatar from "$lib/components/Avatar.svelte";
 
     const { data }: PageProps = $props();
     const t = getFormatter();
@@ -33,7 +33,11 @@
     };
 </script>
 
-{#snippet managerAction(user: UserData, compact = false)}
+{#snippet managerToggle(
+    user: UserData,
+    buttonClass = "m3-button m3-icon-button m3-toggle-icon-button",
+    showLabel = false
+)}
     {@const makeManager = !user.isGroupManager}
     <ConfirmModal
         onConfirm={() => toggleManager(user.id, makeManager)}
@@ -44,7 +48,7 @@
         {/snippet}
         {#snippet trigger(props)}
             <button
-                class={compact ? "m3-secondary m3-button" : "m3-icon-button"}
+                class={buttonClass}
                 aria-label={`${$t("admin.manager")}: ${user.name}`}
                 aria-pressed={user.isGroupManager}
                 type="button"
@@ -54,26 +58,32 @@
                     aria-hidden="true"
                     icon={user.isGroupManager ? "ion:sparkles" : "ion:sparkles-outline"}
                 ></iconify-icon>
-                {#if compact}<span>{$t("admin.manager")}</span>{/if}
+                {#if showLabel}<span>{$t("admin.manager")}</span>{/if}
             </button>
         {/snippet}
     </ConfirmModal>
 {/snippet}
 
-{#snippet removeAction(user: UserData, compact = false)}
+{#snippet removeMemberControl(user: UserData, showLabel = false)}
     <ConfirmModal onConfirm={() => removeMember(user.id)} title={$t("admin.remove-member-title")}>
         {#snippet description()}
             {@html $t("admin.remove-member-message")}
         {/snippet}
         {#snippet trigger(props)}
             <button
-                class={compact ? "admin-remove-member m3-danger-tonal m3-button" : "m3-icon-button"}
+                class={showLabel
+                    ? "admin-remove-member m3-danger-tonal m3-button m3-claim-button m3-claim-split-right"
+                    : "m3-icon-button"}
                 aria-label={$t("a11y.remove-user-from-group", { values: { user: user.name } })}
                 type="button"
                 {...props}
             >
-                <iconify-icon class="text-error-500" aria-hidden="true" icon="ion:person-remove"></iconify-icon>
-                {#if compact}<span>{$t("general.remove")}</span>{/if}
+                <iconify-icon
+                    class={!showLabel ? "text-[var(--md-error)]" : undefined}
+                    aria-hidden="true"
+                    icon="ion:person-remove"
+                ></iconify-icon>
+                {#if showLabel}<span>{$t("general.remove")}</span>{/if}
             </button>
         {/snippet}
     </ConfirmModal>
@@ -102,22 +112,23 @@
     {#each data.group.users as user (user.id)}
         <li class="admin-record">
             <div class="admin-record-heading">
-                <div class="admin-identity">
+                <Avatar class="size-10 shrink-0 text-sm" {user} />
+                <div class="admin-identity min-w-0 flex-1">
                     <span class="admin-record-name">{user.name}</span>
                     <span class="admin-record-meta">@{user.username}</span>
                 </div>
-                {#if user.isGroupManager}<span class="admin-role">{$t("admin.manager")}</span>{/if}
+                {#if user.isGroupManager}<span class="admin-role shrink-0">{$t("admin.manager")}</span>{/if}
             </div>
             {#if user.email}<span class="admin-record-meta">{user.email}</span>{/if}
-            <div class="admin-member-actions">
-                {@render managerAction(user, true)}
-                {@render removeAction(user, true)}
+            <div class="admin-member-actions m3-claim-actions m3-claim-split">
+                {@render managerToggle(user, "m3-secondary m3-button m3-claim-button m3-claim-split-left", true)}
+                {@render removeMemberControl(user, true)}
             </div>
         </li>
     {/each}
 </ul>
 
-<div class="admin-desktop-table table-wrap preset-outlined-surface-200-800 rounded-container">
+<div class="admin-desktop-table m3-table-wrapper table-wrap">
     <table class="table">
         <thead>
             <tr>
@@ -130,8 +141,8 @@
             {#each data.group.users as user (user.id)}
                 <tr>
                     {#each dataKeys as key}<td>{user[key]}</td>{/each}
-                    <td>{@render managerAction(user)}</td>
-                    <td>{@render removeAction(user)}</td>
+                    <td>{@render managerToggle(user)}</td>
+                    <td>{@render removeMemberControl(user)}</td>
                 </tr>
             {/each}
         </tbody>
@@ -140,8 +151,10 @@
 
 {#if data.group.users.length === 0}<p class="admin-empty">{$t("general.no-results")}</p>{/if}
 
-<div class="admin-danger-actions">
-    <DeleteGroupModal defaultGroup={data.config.defaultGroup} groupId={data.group.id} />
-    <ClearListsButton groupId={page.params.groupId} />
-    <ClearListsButton claimed groupId={page.params.groupId} />
-</div>
+<section class="m3-danger-zone">
+    <div class="admin-danger-actions">
+        <DeleteGroupModal defaultGroup={data.config.defaultGroup} groupId={data.group.id} />
+        <ClearListsButton groupId={data.group.id} />
+        <ClearListsButton claimed groupId={data.group.id} />
+    </div>
+</section>

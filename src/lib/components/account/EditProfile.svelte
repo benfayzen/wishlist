@@ -1,117 +1,107 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { page } from "$app/state";
-    import { getFormatter } from "$lib/i18n";
-    import { FileUpload } from "@skeletonlabs/skeleton-svelte";
     import Avatar from "../Avatar.svelte";
-    import { toaster } from "../toaster";
-    import Label from "../Label.svelte";
+    import { getFormatter } from "$lib/i18n";
+    import FileUpload from "../FileUpload.svelte";
     import Input from "../Input.svelte";
+    import { toaster } from "../toaster";
 
     interface Props {
-        user: Pick<LocalUser, "name" | "username" | "email" | "picture">;
-        disabled: boolean;
+        user: {
+            name: string;
+            username: string;
+            email: string;
+            picture?: string | null;
+        };
+        disabled?: boolean;
         autocomplete?: boolean;
     }
 
-    let { user, disabled, autocomplete = true }: Props = $props();
+    const { user, disabled = false, autocomplete = true }: Props = $props();
     const t = getFormatter();
 
-    let submitButton: HTMLElement | undefined = $state();
+    let form = $derived(page.form);
 </script>
 
-<div class="m3-card flex w-full min-w-0 flex-col gap-1 p-4 md:max-w-xl">
-    <div class="relative m-auto h-full w-full max-w-37.5">
-        <Avatar class="size-32 text-3xl" {user} />
-        <form
-            class="absolute right-0 bottom-0 h-12 w-12"
-            action="?/profilePicture"
-            enctype="multipart/form-data"
-            method="POST"
-            use:enhance={() => {
-                return async ({ result, update }) => {
-                    if (result.type === "error") {
-                        toaster.error({ description: (result.error?.message as string) || $t("general.oops") });
-                        return;
-                    }
-                    toaster.info({ description: "Profile photo uploaded" });
-                    update({ invalidateAll: true });
-                };
-            }}
-        >
-            <FileUpload name="profilePic" accept="image/*" onFileAccept={() => submitButton?.click()}>
-                <FileUpload.Trigger class="m3-icon-button m3-secondary" title={$t("a11y.upload-profile-image")}>
-                    <iconify-icon class="text-lg" icon="ion:camera"></iconify-icon>
-                    <span class="sr-only">{$t("a11y.upload-profile-image")}</span>
-                </FileUpload.Trigger>
-                <FileUpload.HiddenInput />
-            </FileUpload>
-            <!-- svelte-ignore a11y_consider_explicit_label -->
-            <button bind:this={submitButton} hidden type="submit"></button>
-        </form>
+<div class="m3-profile-editor">
+    <div class="m3-profile-hero">
+        <Avatar class="size-24 text-3xl md:size-28" {user} />
+        <div class="m3-profile-hero-meta">
+            <h2 class="m3-title">{user.name}</h2>
+            <p class="subtext">@{user.username}</p>
+            <div class="mt-2">
+                <FileUpload
+                    name="profilePic"
+                    accept="image/*"
+                    form="profile"
+                    label={$t("general.update-profile-picture")}
+                />
+            </div>
+        </div>
     </div>
 
     <form
+        id="profile"
+        class="m3-profile-form"
+        action="?/profile"
+        enctype="multipart/form-data"
         method="POST"
         use:enhance={() => {
             return async ({ result, update }) => {
-                if (result.type === "failure") {
-                    toaster.error({ description: (result.data?.message as string) || $t("general.oops") });
-                    return;
+                if (result.type === "success") {
+                    toaster.info({ description: $t("general.profile-updated") });
+                } else if (result.type === "error") {
+                    toaster.error({ description: $t("general.oops") });
                 }
-
-                toaster.info({ description: "Profile info updated" });
-                update({ invalidateAll: true });
+                update({ reset: false });
             };
         }}
     >
-        <div class="flex flex-col gap-4">
-            <Label value={$t("auth.name")}>
-                <Input
-                    id="name"
-                    name="name"
-                    autocomplete={autocomplete ? "name" : "off"}
-                    {disabled}
-                    error={page.form?.errors?.name?.[0]}
-                    icon="ion:id-card"
-                    placeholder={user.name}
-                    type="text"
-                    value={user.name}
-                />
-            </Label>
+        <Input
+            id="name"
+            name="name"
+            autocomplete={autocomplete ? "name" : "off"}
+            {disabled}
+            errors={form?.errors?.name}
+            icon="ion:person"
+            label={$t("auth.name")}
+            required
+            value={user.name}
+        />
 
-            <Label value={$t("auth.username")}>
-                <Input
-                    name="username"
-                    autocomplete={autocomplete ? "username" : "off"}
-                    {disabled}
-                    error={page.form?.errors?.username?.[0]}
-                    icon="ion:person"
-                    placeholder={user.username}
-                    type="text"
-                    value={user.username}
-                />
-            </Label>
+        <Input
+            id="username"
+            name="username"
+            autocomplete={autocomplete ? "username" : "off"}
+            {disabled}
+            errors={form?.errors?.username}
+            icon="ion:at"
+            label={$t("auth.username")}
+            required
+            value={user.username}
+        />
 
-            <Label value={$t("auth.email")}>
-                <Input
-                    name="email"
-                    autocomplete={autocomplete ? "email" : "off"}
-                    {disabled}
-                    error={page.form?.errors?.email?.[0]}
-                    icon="ion:person"
-                    placeholder={user.email}
-                    type="text"
-                    value={user.email}
-                />
-            </Label>
+        <Input
+            id="email"
+            name="email"
+            autocomplete={autocomplete ? "email" : "off"}
+            {disabled}
+            errors={form?.errors?.email}
+            icon="ion:mail"
+            label={$t("auth.email")}
+            required
+            type="email"
+            value={user.email}
+        />
 
-            {#if disabled}
-                <span>{$t("admin.profile-disabled")}</span>
-            {/if}
-
-            <button class="m3-primary m3-button w-fit" {disabled} formaction="?/profile" type="submit">
-                {$t("general.update")}
+        {#if disabled}
+            <p class="subtext">{$t("auth.profile-disabled")}</p>
+        {/if}
+        <div class="m3-profile-actions">
+            <button class="m3-primary m3-button w-full sm:w-fit" {disabled} form="profile" type="submit">
+                <iconify-icon aria-hidden="true" icon="ion:checkmark"></iconify-icon>
+                <span>{$t("general.save")}</span>
             </button>
         </div>
     </form>
