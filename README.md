@@ -152,6 +152,10 @@ There are several configuration options in the admin panel.
 
 ### Public Signup
 
+Optional Cloudflare Turnstile and configurable registration limits protect signup.
+See
+[registration protection](./docs/registration-protection.md) for setup and proxy requirements.
+
 By default, anyone with the url can signup for an account. You can turn this off and have it be invite only.
 
 If you have [SMTP enabled](#smtp), then you can enter a user's email and an invite link will be sent there. Otherwise, an invite link will be generated for you to copy and send to the user manually.

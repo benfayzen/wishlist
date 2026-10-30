@@ -5,7 +5,7 @@ permissions:
 on:
   workflow_dispatch:
   push:
-    branches: [main, feat/material-3-expressive]
+    branches: [main, feat/material-3-expressive, codex/registration-protection]
   release:
     types: [published]
 
@@ -14,7 +14,55 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  verify:
+    name: Verify registration protection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate SvelteKit types
+        run: pnpm exec svelte-kit sync
+
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+
+      # These commands both generate .svelte-kit files; keep them sequential.
+      - name: Type and Svelte checks
+        run: pnpm check
+
+      - name: Production build
+        run: pnpm build
+
+      - name: Lint and formatting
+        run: |
+          pnpm exec eslint src/hooks.server.ts src/app.d.ts src/lib/server/registration*.ts src/lib/server/user.ts src/lib/components/Turnstile.svelte src/lib/components/CreateAccountForm.svelte src/routes/signup/+page.server.ts src/routes/login/+page.server.ts src/routes/login/oidc/callback/+server.ts 'src/routes/setup-wizard/step/[step]/+page.server.ts' tests/security/registration*.node.ts tests/security/turnstile-fetch-fixture.mjs
+          pnpm exec prettier --check src/hooks.server.ts src/app.d.ts src/lib/server/registration*.ts src/lib/server/user.ts src/lib/components/Turnstile.svelte src/lib/components/CreateAccountForm.svelte src/routes/signup/+page.server.ts src/routes/login/+page.server.ts src/routes/login/oidc/callback/+server.ts 'src/routes/setup-wizard/step/[step]/+page.server.ts' tests/security/registration*.node.ts tests/security/turnstile-fetch-fixture.mjs docs/registration-protection.md
+
+      - name: Security and SQLite tests
+        run: node --import tsx --test tests/security/registration.node.ts
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Registration HTTP and browser tests
+        run: node --import tsx --test tests/security/registration-http.node.ts
+
   build:
+    needs: verify
     name: Build and test (${{ matrix.arch }})
     strategy:
       fail-fast: false
@@ -110,6 +158,7 @@ jobs:
             type=edge,branch=main
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=material-3-expressive,enable=${{ github.ref == 'refs/heads/feat/material-3-expressive' }}
+            type=raw,value=registration-protection,enable=${{ github.ref == 'refs/heads/codex/registration-protection' }}
             type=ref,event=tag
             type=sha,prefix=sha-,format=long
 

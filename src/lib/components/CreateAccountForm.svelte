@@ -1,5 +1,6 @@
 <script lang="ts">
     import { page } from "$app/state";
+    import Turnstile from "$lib/components/Turnstile.svelte";
     import PasswordInput from "$lib/components/PasswordInput.svelte";
     import { getFormatter } from "$lib/i18n";
 
@@ -14,6 +15,7 @@
     let data = $derived(page.data);
     let formData = $derived(page.form);
 
+    let verified = $state(false);
     let password = $state("");
     let passwordConfirm = $state("");
 </script>
@@ -21,6 +23,7 @@
 <div class="m3-card account-card">
     {#if data.id}
         <input id="tokenId" name="tokenId" class="hidden" value={data.id} />
+        <input name="signupToken" type="hidden" value={data.signupToken ?? ""} />
     {/if}
     <label class="m3-label" for="name">
         <span>{$t("auth.name")}</span>
@@ -95,12 +98,22 @@
         {/if}
     </div>
 
+    {#if data.turnstile?.enabled}
+        {#key formData}
+            <Turnstile siteKey={data.turnstile.siteKey} bind:verified />
+        {/key}
+    {/if}
+
     {#if formData?.error && formData?.message}
         <span class="text-invalid">{formData.message}</span>
     {/if}
 
     {#if !hideActions}
-        <button class="m3-primary m3-button w-full" disabled={password !== passwordConfirm || signingIn} type="submit">
+        <button
+            class="m3-primary m3-button w-full"
+            disabled={password !== passwordConfirm || signingIn || (data.turnstile?.enabled && !verified)}
+            type="submit"
+        >
             {#if signingIn}
                 <span class="loading loading-spinner loading-xs"></span>
             {/if}
