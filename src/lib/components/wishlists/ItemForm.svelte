@@ -275,9 +275,9 @@
                 </label>
                 <div class="flex flex-row items-center gap-2">
                     <div class="min-w-0 grow">
-                        <div class="m3-field grid-cols-[auto_1fr]">
+                        <div class={["m3-field", !unlimited ? "m3-quantity-stepper" : "grid-cols-[auto_1fr]"]}>
                             <div class="m3-field-slot">
-                                <iconify-icon icon="ion:gift"></iconify-icon>
+                                <iconify-icon aria-hidden="true" icon="ion:gift"></iconify-icon>
                             </div>
                             <input
                                 id="quantity"
@@ -299,6 +299,28 @@
                                 type={unlimited ? "text" : "number"}
                                 value={unlimited ? $t("general.na") : quantity}
                             />
+                            {#if !unlimited}
+                                <div class="m3-quantity-stepper-controls">
+                                    <button
+                                        class="m3-quantity-step-btn"
+                                        aria-label={$t("a11y.decrease-quantity")}
+                                        disabled={quantity <= 1}
+                                        onclick={() => (quantity = Math.max(1, quantity - 1))}
+                                        type="button"
+                                    >
+                                        <iconify-icon aria-hidden="true" icon="ion:remove"></iconify-icon>
+                                    </button>
+                                    <button
+                                        class="m3-quantity-step-btn"
+                                        aria-label={$t("a11y.increase-quantity")}
+                                        disabled={quantity >= 999}
+                                        onclick={() => (quantity = Math.min(999, quantity + 1))}
+                                        type="button"
+                                    >
+                                        <iconify-icon aria-hidden="true" icon="ion:add"></iconify-icon>
+                                    </button>
+                                </div>
+                            {/if}
                         </div>
                     </div>
                     <label class="checkbox-label w-fit" for="unlimited">
@@ -428,7 +450,7 @@
     <span class="text-subtle text-sm">*{$t("general.required-field")}</span>
 
     <div class="m3-form-actions">
-        <button class="m3-text-button m3-button" disabled={fetching || saving} onclick={onCancel} type="button">
+        <button class="m3-secondary m3-button" disabled={fetching || saving} onclick={onCancel} type="button">
             {$t("general.cancel")}
         </button>
         {#if !item.id}

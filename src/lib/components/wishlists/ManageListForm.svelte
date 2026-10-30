@@ -335,7 +335,7 @@
     </div>
 
     <div class="m3-form-actions m3-form-surface">
-        <button class="m3-text-button m3-button" onclick={() => history.back()} type="button">
+        <button class="m3-secondary m3-button" onclick={() => history.back()} type="button">
             {$t("general.cancel")}
         </button>
         <div>
