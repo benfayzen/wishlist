@@ -2,14 +2,14 @@ import { getFormatter } from "$lib/server/i18n";
 import { itemEmitter } from "$lib/server/events/emitters";
 import { client } from "$lib/server/prisma";
 import type { RequestHandler } from "./$types";
-import { error } from "@sveltejs/kit";
+import { error, isHttpError } from "@sveltejs/kit";
 import { listItemClaimSchema } from "$lib/server/validations";
 import type { Prisma } from "$lib/generated/prisma/client";
 import { getItemInclusions } from "$lib/server/items";
 import { ItemEvent } from "$lib/events";
 import { logger } from "$lib/server/logger";
 import z from "zod";
-import { getActiveMembership } from "$lib/server/group-membership";
+import { getListMembership } from "$lib/server/list-sharing";
 
 // Claim an item on a list
 export const PUT: RequestHandler = async ({ locals, request, params }) => {
@@ -35,6 +35,7 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
             id: true,
             public: true,
             groupId: true,
+            groupShares: { select: { groupId: true } },
             allowSelfClaims: true,
             notForMe: true,
             ownerId: true
@@ -89,8 +90,7 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
     }
 
     if (locals.user) {
-        const activeGroupId = (await getActiveMembership(locals.user)).groupId;
-        if (activeGroupId !== list.groupId) {
+        if (locals.user.id !== list.ownerId && !(await getListMembership(list, locals.user.id))) {
             error(403, $t("errors.this-list-is-not-part-of-your-active-group"));
         }
     }
@@ -133,7 +133,41 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
             };
         }
 
-        await client.itemClaim.create({ data });
+        await client.$transaction(async (tx) => {
+            const permitted = await tx.list.count({
+                where: {
+                    id: list.id,
+                    ...(locals.user
+                        ? {
+                              OR: [
+                                  { ownerId: locals.user.id },
+                                  {
+                                      groupShares: {
+                                          some: { group: { UserGroupMembership: { some: { userId: locals.user.id } } } }
+                                      }
+                                  }
+                              ]
+                          }
+                        : { public: true })
+                }
+            });
+            if (!permitted) error(403, $t("errors.not-authorized"));
+            const current = await tx.item.findUnique({
+                where: { id: item.id, lists: { some: { listId: list.id } } },
+                select: { quantity: true, claims: { select: { quantity: true } } }
+            });
+            if (!current) error(404, $t("errors.item-not-found-on-list"));
+            const reserved = current.claims.reduce((sum, claim) => sum + claim.quantity, 0);
+            if (current.quantity !== null && reserved + updateData.data.quantity > current.quantity) {
+                error(
+                    422,
+                    $t("errors.could-not-claim-quantity-items", {
+                        values: { quantity: updateData.data.quantity, availableQuantity: current.quantity - reserved }
+                    })
+                );
+            }
+            await tx.itemClaim.create({ data });
+        });
         const updatedItem = await client.item.findUnique({
             where: {
                 id: item.id
@@ -144,6 +178,7 @@ export const PUT: RequestHandler = async ({ locals, request, params }) => {
 
         return new Response(null, { status: 200 });
     } catch (err) {
+        if (isHttpError(err)) throw err;
         logger.error({ err }, "Error claiming item");
         error(422, $t("general.oops"));
     }

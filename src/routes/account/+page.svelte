@@ -14,6 +14,7 @@
     );
 </script>
 
+<a class="m3-secondary m3-button mb-4" href="/account/groups">{$t("admin.groups")}</a>
 <Tabs defaultValue="profile">
     <Tabs.List class="flex overflow-auto">
         <Tabs.Trigger value="profile">{$t("admin.profile")}</Tabs.Trigger>

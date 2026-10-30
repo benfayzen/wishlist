@@ -87,12 +87,7 @@ try {
         console.log(`Captured ${name}`);
     }
     async function group(key) {
-        const response = await context.request.patch(`/api/users/readme-stan/groups/readme-${key}`, {
-            data: { active: true },
-            headers: { Origin: baseURL }
-        });
-        expect(response.ok()).toBeTruthy();
-        await page.goto("/lists");
+        await page.goto(`/lists?groups=readme-${key}`);
     }
     await group("family");
     await expect(page.getByTestId("list-card")).toHaveCount(6);
@@ -134,9 +129,8 @@ try {
     await page.setViewportSize({ width: 1440, height: 960 });
     await group("friends");
     await expect(page.getByTestId("list-card")).toHaveCount(5);
-    // Use the real group picker to show that the same account belongs to both groups.
-    await page.getByRole("button", { name: "South Park Friends", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Marsh Family", exact: true })).toBeVisible();
+    await page.getByTestId("overview-group-filter").getByRole("button").click();
+    await expect(page.getByRole("checkbox", { name: "Marsh Family", exact: true })).toBeVisible();
     await shot("friends-desktop.png");
     await page.keyboard.press("Escape");
     await page.evaluate(() => localStorage.setItem("mode", JSON.stringify("dark")));

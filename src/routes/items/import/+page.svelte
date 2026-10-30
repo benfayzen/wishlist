@@ -10,13 +10,11 @@
     let data = $derived(props.data);
     let form = $derived(props.form);
 
-    let currentGroup = $state(props.data.groups?.find((group) => group.active));
-    let selectedGroupId: string | undefined = $state(currentGroup?.id);
-    let lists = $derived(data.lists.filter((list) => list.groupId === selectedGroupId));
+    let lists = $derived(data.lists);
 </script>
 
 <div class="flex w-full flex-col items-center">
-    <form class="m3-card flex w-2/3 flex-col gap-4 p-4" method="POST" use:enhance>
+    <form class="m3-card flex w-full max-w-xl flex-col gap-4 p-4" method="POST" use:enhance>
         {#if !data.url}
             <div class="flex flex-col gap-2">
                 <h2 class="m3-headline">{$t("wishes.import-error-title")}</h2>
@@ -30,40 +28,15 @@
 
             <div class="flex flex-col gap-2">
                 <label class="m3-label w-full">
-                    <span>{$t("admin.select-a-group-option")}</span>
-
-                    <Select
-                        name="group"
-                        class="m3-select"
-                        onchange={(e) => (selectedGroupId = e.currentTarget.value)}
-                        required
-                        value={currentGroup?.id}
-                    >
-                        {#each data.groups as group}
-                            <option value={group.id}>{group.name}</option>
-                        {/each}
-                    </Select>
-
-                    {#if form?.group}
-                        <span class="text-invalid">{form.group}</span>
-                    {/if}
-                </label>
-
-                <label class="m3-label w-full">
                     <span>{$t("wishes.select-a-list")}</span>
 
-                    <Select
-                        name="list"
-                        class="m3-select"
-                        disabled={selectedGroupId === undefined || lists.length === 0}
-                        required
-                    >
+                    <Select name="list" class="m3-select" disabled={lists.length === 0} required>
                         {#if lists.length === 0}
                             <option value={undefined}>{$t("general.no-lists-available")}</option>
                         {/if}
                         {#each lists as list}
                             {@const listName =
-                                list.name || $t("wishes.wishes-for", { values: { listOwner: list.owner.name } })}; }
+                                list.name || $t("wishes.wishes-for", { values: { listOwner: list.owner.name } })}
                             <option value={list.id}>{listName}</option>
                         {/each}
                     </Select>

@@ -28,13 +28,19 @@ export interface ListProperties {
     hideOwner?: boolean;
 }
 
-export const create = async (ownerId: string, groupId: string, otherData?: ListProperties) => {
+export const create = async (
+    ownerId: string,
+    groupId: string,
+    otherData?: ListProperties,
+    visibleGroupIds = [groupId]
+) => {
     const cuid2 = init({ length: 10 });
     return await client.list.create({
         data: {
             id: cuid2(),
             ownerId,
             groupId,
+            groupShares: { create: [...new Set(visibleGroupIds)].map((groupId) => ({ groupId })) },
             ...otherData
         }
     });
@@ -168,6 +174,7 @@ export const getById = async (id: string) => {
                 }
             },
             groupId: true,
+            groupShares: { select: { groupId: true } },
             public: true,
             description: true,
             allowSelfClaims: true,
@@ -247,7 +254,7 @@ export const getItems = async (listId: string, options: GetItemsOptions) => {
         );
 };
 
-const availableListSelection: Prisma.ListFindManyArgs["select"] = {
+const availableListSelection = {
     id: true,
     name: true,
     public: true,
@@ -256,13 +263,9 @@ const availableListSelection: Prisma.ListFindManyArgs["select"] = {
             name: true
         }
     },
-    group: {
-        select: {
-            id: true,
-            name: true
-        }
-    }
-};
+    groupId: true,
+    groupShares: { select: { group: { select: { id: true, name: true } } } }
+} satisfies Prisma.ListSelect;
 
 /**
  * Returns all lists that are owned by ownerId that can be accessed by loggedInUserId.
@@ -271,16 +274,23 @@ const availableListSelection: Prisma.ListFindManyArgs["select"] = {
  * suggestions must be enabled for the group.
  */
 export const getAvailableLists = async (ownerId: string, loggedInUserId: string) => {
+    const selection = {
+        ...availableListSelection,
+        groupShares: {
+            ...availableListSelection.groupShares,
+            where: { group: { UserGroupMembership: { some: { userId: loggedInUserId } } } }
+        }
+    };
     if (ownerId === loggedInUserId) {
         // TODO: also add managed lists here
         const usersLists = await client.list.findMany({
-            select: availableListSelection,
+            select: selection,
             where: {
                 ownerId
             }
         });
         const managedLists = await client.list.findMany({
-            select: availableListSelection,
+            select: selection,
             where: {
                 managers: {
                     some: {
@@ -290,13 +300,13 @@ export const getAvailableLists = async (ownerId: string, loggedInUserId: string)
             }
         });
         return {
-            usersLists,
-            managedLists
+            usersLists: usersLists.map(withGroupLabel),
+            managedLists: managedLists.map(withGroupLabel)
         };
     }
 
     const managedLists = await client.list.findMany({
-        select: availableListSelection,
+        select: selection,
         where: {
             ownerId,
             managers: {
@@ -331,17 +341,15 @@ export const getAvailableLists = async (ownerId: string, loggedInUserId: string)
     });
 
     const ownersListsInCommonGroups = await client.list.findMany({
-        select: availableListSelection,
+        select: selection,
         where: {
             ownerId,
-            groupId: {
-                in: [...overlappingGroups]
-            }
+            groupShares: { some: { groupId: { in: [...overlappingGroups] } } }
         }
     });
 
     const ownersPublicLists = await client.list.findMany({
-        select: availableListSelection,
+        select: selection,
         where: {
             ownerId,
             public: true,
@@ -354,7 +362,7 @@ export const getAvailableLists = async (ownerId: string, loggedInUserId: string)
     const distinctLists: Set<string> = new Set(managedLists.map(({ id }) => id));
     const listsAvailable = [...managedLists];
     for (const list of [...ownersListsInCommonGroups, ...ownersPublicLists]) {
-        const groupConfig = await getConfig(list.group.id);
+        const groupConfig = await getConfig(list.groupId);
         if (groupConfig.suggestions.enable && !distinctLists.has(list.id)) {
             listsAvailable.push(list);
             distinctLists.add(list.id);
@@ -362,7 +370,7 @@ export const getAvailableLists = async (ownerId: string, loggedInUserId: string)
     }
 
     return {
-        usersLists: listsAvailable,
+        usersLists: listsAvailable.map(withGroupLabel),
         managedLists: []
     };
 };
@@ -417,3 +425,7 @@ export const verifyUserCanManageList = async (userId: string, list: ListForManag
         error(403, $t("errors.not-authorized"));
     }
 };
+
+function withGroupLabel<T extends { groupShares: { group: { id: string; name: string } }[] }>(list: T) {
+    return { ...list, group: list.groupShares[0]?.group ?? { id: "", name: "" } };
+}

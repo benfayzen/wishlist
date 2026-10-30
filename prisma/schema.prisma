@@ -62,7 +62,7 @@ model Group {
     id                  String                @id @unique @default(uuid())
     name                String                @unique
     UserGroupMembership UserGroupMembership[]
-    lists               List[]
+    listShares          ListGroupShare[]
 
     @@map("group")
 }
@@ -88,8 +88,8 @@ model List {
     name            String?
     owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     ownerId         String
+    groupShares     ListGroupShare[]
     managers        ListManager[]
-    group           Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
     groupId         String
     public          Boolean       @default(false)
     hideOwner       Boolean       @default(false)
@@ -220,4 +220,16 @@ model Patch {
     executed_at DateTime @default(now())
 
     @@map("patch")
+}
+
+// groupId keeps the original settings context; visibility uses group shares.
+model ListGroupShare {
+    listId  String
+    groupId String
+    list    List   @relation(fields: [listId], references: [id], onDelete: Cascade)
+    group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+    @@id([listId, groupId])
+    @@index([groupId])
+    @@map("list_group_share")
 }

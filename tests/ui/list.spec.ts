@@ -302,7 +302,7 @@ test("list shows item count correctly", async ({ page }) => {
     // Delete item
     await listPage.goto();
     await listPage.getItemAt(0).then((it) => it.delete());
-    new Toast(page).waitForToastWithText(`${itemData.name} was deleted`);
+    await new Toast(page).waitForToastWithText(`${itemData.name} was deleted`);
 
     // Validate list card shows no items
     await listsPage.goto();

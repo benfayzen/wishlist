@@ -1,7 +1,6 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { client } from "$lib/server/prisma";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { getFormatter } from "$lib/server/i18n";
 import { requireLogin } from "$lib/server/auth";
 
@@ -9,7 +8,6 @@ export const load: PageServerLoad = async ({ params }) => {
     const user = requireLogin();
     const $t = await getFormatter();
 
-    const activeMembership = await getActiveMembership(user);
     const list = await client.list.findFirst({
         select: {
             id: true
@@ -18,8 +16,13 @@ export const load: PageServerLoad = async ({ params }) => {
             owner: {
                 username: params.username
             },
-            groupId: activeMembership.groupId
-        }
+            OR: [
+                { ownerId: user.id },
+                { public: true },
+                { groupShares: { some: { group: { UserGroupMembership: { some: { userId: user.id } } } } } }
+            ]
+        },
+        orderBy: { id: "asc" }
     });
 
     if (!list) {

@@ -45,6 +45,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
                             iconColor: true,
                             public: true,
                             groupId: true,
+                            groupShares: { select: { groupId: true } },
                             managers: {
                                 select: {
                                     userId: true
@@ -67,14 +68,18 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
     const originPath = url.searchParams.get("redirectTo");
     const originId = originPath?.match(/^\/lists\/([^/?#]+)(?:[?#].*)?$/)?.[1];
-    const activeMembership = await client.userGroupMembership.findFirst({
-        where: { userId: user.id, active: true },
+    const memberships = await client.userGroupMembership.findMany({
+        where: { userId: user.id },
         select: { groupId: true }
     });
     const contextList = item.lists.find(
         ({ list }) =>
             list.id === originId &&
-            (list.groupId === activeMembership?.groupId || (list.public && list.ownerId !== user.id)) &&
+            (list.ownerId === user.id ||
+                list.groupShares.some((share) =>
+                    memberships.some((membership) => membership.groupId === share.groupId)
+                ) ||
+                (list.public && list.ownerId !== user.id)) &&
             (item.userId === user.id ||
                 item.createdById === user.id ||
                 list.ownerId === user.id ||

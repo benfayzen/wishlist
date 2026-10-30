@@ -1,6 +1,5 @@
 import { Role } from "$lib/schema";
 import { requireLoginOrError, requireRole } from "$lib/server/auth";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { getFormatter } from "$lib/server/i18n";
 import { logger } from "$lib/server/logger";
 import { client } from "$lib/server/prisma";
@@ -11,13 +10,19 @@ import { treeifyError } from "zod";
 
 export const GET: RequestHandler = async ({ url }) => {
     const loggedInUser = await requireLoginOrError();
-    const activeGroup = await getActiveMembership(loggedInUser);
+    const memberships = await client.userGroupMembership.findMany({
+        where: { userId: loggedInUser.id },
+        select: { groupId: true, roleId: true }
+    });
 
     const $t = await getFormatter();
 
     if (
         !url.searchParams.has("groupId") &&
-        !(loggedInUser.roleId === Role.ADMIN || activeGroup.roleId === Role.GROUP_MANAGER)
+        !(
+            loggedInUser.roleId === Role.ADMIN ||
+            memberships.some((membership) => membership.roleId === Role.GROUP_MANAGER)
+        )
     ) {
         logger.error(
             { userId: loggedInUser.id, role: loggedInUser.roleId },
@@ -27,7 +32,7 @@ export const GET: RequestHandler = async ({ url }) => {
     }
 
     if (url.searchParams.has("groupId") && loggedInUser.roleId === Role.USER) {
-        if (activeGroup.groupId !== url.searchParams.get("groupId")) {
+        if (!memberships.some((membership) => membership.groupId === url.searchParams.get("groupId"))) {
             logger.error({ userId: loggedInUser.id }, "User tried to list users in a group they are not part of");
             error(403, $t("errors.not-authorized"));
         }
