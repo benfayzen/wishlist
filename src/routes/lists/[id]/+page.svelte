@@ -370,7 +370,7 @@
             items,
             flipDurationMs,
             dragDisabled: false,
-            dropTargetClasses: ["preset-outlined-primary-500"],
+            dropTargetClasses: ["m3-dnd-drop-target"],
             dropTargetStyle: {}
         }}
     >

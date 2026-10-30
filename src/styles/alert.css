@@ -1,17 +1,42 @@
 @layer components {
     .alert {
-        @apply card flex items-center gap-4 p-2;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: var(--md-shape-large);
+    }
+
+    .m3-alert-info {
+        background: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+        border-color: var(--md-secondary);
+    }
+
+    .m3-alert-warning {
+        background: var(--md-tertiary-container);
+        color: var(--md-on-tertiary-container);
+        border-color: var(--md-tertiary);
+    }
+
+    .m3-alert-error {
+        background: var(--md-error-container);
+        color: var(--md-on-error-container);
+        border-color: var(--md-error);
     }
 
     .alert-icon {
-        @apply flex shrink;
+        display: flex;
+        flex-shrink: 1;
     }
 
     .alert-message {
-        @apply flex grow;
+        display: flex;
+        flex-grow: 1;
     }
 
     .alert-actions {
-        @apply flex shrink;
+        display: flex;
+        flex-shrink: 1;
     }
 }

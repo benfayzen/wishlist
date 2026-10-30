@@ -6,14 +6,15 @@ The UI uses Svelte components with shared `m3-*` classes. The main style files a
 `src/styles/material.css`, `src/styles/expressive.css` and
 `src/styles/account-menu.css`. Administration layouts use `src/styles/admin.css`.
 
-| Area                     | Implementation                                                              |
-| ------------------------ | --------------------------------------------------------------------------- |
-| Text and compound fields | `FieldShell`, `Input`, `Label`, `PasswordInput`, `CurrencyInput`            |
-| Forms                    | `FormSection`, `FileUpload`, `MarkdownEditor`, `ManageListForm`, `ItemForm` |
-| Selection and filters    | `ConnectedButtonGroup`, `AdaptivePicker`, wishlist chips                    |
-| Dialogs and item details | `BaseModal`, `ModalContent`, `ItemDrawer`                                   |
-| Navigation               | `NavigationDrawer`, `NavigationRail`, `BottomTabs`, `NavMenu`               |
-| Wishlist content         | `ListCard`, `GridItemCard`, `ListItemCard`, shared item content and actions |
+| Area                     | Implementation                                                                |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Text and compound fields | `FieldShell`, `Input`, `Label`, `PasswordInput`, `CurrencyInput`              |
+| Forms                    | `FormSection`, `FileUpload`, `MarkdownEditor`, `ManageListForm`, `ItemForm`   |
+| Selection and filters    | `ConnectedButtonGroup`, `AdaptivePicker`, wishlist chips, toggle icon buttons |
+| Dialogs and item details | `BaseModal`, `ModalContent`, `ItemDrawer`, M3 `Listbox` surfaces              |
+| Navigation and tabs      | `NavigationDrawer`, `NavigationRail`, `BottomTabs`, `NavMenu`, M3 `Tabs`      |
+| Wishlist content         | `ListCard`, `GridItemCard`, `ListItemCard`, shared item content and actions   |
+| Alerts and tables        | `Alert`, `SMTPAlert`, `.m3-table-wrapper`, sticky table headers               |
 
 Skeleton primitives provide behavior such as dialog focus management and menu
 keyboard interaction. Shared styles provide the application's appearance.
@@ -23,7 +24,9 @@ keyboard interaction. Shared styles provide the application's appearance.
 `src/lib/theme.ts` uses Material Color Utilities to generate light and dark
 palettes. Components use paired semantic roles such as primary/on-primary and
 surface/on-surface. The default palette uses the application's brand colors;
-custom list colors use `SchemeTonalSpot`.
+custom list colors use `SchemeTonalSpot`. `ListCard` computes both light and
+dark `primaryContainer` / `onPrimaryContainer` tones for each list's icon seed
+so overview cards adapt automatically to `[data-mode="dark"]`.
 
 List display, creation, management and item-edit loaders supply a list color
 only after their existing access checks. Color seeds must be opaque six-digit
@@ -44,6 +47,11 @@ bottom navigation and floating actions.
 image from 640 CSS pixels and a full-width text layout below that breakpoint.
 Mobile rows retain the localized Most Wanted label, item information and actions
 without a product image or placeholder. The detail dialog can still show images.
+Stacked list rows and mobile administration records use segmented corner
+geometry (`var(--md-shape-small)` on inner adjacent edges and
+`var(--md-shape-large)` on outer group edges), morphing to full rounded corners
+on hover or focus. Toggle icon buttons (`.m3-toggle-icon-button`) morph from a
+circular unselected state to a rounded-square selected state (`aria-pressed="true"`).
 
 The list-view preference is stored in a cookie. The light, dark or system theme
 preference is stored locally; its initialization lives in the document shell.

@@ -84,12 +84,7 @@
         {#if groups && groups.length > 0}
             <Listbox aria-invalid={groupError} {collection} onSelect={(e) => (selectedGroup = e.value)}>
                 <Listbox.Label class="text-base">{$t("general.group")}</Listbox.Label>
-                <Listbox.Content
-                    class={[
-                        "preset-filled-surface-200-800 preset-outlined-surface-300-700 pt-3",
-                        groupError && "m3-invalid!"
-                    ]}
-                >
+                <Listbox.Content class={["pt-3", groupError && "m3-invalid!"]}>
                     {#each collection.items as item (item.id)}
                         <Listbox.Item {item}>
                             <Listbox.ItemText>

@@ -1,12 +1,31 @@
+/* M3 primary tabs: tonal state layer, active primary label and rounded indicator bar. */
+[data-scope="tabs"][data-part="list"] {
+    border-block-end: 1px solid var(--md-outline-variant);
+}
+
 [data-scope="tabs"][data-part="trigger"] {
-    /* Reset skeleton style */
+    color: var(--md-on-surface-variant);
+    font-weight: 500;
+    border-start-start-radius: var(--md-shape-medium);
+    border-start-end-radius: var(--md-shape-medium);
+    transition:
+        background-color var(--md-motion-effects),
+        color var(--md-motion-effects);
+
     &:hover {
-        background-color: transparent;
-        color: inherit;
+        background-color: color-mix(in srgb, var(--md-primary) 8%, transparent);
+        color: var(--md-on-surface);
     }
 
-    /* Reapply with hover variant */
-    @variant hover {
-        @apply preset-tonal-primary;
+    &[data-selected] {
+        color: var(--md-primary);
+        font-weight: 600;
     }
+}
+
+[data-scope="tabs"][data-part="indicator"] {
+    background: var(--md-primary);
+    block-size: 3px;
+    border-start-start-radius: 3px;
+    border-start-end-radius: 3px;
 }

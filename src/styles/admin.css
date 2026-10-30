@@ -78,10 +78,26 @@
         background: var(--md-surface-container-low);
         color: var(--md-on-surface);
         overflow-wrap: anywhere;
+        transition:
+            background-color var(--md-motion-effects),
+            border-radius var(--md-motion-spatial);
+    }
+    .admin-records > li:not(:first-child) > .admin-record,
+    .admin-records > li.admin-record:not(:first-child) {
+        border-start-start-radius: var(--md-shape-small);
+        border-start-end-radius: var(--md-shape-small);
+    }
+    .admin-records > li:not(:last-child) > .admin-record,
+    .admin-records > li.admin-record:not(:last-child) {
+        border-end-start-radius: var(--md-shape-small);
+        border-end-end-radius: var(--md-shape-small);
+    }
+    .admin-records > li > .admin-record:is(:hover, :focus-visible),
+    .admin-records > li.admin-record:is(:hover, :focus-visible) {
+        border-radius: var(--md-shape-large);
     }
     .admin-record-link {
         text-decoration: none;
-        transition: background-color var(--md-motion-effects);
     }
     .admin-record-link:hover {
         background: var(--md-surface-container-high);

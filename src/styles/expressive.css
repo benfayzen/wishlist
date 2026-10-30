@@ -251,6 +251,40 @@
         flex-shrink: 0;
         font-size: 1.25rem;
     }
+    /* M3E toggle icon button: circular when unselected, morphs to rounded square when selected. */
+    .m3-toggle-icon-button {
+        border-radius: var(--md-shape-full);
+        background-color: var(--md-surface-container-highest);
+        border-color: var(--md-outline);
+        color: var(--md-on-surface-variant);
+        transition:
+            background-color var(--md-motion-effects),
+            color var(--md-motion-effects),
+            border-color var(--md-motion-effects),
+            border-radius var(--md-motion-spatial);
+    }
+    .m3-toggle-icon-button:hover {
+        background-image: none;
+        background-color: color-mix(in srgb, var(--md-surface-container-highest), var(--md-on-surface-variant) 8%);
+    }
+    .m3-toggle-icon-button:active {
+        border-radius: var(--md-shape-medium);
+    }
+    .m3-toggle-icon-button[aria-pressed="true"] {
+        border-radius: var(--md-shape-medium);
+        background-color: var(--md-secondary);
+        border-color: transparent;
+        color: var(--md-on-secondary);
+    }
+    .m3-toggle-icon-button[aria-pressed="true"]:hover {
+        background-color: color-mix(in srgb, var(--md-secondary), var(--md-on-secondary) 8%);
+    }
+    .m3-toggle-icon-button[aria-pressed="true"]:active {
+        border-radius: var(--md-shape-small);
+    }
+    .m3-toggle-icon-button iconify-icon {
+        font-size: 1.25rem;
+    }
     /* Product layout: list actions precede the shared sort and view row on compact screens. */
     .m3-wishlist-toolbar {
         display: grid;

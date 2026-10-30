@@ -81,7 +81,7 @@
                 </div>
             {/snippet}
         </Listbox.Input>
-        <Listbox.Content class="preset-filled-surface-200-800 preset-outlined-surface-300-700 pt-1">
+        <Listbox.Content class="pt-1">
             {#if collection.items.length === 0}
                 <span class="px-2 pt-1">{$t("general.no-results")}</span>
             {/if}

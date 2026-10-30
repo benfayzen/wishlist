@@ -1,30 +1,50 @@
-@layer utilities {
+@layer components {
+    .m3-table-wrapper {
+        overflow: auto;
+        border: 1px solid var(--md-outline-variant);
+        border-radius: var(--md-shape-large);
+        background: var(--md-surface-container-low);
+    }
+
     .table {
+        border-collapse: collapse;
+
         & thead {
-            @apply preset-filled-surface-200-800;
+            position: sticky;
+            inset-block-start: 0;
+            z-index: 1;
+            background: var(--md-surface-container);
+            color: var(--md-on-surface-variant);
 
             & th {
-                @apply p-4 font-bold;
+                padding: 1rem;
+                font-weight: 600;
+                text-align: start;
             }
         }
 
         & tbody {
-            @apply preset-filled-surface-100-900;
+            background: var(--md-surface-container-low);
+            color: var(--md-on-surface);
+
+            & tr + tr {
+                border-block-start: 1px solid var(--md-outline-variant);
+            }
 
             & td {
-                @apply p-4;
+                padding: 1rem;
             }
         }
     }
 
     .table-hover {
         & tbody > tr {
-            @variant hover {
-                @apply text-primary-950-50 bg-primary-500/10 cursor-pointer;
-            }
+            transition: background-color var(--md-motion-effects);
 
-            @variant active {
-                @apply text-primary-950-50 bg-primary-500/10;
+            &:hover,
+            &:active {
+                background: color-mix(in srgb, var(--md-on-surface) 6%, var(--md-surface-container-low));
+                cursor: pointer;
             }
         }
     }

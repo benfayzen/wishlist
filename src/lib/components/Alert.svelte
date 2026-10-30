@@ -16,19 +16,11 @@
 
     const icon = $derived(type === "info" ? "ion:information-circle" : "ion:warning");
     const variant = $derived(
-        type === "info"
-            ? "preset-tonal-primary border-primary-500"
-            : type === "warning"
-              ? "preset-tonal-warning border-warning-500"
-              : "preset-tonal-error border-error-500"
+        type === "info" ? "m3-alert-info" : type === "warning" ? "m3-alert-warning" : "m3-alert-error"
     );
 
     const buttonVariant = $derived(
-        type === "info"
-            ? "preset-filled-primary-500"
-            : type === "warning"
-              ? "preset-filled-warning-500"
-              : "preset-filled-error-500"
+        type === "info" ? "m3-button m3-primary" : type === "warning" ? "m3-button m3-secondary" : "m3-button m3-danger"
     );
 </script>
 

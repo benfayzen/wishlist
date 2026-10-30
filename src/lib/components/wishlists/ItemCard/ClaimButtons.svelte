@@ -70,11 +70,7 @@
                 {/snippet}
             </ClaimItemModal>
             <button
-                class={[
-                    "m3-button m3-icon-button",
-                    userClaim.purchased && "preset-tonal-secondary inset-ring-secondary-500 inset-ring",
-                    !userClaim.purchased && "inset-ring-secondary-500 inset-ring"
-                ]}
+                class="m3-button m3-icon-button m3-toggle-icon-button"
                 aria-label={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
                 aria-pressed={userClaim.purchased}
                 onclick={(e) => {

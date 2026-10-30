@@ -43,7 +43,7 @@
                     aria-expanded={seePrices}
                     onclick={() => (seePrices = !seePrices)}
                 >
-                    <span class="text-surface-900/70 dark:text-surface-50/50 text-xs">
+                    <span class="text-subtle text-xs">
                         {$t("wishes.show-all-currencies")}
                     </span>
                 </button>
@@ -55,9 +55,7 @@
             <ul class="list">
                 {#each totalCostByCurrency as { currency, total }}
                     <li>
-                        <span
-                            class="preset-tonal-primary border-primary-500 rounded-base w-fit min-w-12 border px-2 py-0.5 text-center text-sm uppercase"
-                        >
+                        <span class="m3-currency-badge">
                             {currency}
                         </span>
                         <span>{formatNumberAsPrice(currency, total)}</span>
@@ -69,7 +67,7 @@
                 aria-expanded={seePrices}
                 onclick={() => (seePrices = !seePrices)}
             >
-                <span class="text-surface-900/70 dark:text-surface-50/50 text-xs">
+                <span class="text-subtle text-xs">
                     {$t("wishes.hide-all-currencies")}
                 </span>
             </button>

@@ -2,7 +2,7 @@
     background: var(--md-inverse-surface);
     color: var(--md-inverse-on-surface);
     border: 0;
-    border-radius: 4px;
+    border-radius: var(--md-shape-medium);
     min-block-size: 3rem;
     box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
     max-inline-size: min(35rem, calc(100vw - 2rem));

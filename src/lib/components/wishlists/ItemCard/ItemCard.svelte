@@ -89,7 +89,10 @@
 
 {#snippet defaultImage(t: MessageFormatter, sizeClasses: ClassValue = ["w-24", "h-24", "md:w-40", "md:h-40"])}
     <div
-        class={["bg-surface-300-700 grid flex-none place-items-center", sizeClasses]}
+        class={[
+            "grid flex-none place-items-center bg-[var(--md-surface-container)] text-[var(--md-on-surface-variant)]",
+            sizeClasses
+        ]}
         aria-label={t("a11y.default-item-image")}
         data-testid="image"
         role="img"
@@ -122,7 +125,7 @@
 <div
     class={[
         "m3-card m3-item-card block h-full w-full text-start print:break-inside-avoid print:shadow-none",
-        !item.approved && "preset-tonal-warning border-warning-500 border",
+        !item.approved && "m3-item-card-unapproved",
         !reorderActions && "card-hover"
     ]}
     aria-labelledby={`${id}-name`}

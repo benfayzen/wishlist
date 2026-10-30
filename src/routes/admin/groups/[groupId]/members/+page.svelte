@@ -45,7 +45,7 @@
         {/snippet}
         {#snippet trigger(props)}
             <button
-                class={compact ? "m3-secondary m3-button" : "m3-icon-button"}
+                class={compact ? "m3-secondary m3-button" : "m3-button m3-icon-button m3-toggle-icon-button"}
                 aria-label={`${$t("admin.manager")}: ${user.name}`}
                 aria-pressed={user.isGroupManager}
                 type="button"
@@ -73,7 +73,11 @@
                 type="button"
                 {...props}
             >
-                <iconify-icon class="text-error-500" aria-hidden="true" icon="ion:person-remove"></iconify-icon>
+                <iconify-icon
+                    class={!compact ? "text-[var(--md-error)]" : undefined}
+                    aria-hidden="true"
+                    icon="ion:person-remove"
+                ></iconify-icon>
                 {#if compact}<span>{$t("general.remove")}</span>{/if}
             </button>
         {/snippet}
@@ -122,7 +126,7 @@
     {/each}
 </ul>
 
-<div class="admin-desktop-table table-wrap preset-outlined-surface-200-800 rounded-container">
+<div class="admin-desktop-table m3-table-wrapper table-wrap">
     <table class="table">
         <thead>
             <tr>

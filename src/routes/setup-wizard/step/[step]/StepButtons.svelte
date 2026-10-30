@@ -24,7 +24,7 @@
             </Steps.PrevTrigger>
 
             <!-- Next / Complete -->
-            <button class={["m3-button", isLastStep ? "preset-filled-primary-500" : "preset-filled"]} {...nextButton}>
+            <button class="m3-button m3-primary" {...nextButton}>
                 {#if submitting}
                     <span class="loading loading-spinner loading-xs"></span>
                 {/if}
