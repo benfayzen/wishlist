@@ -763,16 +763,47 @@
     }
     .m3-claim-actions {
         display: flex;
-        align-items: center;
+        align-items: stretch;
         gap: 0.5rem;
         min-inline-size: 0;
         max-inline-size: 100%;
     }
+    .m3-claim-actions.m3-claim-split {
+        gap: 2px;
+    }
+    .m3-tile-card > footer > .m3-claim-actions {
+        inline-size: 100%;
+    }
     .m3-claim-button {
-        flex: 0 1 auto;
+        flex: 1 1 0%;
         min-inline-size: 0;
         padding-inline: 1rem;
         white-space: nowrap;
+    }
+    .m3-claim-button iconify-icon {
+        font-size: 1.125rem;
+    }
+    .m3-claim-split .m3-claim-button {
+        border-start-start-radius: var(--md-shape-full);
+        border-end-start-radius: var(--md-shape-full);
+        border-start-end-radius: var(--md-shape-small);
+        border-end-end-radius: var(--md-shape-small);
+    }
+    .m3-claim-split .m3-claim-purchase-button {
+        border-start-start-radius: var(--md-shape-small);
+        border-end-start-radius: var(--md-shape-small);
+        border-start-end-radius: var(--md-shape-full);
+        border-end-end-radius: var(--md-shape-full);
+        border-color: transparent;
+    }
+    .m3-claim-split .m3-claim-purchase-button[aria-pressed="true"] {
+        border-radius: var(--md-shape-medium);
+    }
+    @media (min-width: 640px) {
+        .m3-item-content > footer > .m3-claim-actions > .m3-claim-button {
+            flex: 0 1 auto;
+            min-inline-size: 14rem;
+        }
     }
     @media (max-width: 359px) {
         .m3-claim-button {

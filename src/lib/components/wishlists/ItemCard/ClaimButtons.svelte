@@ -59,18 +59,23 @@
     <div></div>
 {:else if userClaim}
     {#if isClaimOnList}
-        <div class="m3-claim-actions">
+        {@const isSingleUnclaim = item.quantity === 1 && userClaim.quantity === 1}
+        <div class="m3-claim-actions m3-claim-split">
             <ClaimItemModal claimId={userClaim?.claimId} {groupId} {item} {requireClaimEmail} userId={user?.id}>
                 {#snippet trigger(props)}
                     <button {...props} class="m3-secondary m3-button m3-button-small m3-claim-button">
-                        {item.quantity === 1 && userClaim.quantity === 1
-                            ? $t("wishes.unclaim")
-                            : $t("wishes.update-claim")}
+                        <iconify-icon
+                            aria-hidden="true"
+                            icon={isSingleUnclaim ? "ion:bookmark-outline" : "ion:options-outline"}
+                        ></iconify-icon>
+                        <span>
+                            {isSingleUnclaim ? $t("wishes.unclaim") : $t("wishes.update-claim")}
+                        </span>
                     </button>
                 {/snippet}
             </ClaimItemModal>
             <button
-                class="m3-button m3-icon-button m3-toggle-icon-button"
+                class="m3-button m3-icon-button m3-toggle-icon-button m3-claim-purchase-button"
                 aria-label={userClaim.purchased ? $t("a11y.unpurchase") : $t("wishes.purchase")}
                 aria-pressed={userClaim.purchased}
                 onclick={(e) => {
@@ -90,7 +95,8 @@
         <ClaimItemModal {groupId} {item} {requireClaimEmail} userId={user?.id}>
             {#snippet trigger(props)}
                 <button {...props} class="m3-button m3-button-small m3-primary m3-claim-button">
-                    {$t("wishes.claim")}
+                    <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
+                    <span>{$t("wishes.claim")}</span>
                 </button>
             {/snippet}
         </ClaimItemModal>
