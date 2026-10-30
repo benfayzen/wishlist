@@ -57,11 +57,10 @@ test("account actions hand off to dialogs and navigation on mobile", async ({ pa
     await expect(panel).toBeHidden();
     await language.getByRole("button", { name: "Cancel", exact: true }).click();
     await trigger.click();
-    await panel.getByRole("button", { name: "Create Group", exact: true }).click();
-    const group = page.getByRole("dialog", { name: "Enter Group Name" });
-    await expect(group).toBeVisible();
+    await panel.getByRole("link", { name: "Create Group", exact: true }).click();
+    await expect(page).toHaveURL(/\/account\/groups#create$/);
+    await expect(page.getByRole("heading", { name: "Create Group", exact: true })).toBeVisible();
     await expect(panel).toBeHidden();
-    await group.getByRole("button", { name: "Cancel", exact: true }).click();
     await trigger.click();
     await panel.getByRole("link", { name: "Account", exact: true }).click();
     await expect(page).toHaveURL(/\/account$/);

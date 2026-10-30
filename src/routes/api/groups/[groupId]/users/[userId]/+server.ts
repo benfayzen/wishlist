@@ -3,7 +3,7 @@ import { client } from "$lib/server/prisma";
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { requireAccessToGroup } from "../../auth";
-import { create, deleteLists } from "$lib/server/list";
+import { create } from "$lib/server/list";
 import { getConfig } from "$lib/server/config";
 
 export const GET: RequestHandler = async ({ params }) => {
@@ -101,7 +101,9 @@ export const DELETE: RequestHandler = async ({ params }) => {
             id: membership.id
         }
     });
-    deleteLists(params.userId, group.id);
+    // Leaving a group revokes that group's visibility, preserving the owner's
+    // list and reservations in every other group.
+    await client.listGroupShare.deleteMany({ where: { groupId: group.id, list: { ownerId: params.userId } } });
 
     return new Response(JSON.stringify({ membership }), { status: 200 });
 };

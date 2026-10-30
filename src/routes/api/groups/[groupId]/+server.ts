@@ -3,7 +3,6 @@ import type { RequestHandler } from "./$types";
 import { client } from "$lib/server/prisma";
 import { requireAccessToGroup } from "./auth";
 import { getFormatter } from "$lib/server/i18n";
-import { deleteLists } from "$lib/server/list";
 
 export const DELETE: RequestHandler = async ({ params }) => {
     const $t = await getFormatter();
@@ -33,7 +32,8 @@ export const DELETE: RequestHandler = async ({ params }) => {
         }
     });
 
-    await deleteLists(undefined, group.id);
+    // Lists belong to users. Deleting a group revokes its shares via the FK;
+    // it must not delete a list still shared with another group.
 
     return new Response(JSON.stringify(deletedGroup));
 };

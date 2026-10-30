@@ -1,4 +1,11 @@
 {
+    "groups": {
+        "leave": "Leave group",
+        "leave-confirmation": "Leave this group? Your lists and existing reservations are kept, and your lists stop being shared with this group.",
+        "last-manager": "Assign another group manager before leaving this group.",
+        "invalid-name": "Choose a group name between 3 and 32 characters.",
+        "name-taken": "A group with this name already exists."
+    },
     "navigation": {
         "overview": "Overview",
         "lists": "My Lists",
@@ -383,6 +390,9 @@
     },
     "unable-to-load-icons": "Unable to load icons.",
     "wishes": {
+        "visible-in-groups": "Visible in groups",
+        "select-groups": "Select groups",
+        "shared-groups-description": "Share this list with several groups. Wishes and reservations stay in sync. Select at least one group.",
         "view-layout": "View layout",
         "add-a-list-manager": "Add a list manager",
         "add-a-list-manager-explainer": "Search for a user within this group to add as a manager to your list.",

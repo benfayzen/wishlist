@@ -12,6 +12,9 @@ export const DELETE: RequestHandler = async ({ url }) => {
     const $t = await getFormatter();
     const groupId = url.searchParams.get("groupId");
     const claimed = url.searchParams.get("claimed");
+    // A group cleanup may only change lists exclusively shared with that group.
+    // A group manager has no authority to erase another group's shared wishes.
+    const listScope = groupId ? { groupShares: { some: { groupId }, every: { groupId } } } : {};
     if (groupId) {
         const { authenticated } = await requireAccessToGroup(groupId);
         if (!authenticated) {
@@ -45,7 +48,7 @@ export const DELETE: RequestHandler = async ({ url }) => {
             lists: {
                 some: {
                     list: {
-                        groupId: groupId || undefined
+                        ...listScope
                     }
                 }
             }
@@ -74,7 +77,7 @@ export const DELETE: RequestHandler = async ({ url }) => {
         },
         where: {
             list: {
-                groupId: groupId || undefined
+                ...listScope
             },
             itemId: {
                 in: items.map(({ id }) => id)

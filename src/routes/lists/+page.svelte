@@ -10,13 +10,14 @@
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { isMyListsView } from "$lib/components/navigation/navigation";
+    import OverviewGroupFilterChip from "$lib/components/wishlists/chips/OverviewGroupFilterChip.svelte";
 
     type ListData = PageData["otherLists"][0];
 
     let { data }: PageProps = $props();
 
     const t = getFormatter();
-    const users = $state(data.users);
+    const users = $derived(data.users);
     const myListsView = $derived(isMyListsView(page.url, data.user));
 
     const hasNewItems = async (list: ListData) => {
@@ -29,7 +30,8 @@
 </script>
 
 {#if !myListsView}
-    <div class="m3-toolbar print:hidden">
+    <div class="m3-toolbar justify-start! print:hidden">
+        <OverviewGroupFilterChip groups={data.groups ?? []} />
         <ListFilterChip {users} />
     </div>
 {/if}

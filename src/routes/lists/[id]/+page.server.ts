@@ -3,8 +3,9 @@ import type { PageServerLoad } from "./$types";
 import { getConfig } from "$lib/server/config";
 import { getFormatter } from "$lib/server/i18n";
 import { getById, getItems, type GetItemsOptions } from "$lib/server/list";
-import { getActiveMembership } from "$lib/server/group-membership";
 import type { UserGroupMembership } from "$lib/generated/prisma/client";
+import { getListMembership } from "$lib/server/list-sharing";
+import { visibleClaims } from "$lib/server/claim-visibility";
 
 export const load = (async ({ params, url, locals, depends, cookies }) => {
     const $t = await getFormatter();
@@ -22,13 +23,11 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
         }
     } else {
         // Logged in users must be in the correct group, or viewing a public list
-        activeMembership = await getActiveMembership(locals.user);
-        if (!list || (!list.public && list.groupId !== activeMembership.groupId)) {
+        if (!list) error(404, $t("errors.list-not-found"));
+        const sharedMembership = await getListMembership(list, locals.user.id);
+        activeMembership = sharedMembership ?? undefined;
+        if (!list.public && list.owner.id !== locals.user.id && !sharedMembership) {
             error(404, $t("errors.list-not-found"));
-        }
-        // Owners of the public list need to be in the correct group still
-        if (list.owner.id === locals.user.id && list?.public && list.groupId !== activeMembership.groupId) {
-            error(401, $t("errors.user-must-be-in-the-correct-group"));
         }
     }
 
@@ -64,14 +63,16 @@ export const load = (async ({ params, url, locals, depends, cookies }) => {
                 activeGroupId: list.groupId
             },
             isManager: list.managers.find(({ userId }) => userId === locals.user?.id) !== undefined,
-            items
+            items: items.map((item) =>
+                visibleClaims(item, config, locals.user?.id, activeMembership?.groupId, list.notForMe)
+            )
         },
         loggedInUser: locals.user
             ? {
                   id: locals.user.id,
                   username: locals.user.username,
                   name: locals.user.name,
-                  activeGroupId: activeMembership!.groupId
+                  activeGroupId: activeMembership?.groupId ?? list.groupId
               }
             : undefined,
         listMode: config.listMode,

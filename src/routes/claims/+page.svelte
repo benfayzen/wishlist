@@ -4,7 +4,6 @@
     import type { PageProps } from "./$types";
     import ItemCard from "$lib/components/wishlists/ItemCard/ItemCard.svelte";
     import noClaims from "$lib/assets/no_claims.svg";
-    import type { ItemOnListDTO } from "$lib/dtos/item-dto";
     import { getFormatter } from "$lib/i18n";
     import { getListViewPreference, initListViewPreference } from "$lib/stores/list-view-preference.svelte";
     import ListViewModeChip from "$lib/components/wishlists/chips/ListViewModeChip.svelte";
@@ -14,7 +13,8 @@
     const { data }: PageProps = $props();
     const t = getFormatter();
 
-    let items: ItemOnListDTO[] = $state(data.items);
+    type ClaimedItem = (typeof data.items)[number];
+    let items: ClaimedItem[] = $state(data.items);
 
     $effect(() => {
         items = data.items;
@@ -29,7 +29,7 @@
     let groupBy = $state("purchased");
 
     let groupedItems = $derived.by(() => {
-        let groupedItems: Record<string, ItemOnListDTO[]> = { _default: items };
+        let groupedItems: Record<string, ClaimedItem[]> = { _default: items };
         if (groupBy === "purchased") {
             groupedItems = Object.groupBy(items, (it) => (it.claims[0].purchased ? "Purchased" : "_default"));
         } else if (groupBy === "user") {
@@ -38,13 +38,13 @@
                     (accum[item.user.name] ??= []).push(item);
                     return accum;
                 },
-                {} as Record<string, ItemOnListDTO[]>
+                {} as Record<string, ClaimedItem[]>
             );
         }
         return Object.entries(groupedItems).toSorted(([categoryA], [categoryB]) => categoryA.localeCompare(categoryB));
     });
 
-    const isPurchased = (item: ItemOnListDTO) => {
+    const isPurchased = (item: ClaimedItem) => {
         return item.claims[0].purchased ? 1 : 0;
     };
 
@@ -87,17 +87,17 @@
                 data-testid="category"
                 transition:scale
             >
-                {#each sortedItems as item (item.id)}
+                {#each sortedItems as item (item.claims[0].claimId)}
                     <div transition:fade animate:flip={{ duration: motionDuration(200) }}>
                         <ItemCard
-                            groupId={data.user.activeGroupId}
+                            groupId={item.groupId}
                             {isTileView}
                             {item}
                             requireClaimEmail
-                            showClaimForOwner={data.config.claims.showForOwner}
+                            showClaimForOwner={item.showClaimForOwner}
                             showClaimedName
                             showFor
-                            user={data.user}
+                            user={{ ...data.user, activeGroupId: item.groupId }}
                         />
                     </div>
                 {/each}

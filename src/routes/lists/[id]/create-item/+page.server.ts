@@ -2,7 +2,6 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { client } from "$lib/server/prisma";
 import { getConfig } from "$lib/server/config";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { createImage, isValidImage } from "$lib/server/image-util";
 import { itemEmitter } from "$lib/server/events/emitters";
 import { getMinorUnits } from "$lib/price-formatter";
@@ -14,21 +13,21 @@ import { requireLogin } from "$lib/server/auth";
 import { extractFormData, getItemCreateSchema } from "$lib/server/validations";
 import z from "zod";
 import type { List, Prisma } from "$lib/generated/prisma/client";
+import { getListMembership } from "$lib/server/list-sharing";
 
 export const load: PageServerLoad = async ({ params }) => {
     const user = requireLogin();
     const $t = await getFormatter();
 
-    const activeMembership = await getActiveMembership(user);
     const list = await getById(params.id);
     if (!list) {
         error(404, $t("errors.list-not-found"));
     }
-    if (!list.public && list.groupId !== activeMembership.groupId) {
+    if (!list.public && list.owner.id !== user.id && !(await getListMembership(list, user.id))) {
         error(404, $t("errors.user-not-in-group"));
     }
 
-    const config = await getConfig(activeMembership.groupId);
+    const config = await getConfig(list.groupId);
 
     if (
         !config.suggestions.enable &&
@@ -63,13 +62,11 @@ export const actions: Actions = {
         const user = requireLogin();
         const $t = await getFormatter();
 
-        const activeMembership = await getActiveMembership(user);
-
         const list = await getById(params.id);
         if (!list) {
             return fail(404, { success: false, message: $t("errors.list-not-found") });
         }
-        if (!list.public && list.groupId !== activeMembership.groupId) {
+        if (!list.public && list.owner.id !== user.id && !(await getListMembership(list, user.id))) {
             return fail(404, { success: false, message: $t("errors.user-not-in-group") });
         }
 
@@ -81,6 +78,11 @@ export const actions: Actions = {
             return fail(400, { errors: z.flattenError(form.error).fieldErrors });
         }
         const { url, imageUrl, image, name, price, currency, quantity, note, lists: listIds, mostWanted } = form.data;
+        const available = await getAvailableLists(list.owner.id, user.id);
+        const allowedIds = new Set([...available.usersLists, ...available.managedLists].map(({ id }) => id));
+        if (listIds.some((id) => !allowedIds.has(id))) {
+            return fail(403, { success: false, message: $t("errors.not-authorized") });
+        }
 
         let newImageFile: string | undefined | null;
         if (image && isValidImage(image)) {

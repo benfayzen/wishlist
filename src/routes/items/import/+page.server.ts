@@ -3,7 +3,6 @@ import { client } from "$lib/server/prisma";
 import z from "zod";
 import type { Actions, PageServerLoad } from "./$types";
 import { fail } from "@sveltejs/kit";
-import { setActiveMembership } from "$lib/server/group-membership";
 import { redirect } from "@sveltejs/kit";
 import { resolve } from "$app/paths";
 
@@ -13,19 +12,6 @@ export const load: PageServerLoad = async ({ url }) => {
     const productUrl = url.searchParams.get("url");
     const productText = url.searchParams.get("text");
     const productTitle = url.searchParams.get("title");
-
-    const groups = await client.userGroupMembership.findMany({
-        include: {
-            group: {
-                select: {
-                    name: true
-                }
-            }
-        },
-        where: {
-            userId: user.id
-        }
-    });
 
     const lists = await client.list.findMany({
         select: {
@@ -45,11 +31,6 @@ export const load: PageServerLoad = async ({ url }) => {
     });
 
     return {
-        groups: groups.map(({ group, ...membership }) => ({
-            ...group,
-            id: membership.groupId,
-            active: membership.active
-        })),
         lists,
         url: productUrl || extractUrl(productText) || extractUrl(productTitle)
     };
@@ -60,7 +41,6 @@ export const actions: Actions = {
         const user = await requireLoginOrError();
 
         const schema = z.object({
-            group: z.string(),
             list: z.string(),
             url: z.string()
         });
@@ -71,7 +51,11 @@ export const actions: Actions = {
             return fail(422, z.flattenError(result.error).fieldErrors);
         }
 
-        await setActiveMembership(user.id, result.data.group);
+        const selectedList = await client.list.findFirst({
+            where: { id: result.data.list, ownerId: user.id },
+            select: { id: true }
+        });
+        if (!selectedList) return fail(403, { list: ["Not authorized"] });
 
         const createItemRoute = resolve("/lists/[id]/create-item", { id: result.data.list });
         return redirect(

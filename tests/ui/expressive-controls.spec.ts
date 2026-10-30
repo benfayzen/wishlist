@@ -15,7 +15,7 @@ for (const width of [320, 1440]) {
             await expect(filter).toHaveText(/People:\s*All/);
             await expect(filter).toHaveAccessibleName("People: All");
             await filter.click();
-            const panel = page.locator(width < 600 ? ".m3-picker-sheet" : ".m3-picker-panel");
+            const panel = page.locator(width < 600 ? ".m3-picker-sheet" : ".m3-picker-panel").filter({ visible: true });
             await expect(panel).toBeVisible();
             await panel.getByRole("checkbox", { name: additionalUserData.name, exact: true }).check();
             await panel.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -146,8 +146,12 @@ test("split create action validates, keeps the submitter and clears after creati
 test("loading uses a static silhouette with reduced motion", async ({ page }) => {
     await page.goto("/lists");
     const list = await page.getByTestId("list-card").first().getAttribute("href");
+    let releaseProduct!: () => void;
+    const productGate = new Promise<void>((resolve) => {
+        releaseProduct = resolve;
+    });
     await page.route("**/api/product?*", async (route) => {
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await productGate;
         await route.fulfill({ json: { title: "Imported with local progress", url: "https://example.test/gift" } });
     });
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -158,17 +162,24 @@ test("loading uses a static silhouette with reduced motion", async ({ page }) =>
     await expect(status).toBeVisible();
     await expect(status.locator(".m3-linear-progress > span")).toHaveCSS("animation-name", "none");
     await expect(page.locator("#name")).toBeVisible();
+    releaseProduct();
     await expect(status).toBeHidden();
     await expect(page.locator("#name")).toHaveValue("Imported with local progress");
+    let releaseSubmission!: () => void;
+    const submissionGate = new Promise<void>((resolve) => {
+        releaseSubmission = resolve;
+    });
     await page.route("**/create-item", async (route) => {
-        if (route.request().method() === "POST") await new Promise((resolve) => setTimeout(resolve, 800));
+        if (route.request().method() === "POST") await submissionGate;
         await route.continue();
     });
-    await page.getByRole("button", { name: "Create item", exact: true }).click();
+    const submit = page.getByRole("button", { name: "Create item", exact: true }).click();
     const loading = page.locator(".loading");
     await expect(loading).toBeVisible();
     await expect(loading).toHaveCSS("animation-name", "none");
     expect(await loading.evaluate((el) => getComputedStyle(el).maskImage)).toContain("data:image/svg+xml");
+    releaseSubmission();
+    await submit;
     await expect(page).not.toHaveURL(/\/create-item$/);
     await page.goto(list!);
     await expect(page.getByTestId("item-card")).toContainText("Imported with local progress");

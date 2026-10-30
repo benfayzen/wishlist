@@ -1,6 +1,5 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { getActiveMembership } from "$lib/server/group-membership";
 import { client } from "$lib/server/prisma";
 import { getFormatter } from "$lib/server/i18n";
 import { getListPropertiesSchema } from "$lib/server/validations";
@@ -11,14 +10,13 @@ import { requireLogin } from "$lib/server/auth";
 import { logger } from "$lib/server/logger";
 import z from "zod";
 import { resolve } from "$app/paths";
+import { getShareableGroups, replaceListGroups, ListSharingError } from "$lib/server/list-sharing";
 
 export const load: PageServerLoad = async ({ params }) => {
     const user = requireLogin();
 
     const $t = await getFormatter();
-    const activeMembership = await getActiveMembership(user);
 
-    const config = await getConfig(activeMembership.groupId);
     const list = await client.list
         .findUnique({
             where: {
@@ -53,6 +51,7 @@ export const load: PageServerLoad = async ({ params }) => {
                     }
                 },
                 groupId: true,
+                groupShares: { select: { groupId: true } },
                 description: true
             }
         })
@@ -62,12 +61,12 @@ export const load: PageServerLoad = async ({ params }) => {
     if (list.owner.id !== user.id && !list.managers.find(({ user: manager }) => manager.id === user.id)) {
         error(401, $t("errors.not-authorized"));
     }
-    if (list.groupId !== activeMembership.groupId) {
-        error(401, $t("errors.user-must-be-in-the-correct-group"));
-    }
+    const config = await getConfig(list.groupId);
 
     return {
         themeSeed: list.iconColor,
+        groupOptions: await getShareableGroups(list.owner.id, user.id),
+        selectedGroupIds: list.groupShares.map(({ groupId }) => groupId),
         list: {
             ...list,
             managers: list.managers.map(({ user }) => ({ ...user }))
@@ -75,7 +74,10 @@ export const load: PageServerLoad = async ({ params }) => {
         listMode: config.listMode,
         allowsPublicLists: config.allowPublicLists,
         claimsVisibleToOwner: config.claims.showForOwner,
-        groupId: activeMembership.groupId
+        groupId:
+            (await getShareableGroups(list.owner.id, user.id)).find((group) =>
+                list.groupShares.some((share) => share.groupId === group.id)
+            )?.id ?? ""
     };
 };
 
@@ -84,10 +86,9 @@ export const actions: Actions = {
         const user = requireLogin();
         const $t = await getFormatter();
 
-        const activeMembership = await getActiveMembership(user);
-        const config = await getConfig(activeMembership.groupId);
-
-        await canManage(params.id, user, activeMembership.groupId);
+        await canManage(params.id, user);
+        const settings = await client.list.findUniqueOrThrow({ where: { id: params.id }, select: { groupId: true } });
+        const config = await getConfig(settings.groupId);
 
         const form = await request.formData();
         const listPropertiesSchema = getListPropertiesSchema();
@@ -127,24 +128,31 @@ export const actions: Actions = {
         }
 
         try {
-            await client.list.update({
-                data: {
-                    name: trimToNull(listProperties.data.name),
-                    icon: trimToNull(listProperties.data.icon),
-                    iconColor: trimToNull(listProperties.data.iconColor),
-                    public: listProperties.data.public,
-                    hideOwner: listProperties.data.hideOwner,
-                    allowSelfClaims: listProperties.data.allowSelfClaims,
-                    notForMe: listProperties.data.notForMe,
-                    description: trimToNull(listProperties.data.description)
-                },
-                where: {
-                    id: params.id
-                }
+            const groupIds =
+                form.has("groupsProvided") || form.has("groups")
+                    ? form.getAll("groups").map(String)
+                    : (
+                          await client.listGroupShare.findMany({
+                              where: { listId: params.id },
+                              select: { groupId: true }
+                          })
+                      ).map(({ groupId }) => groupId);
+            await replaceListGroups(params.id, user.id, groupIds, {
+                name: trimToNull(listProperties.data.name),
+                icon: trimToNull(listProperties.data.icon),
+                iconColor: trimToNull(listProperties.data.iconColor),
+                public: listProperties.data.public,
+                hideOwner: listProperties.data.hideOwner,
+                allowSelfClaims: listProperties.data.allowSelfClaims,
+                notForMe: listProperties.data.notForMe,
+                description: trimToNull(listProperties.data.description)
             });
 
             await adjustListManagers(params.id, listProperties.data.managers);
         } catch (err) {
+            if (err instanceof ListSharingError) {
+                return fail(403, { action: "persist", success: false, message: $t("errors.not-authorized") });
+            }
             logger.error({ err }, "Unable to update list settings");
             return fail(500, {
                 action: "persist",
@@ -159,14 +167,12 @@ export const actions: Actions = {
         const user = requireLogin();
         const $t = await getFormatter();
 
-        const activeMembership = await getActiveMembership(user);
         const listOwner = await client.list.findUnique({
             select: {
                 ownerId: true
             },
             where: {
-                id: params.id,
-                groupId: activeMembership.groupId
+                id: params.id
             }
         });
         if (user.id !== listOwner?.ownerId) {
@@ -174,7 +180,7 @@ export const actions: Actions = {
         }
 
         try {
-            deleteList(params.id);
+            await deleteList(params.id);
         } catch (err) {
             logger.error({ err }, "Unable to delete list");
             return fail(500, { action: "delete", success: false, message: $t("errors.unable-to-delete-list") });
@@ -184,7 +190,7 @@ export const actions: Actions = {
     }
 };
 
-async function canManage(id: string, user: LocalUser, groupId: string) {
+async function canManage(id: string, user: LocalUser) {
     const $t = await getFormatter();
 
     const list = await client.list.findUnique({
@@ -197,8 +203,7 @@ async function canManage(id: string, user: LocalUser, groupId: string) {
             }
         },
         where: {
-            id,
-            groupId
+            id
         }
     });
     if (!list) {
