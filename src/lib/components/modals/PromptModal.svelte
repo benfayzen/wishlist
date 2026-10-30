@@ -25,5 +25,10 @@
         value = undefined;
     }}
 >
-    <input class="m3-input" type="text" bind:value {...inputProps} />
+    <div class="m3-field grid-cols-[auto_1fr]">
+        <div class="m3-field-slot">
+            <iconify-icon aria-hidden="true" icon="ion:create-outline"></iconify-icon>
+        </div>
+        <input class="m3-field-input" type="text" bind:value {...inputProps} />
+    </div>
 </ConfirmModal>

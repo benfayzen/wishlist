@@ -58,7 +58,7 @@
     );
 </script>
 
-<BaseModal title={$t("wishes.add-a-list-manager")} {trigger}>
+<BaseModal closeButtonLabel={$t("a11y.close")} title={$t("wishes.add-a-list-manager")} {trigger}>
     {#snippet description()}
         <p>{$t("wishes.add-a-list-manager-explainer")}</p>
     {/snippet}
@@ -97,13 +97,17 @@
         </Listbox.Content>
     </Listbox>
 
-    {#snippet actions({ neutralStyle, positiveStyle })}
-        <Dialog.CloseTrigger class={neutralStyle} onclick={resetForm}>
-            {$t("general.cancel")}
-        </Dialog.CloseTrigger>
-
-        <Dialog.CloseTrigger class={positiveStyle} onclick={onFormSubmit}>
-            {$t("wishes.add-a-manager")}
-        </Dialog.CloseTrigger>
+    {#snippet actions()}
+        <div class="m3-claim-actions m3-claim-split m3-dialog-split-actions">
+            <Dialog.CloseTrigger class="m3-secondary m3-button m3-claim-button m3-claim-split-left" onclick={resetForm}>
+                {$t("general.cancel")}
+            </Dialog.CloseTrigger>
+            <Dialog.CloseTrigger
+                class="m3-primary m3-button m3-claim-button m3-claim-split-right"
+                onclick={onFormSubmit}
+            >
+                {$t("wishes.add-a-manager")}
+            </Dialog.CloseTrigger>
+        </div>
     {/snippet}
 </BaseModal>
