@@ -41,14 +41,19 @@ reservations in sync.
 
 <img src="./assets/friends-desktop.png" alt="South Park Friends wishlists for Stan, Kyle, Kenny and Eric, with the group filter open" />
 
+Share wishlists across multiple groups so family and friends see the same wishes and reservations.
+
+<img src="./assets/list-sharing-desktop.png" alt="Stan sharing a birthday wishlist across both Marsh Family and South Park Friends" />
+
 ### Make a wish, plan a gift
 
-Manage your own wishes in a compact text-only list on mobile, approve suggestions,
-browse a friend's list, or open your groups, language and theme from the account menu.
+Manage your own wishes in a compact text-only list on mobile, browse a friend's
+wishlist in the visual tile view with full artwork, or open your groups, language
+and theme from the account menu.
 
 <p align="center">
-    <img src="./assets/my-wishes-mobile.png?v=text-only" alt="Stan's Winter Adventures in the mobile list layout, with owner controls and full-width text" width="32%" />
-    <img src="./assets/wishes-mobile.png?v=text-only" alt="Shelly's wishlist in the mobile text-only list layout, with prices, notes and claim controls" width="32%" />
+    <img src="./assets/my-wishes-mobile.png" alt="Stan's Winter Adventures in the mobile text-only list layout, with owner controls and full-width text" width="32%" />
+    <img src="./assets/wishes-mobile.png" alt="Shelly's wishlist in the mobile tile layout with South Park artwork, prices and claim controls" width="32%" />
     <img src="./assets/account-menu-mobile.png" alt="Stan's mobile account menu with group management, language and theme controls" width="32%" />
 </p>
 
@@ -63,7 +68,14 @@ Keep track of the gifts you have claimed and mark them as purchased.
 
 Create a wish from a product URL, or add the details, image, price and notes yourself.
 
-<img src="./assets/wish-form.png" alt="English create-wish form filled with an adventure backpack, price, quantity, uploaded photo and notes" />
+<img src="./assets/wish-form.png" alt="English create-wish form filled with the Okama GameSphere, price, quantity, uploaded photo and notes" />
+
+### Public registries and community drives
+
+Create a registry for a baby shower, wedding or charity toy drive. Registries belong
+to no group, are accessible to anyone with the link, and allow reservations without an account.
+
+<img src="./assets/registry-desktop.png" alt="South Park Elementary Toy Drive public registry with items, claimed quantities and manager controls" />
 
 See [reproducing the screenshots](./docs/readme-screenshots.md) for the isolated
 demo database, accounts and capture command. South Park characters belong to their

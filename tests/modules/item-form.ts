@@ -26,7 +26,7 @@ export class ItemForm {
         this.nameField = page.getByLabel("Item Name");
         this.priceField = page.locator("#formatted-price");
         this.currencyField = page.getByTestId("currency");
-        this.quantityField = page.getByLabel("Quantity");
+        this.quantityField = page.getByLabel("Quantity", { exact: true });
         this.noLimitCheckbox = page.getByLabel("No limit");
         this.uploadImageField = page.getByLabel("Upload Image");
         this.uploadImageButton = page.getByRole("button", { name: "Select File" });

@@ -50,11 +50,14 @@ English. These credentials belong only to the documentation database.
 | `demo.kenny`  | Kenny McCormick | South Park Friends               |
 | `demo.eric`   | Eric Cartman    | South Park Friends               |
 
-Stan manages South Park Friends and initially views Marsh Family. There are 11
-lists, 44 approved wishes, two pending suggestions and 33 claims, covering
-available, reserved, purchased and partially claimed quantities. Prices use USD.
-The two shared planning lists allow owner claims and have a delegated manager;
-Sharon's Cozy Corner is public. Email addresses use the reserved `.example` domain.
+Stan manages South Park Friends and initially views Marsh Family. There are 12
+lists (including the public toy drive registry), 49 approved wishes, two pending
+suggestions and 43 claims, covering available, reserved, purchased and partially claimed
+quantities. Prices use USD. Stan's Birthday is shared across both Marsh Family and
+South Park Friends. The two shared planning lists allow owner claims and have a delegated
+manager; Sharon's Cozy Corner is public. The South Park Elementary Toy Drive is an independent
+public registry co-managed by Sharon, Stan and Kyle, with reservations from both registered
+users and guest visitors. Email addresses use the reserved `.example` domain.
 
 Seeding again preserves passwords, active groups, edits and claims. The capture
 script switches Stan's active group through the application API and restores
@@ -65,24 +68,27 @@ Never remove a production database or another preview directory.
 
 ## Gallery
 
-| File                             | What it shows                                                     |
-| -------------------------------- | ----------------------------------------------------------------- |
-| `assets/homepage-desktop.png`    | Marsh Family, availability and stacked pending approval           |
-| `assets/homepage-mobile.png`     | Compact overview and bottom navigation                            |
-| `assets/friends-desktop.png`     | Stan, Kyle, Kenny and Eric, with the group picker open            |
-| `assets/my-wishes-mobile.png`    | Owner controls and own wishes in the mobile text-only list        |
-| `assets/wishes-mobile.png`       | A friend's wishes and claim controls in the mobile text-only list |
-| `assets/account-menu-mobile.png` | Identity, groups, language and theme controls                     |
-| `assets/wishes-desktop-dark.png` | Dark mode and the list's generated color palette                  |
-| `assets/claims-desktop.png`      | Gifts for Shelly in tile view, grouped by recipient               |
-| `assets/wish-form.png`           | Filled English wish form with an uploaded image                   |
+| File                              | What it shows                                                                |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| `assets/homepage-desktop.png`     | Marsh Family, availability and stacked pending approval                      |
+| `assets/homepage-mobile.png`      | Compact overview and bottom navigation                                       |
+| `assets/friends-desktop.png`      | Stan, Kyle, Kenny and Eric, with the group picker open                       |
+| `assets/list-sharing-desktop.png` | Sharing Stan's Birthday across both Marsh Family and South Park Friends      |
+| `assets/my-wishes-mobile.png`     | Owner controls and own wishes in the mobile text-only list                   |
+| `assets/wishes-mobile.png`        | A friend's wishes and claim controls in the mobile tile card layout          |
+| `assets/account-menu-mobile.png`  | Identity, groups, language and theme controls                                |
+| `assets/wishes-desktop-dark.png`  | Dark mode and the list's generated color palette                             |
+| `assets/claims-desktop.png`       | Gifts for Shelly in tile view, grouped by recipient                          |
+| `assets/wish-form.png`            | Filled English wish form for an Okama GameSphere with photo and notes        |
+| `assets/registry-desktop.png`     | Public registry for the toy drive with multi-manager and guest claim support |
 
 ## Image sources
 
-Character names and artwork belong to their respective owners. The characters are
-fictional examples; this project is not affiliated with South Park.
+Character names and artwork belong to their respective owners. The characters and
+items are fictional examples; this project is not affiliated with South Park.
 
-Character images are referenced from the article images for
+Character images and item artwork are referenced from the South Park Archives
+([southpark.wiki.gg](https://southpark.wiki.gg)) and Wikipedia articles for
 [Stan](https://en.wikipedia.org/wiki/Stan_Marsh),
 [Kyle](https://en.wikipedia.org/wiki/Kyle_Broflovski),
 [Kenny](https://en.wikipedia.org/wiki/Kenny_McCormick),
@@ -90,8 +96,7 @@ Character images are referenced from the article images for
 pages for [Randy](https://southpark.wiki.gg/wiki/Randy_Marsh),
 [Sharon](https://southpark.wiki.gg/wiki/Sharon_Marsh) and
 [Shelly](https://southpark.wiki.gg/wiki/Shelley_Marsh).
-Product photographs come from [Unsplash](https://unsplash.com/); their image IDs
-are recorded in `prisma/seed-readme.ts`.
+Item artwork files and sources are recorded in `prisma/seed-readme.ts`.
 
 The seed downloads images into the ignored demo upload directory on its first run
 and caches them for later use. Network access is required for the first seed and
