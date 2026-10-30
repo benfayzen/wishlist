@@ -13,6 +13,7 @@
         description: Snippet | string;
         actions: Snippet<[ActionProps]>;
         children?: Snippet;
+        closeButtonLabel?: string;
     }
 
     const actionProps: ActionProps = {
@@ -28,7 +29,15 @@
     import ModalContent from "./parts/ModalContent.svelte";
     import type { ClassValue } from "svelte/elements";
 
-    let { trigger, title, description, actions, children: content, ...rest }: BaseModalProps = $props();
+    let {
+        trigger,
+        title,
+        description,
+        actions,
+        children: content,
+        closeButtonLabel,
+        ...rest
+    }: BaseModalProps = $props();
 </script>
 
 <Dialog {...rest}>
@@ -38,9 +47,21 @@
 
         <Dialog.Positioner class="fixed inset-0 z-50 mx-4 flex items-center justify-center">
             <ModalContent class="">
-                <Dialog.Title class="m3-headline">
-                    {title}
-                </Dialog.Title>
+                <div class="m3-dialog-header">
+                    <Dialog.Title class="m3-headline">
+                        {title}
+                    </Dialog.Title>
+                    {#if closeButtonLabel}
+                        <Dialog.CloseTrigger
+                            class="m3-icon-button m3-dialog-close"
+                            aria-label={closeButtonLabel}
+                            title={closeButtonLabel}
+                            type="button"
+                        >
+                            <iconify-icon aria-hidden="true" icon="ion:close"></iconify-icon>
+                        </Dialog.CloseTrigger>
+                    {/if}
+                </div>
                 <Dialog.Description class="m3-dialog-description">
                     {#if typeof description === "string"}
                         {@html description}

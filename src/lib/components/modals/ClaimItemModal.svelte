@@ -173,7 +173,14 @@
     {/if}
 {/snippet}
 
-<BaseModal {description} onOpenChange={(e) => (open = e.open)} {open} {title} {...rest}>
+<BaseModal
+    closeButtonLabel={claim ? $t("general.cancel") : undefined}
+    {description}
+    onOpenChange={(e) => (open = e.open)}
+    {open}
+    {title}
+    {...rest}
+>
     {#snippet trigger(props)}
         {@render inputTrigger({ ...props, onclick: handleTrigger })}
     {/snippet}
@@ -298,12 +305,8 @@
     </div>
 
     {#snippet actions({ neutralStyle, negativeStyle, positiveStyle })}
-        <Dialog.CloseTrigger class={[neutralStyle, claim && "mr-auto"]} type="button">
-            <span>{$t("general.cancel")}</span>
-        </Dialog.CloseTrigger>
-
         {#if claim}
-            <div class="m3-claim-actions m3-claim-split">
+            <div class="m3-claim-actions m3-claim-split m3-dialog-split-actions">
                 <button class={[negativeStyle, "m3-claim-split-left"]} onclick={onUnclaim} type="button">
                     <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
                     <span>{$t("wishes.unclaim")}</span>
@@ -314,10 +317,15 @@
                 </button>
             </div>
         {:else}
-            <button class={positiveStyle} onclick={onFormSubmit} type="button">
-                <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
-                <span>{$t("wishes.claim")}</span>
-            </button>
+            <div class="m3-claim-actions m3-claim-split m3-dialog-split-actions">
+                <Dialog.CloseTrigger class={[neutralStyle, "m3-claim-split-left"]} type="button">
+                    <span>{$t("general.cancel")}</span>
+                </Dialog.CloseTrigger>
+                <button class={[positiveStyle, "m3-claim-split-right"]} onclick={onFormSubmit} type="button">
+                    <iconify-icon aria-hidden="true" icon="ion:bookmark-outline"></iconify-icon>
+                    <span>{$t("wishes.claim")}</span>
+                </button>
+            </div>
         {/if}
     {/snippet}
 </BaseModal>

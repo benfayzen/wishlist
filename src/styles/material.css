@@ -475,6 +475,27 @@
         color: var(--md-on-surface);
         box-shadow: 0 12px 36px rgb(0 0 0 / 0.28);
     }
+    .m3-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+    .m3-dialog-close {
+        flex-shrink: 0;
+        inline-size: 2.5rem;
+        block-size: 2.5rem;
+        min-inline-size: 2.5rem;
+        min-block-size: 2.5rem;
+        margin-inline-end: -0.25rem;
+        border: 0;
+        background: var(--md-surface-container-highest);
+        color: var(--md-on-surface-variant);
+    }
+    .m3-dialog-close:hover {
+        background: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+    }
     .m3-dialog-description:empty {
         display: none;
     }
@@ -485,6 +506,14 @@
         flex-wrap: wrap;
         gap: 0.625rem;
         padding-block-start: 0.25rem;
+    }
+    .m3-dialog-split-actions {
+        inline-size: 100%;
+    }
+    .m3-dialog-split-actions > .m3-button {
+        flex: 1 1 0%;
+        min-inline-size: 0;
+        white-space: nowrap;
     }
     .m3-claim-modal-body {
         display: flex;
