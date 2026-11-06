@@ -109,9 +109,10 @@ that the application still works or that its design is intact.
    authorization for publishing or merging; do not infer a deployment request
    from a request merely to inspect or prepare an update.
 8. **Release the verified result.** Inspect the current workflow triggers and
-   image tags before pushing or merging. At the time of writing, pushes to
-   `main` trigger `linux/amd64` image publication via
-   `.github/workflows/build_push.yml`. Require the relevant CI checks and
+   image tags before pushing or merging. At the time of writing, `linux/amd64`
+   image publication via `.github/workflows/build_push.yml` runs on manual
+   `workflow_dispatch` or published GitHub releases (`release: published`), not
+   automatically on pushes to `main`. Require the relevant CI checks and
    container smoke tests to pass before updating a running installation.
 
 ## Deployment and rollback considerations

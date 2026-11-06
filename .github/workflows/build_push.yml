@@ -4,14 +4,6 @@ permissions:
   packages: write
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
-      - "LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/FUNDING.yml"
   release:
     types: [published]
 
