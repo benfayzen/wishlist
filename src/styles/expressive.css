@@ -285,7 +285,7 @@
     .m3-toggle-icon-button iconify-icon {
         font-size: 1.25rem;
     }
-    /* Product layout: list actions precede the shared sort and view row on compact screens. */
+    /* Product layout: list actions and claim filters precede the shared sort and view row on compact screens. */
     .m3-wishlist-toolbar {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
@@ -298,12 +298,10 @@
     }
     .m3-wishlist-sort {
         grid-column: 1;
-        grid-row: 1;
         min-inline-size: 0;
     }
     .m3-wishlist-view {
         grid-column: 2;
-        grid-row: 1;
         justify-self: end;
     }
     .m3-wishlist-claim-filter,
@@ -322,12 +320,6 @@
     }
     .m3-wishlist-actions > .m3-action-pill:first-child .m3-action-pill-surface {
         padding-inline: 1rem;
-    }
-    @media (max-width: 767px) {
-        .m3-wishlist-toolbar:has(.m3-wishlist-actions) .m3-wishlist-sort,
-        .m3-wishlist-toolbar:has(.m3-wishlist-actions) .m3-wishlist-view {
-            grid-row: 2;
-        }
     }
     @media (min-width: 768px) {
         .m3-wishlist-toolbar {
@@ -348,6 +340,7 @@
         }
         .m3-wishlist-view {
             grid-column: 3;
+            grid-row: 1;
         }
     }
     @media (max-width: 599px) {
