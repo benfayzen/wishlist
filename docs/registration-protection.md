@@ -2,14 +2,11 @@
 
 ## Container images
 
-Registration protection is included in the `latest` image published from `main`.
-
-The `registration-protection` image tag follows the `codex/registration-protection`
-branch after source checks, security/browser tests and container smoke tests pass
-on both supported architectures. Use it in an existing Compose service:
+Registration protection is included in the `latest` and `edge` images published
+from `main` (`linux/amd64`):
 
 ```yaml
-image: ghcr.io/benfayzen/wishlist:registration-protection
+image: ghcr.io/benfayzen/wishlist:latest
 ```
 
 Keep existing data/upload volumes and `env_file` settings. Immutable

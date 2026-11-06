@@ -5,7 +5,13 @@ permissions:
 on:
   workflow_dispatch:
   push:
-    branches: [main, feat/material-3-expressive, codex/registration-protection]
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/FUNDING.yml"
   release:
     types: [published]
 
@@ -34,9 +40,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate SvelteKit types
-        run: pnpm exec svelte-kit sync
-
       - name: Generate Prisma client
         run: pnpm exec prisma generate
 
@@ -48,9 +51,7 @@ jobs:
         run: pnpm build
 
       - name: Lint and formatting
-        run: |
-          pnpm exec eslint src/hooks.server.ts src/app.d.ts src/lib/server/registration*.ts src/lib/server/user.ts src/lib/components/Turnstile.svelte src/lib/components/CreateAccountForm.svelte src/routes/signup/+page.server.ts src/routes/login/+page.server.ts src/routes/login/oidc/callback/+server.ts 'src/routes/setup-wizard/step/[step]/+page.server.ts' tests/security/registration*.node.ts tests/security/turnstile-fetch-fixture.mjs
-          pnpm exec prettier --check src/hooks.server.ts src/app.d.ts src/lib/server/registration*.ts src/lib/server/user.ts src/lib/components/Turnstile.svelte src/lib/components/CreateAccountForm.svelte src/routes/signup/+page.server.ts src/routes/login/+page.server.ts src/routes/login/oidc/callback/+server.ts 'src/routes/setup-wizard/step/[step]/+page.server.ts' tests/security/registration*.node.ts tests/security/turnstile-fetch-fixture.mjs docs/registration-protection.md
+        run: pnpm run lint
 
       - name: Security and SQLite tests
         run: node --import tsx --test tests/security/registration.node.ts
@@ -63,16 +64,8 @@ jobs:
 
   build:
     needs: verify
-    name: Build and test (${{ matrix.arch }})
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: amd64
-            runner: ubuntu-24.04
-          - arch: arm64
-            runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
+    name: Build and publish (amd64)
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -99,21 +92,21 @@ jobs:
         with:
           context: ./
           file: ./Dockerfile
-          platforms: linux/${{ matrix.arch }}
+          platforms: linux/amd64
           push: true
-          tags: ${{ steps.image.outputs.name }}:sha-${{ github.sha }}-${{ matrix.arch }}
+          tags: ${{ steps.image.outputs.name }}:sha-${{ github.sha }}-amd64
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
           build-args: |
             SHA=${{ github.sha }}
             VERSION=${{ github.ref_name }}
-          cache-from: type=gha,scope=wishlist-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=wishlist-${{ matrix.arch }}
+          cache-from: type=gha,scope=wishlist-amd64
+          cache-to: type=gha,mode=max,scope=wishlist-amd64
 
       - name: Verify container startup
         env:
-          IMAGE: ${{ steps.image.outputs.name }}:sha-${{ github.sha }}-${{ matrix.arch }}
+          IMAGE: ${{ steps.image.outputs.name }}:sha-${{ github.sha }}-amd64
         run: |
           docker run -d --name wishlist-smoke -p 127.0.0.1:3280:3280 \
             -e ORIGIN=http://localhost:3280 "$IMAGE"
@@ -127,28 +120,6 @@ jobs:
           docker logs wishlist-smoke || true
           docker rm -fv wishlist-smoke || true
 
-  publish:
-    name: Publish multi-platform image
-    needs: build
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Image name
-        id: image
-        env:
-          REPOSITORY: ${{ github.repository }}
-        run: echo "name=ghcr.io/${REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-
       - name: Docker Tags
         id: tags
         uses: docker/metadata-action@v6
@@ -157,12 +128,10 @@ jobs:
           tags: |
             type=edge,branch=main
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=material-3-expressive,enable=${{ github.ref == 'refs/heads/feat/material-3-expressive' }}
-            type=raw,value=registration-protection,enable=${{ github.ref == 'refs/heads/codex/registration-protection' }}
             type=ref,event=tag
             type=sha,prefix=sha-,format=long
 
-      - name: Publish tested images
+      - name: Publish tested image tags
         env:
           IMAGE: ${{ steps.image.outputs.name }}
           COMMIT_SHA: ${{ github.sha }}
@@ -173,5 +142,5 @@ jobs:
             arguments+=(--tag "$tag")
           done
           docker buildx imagetools create "${arguments[@]}" \
-            "$IMAGE:sha-$COMMIT_SHA-amd64" "$IMAGE:sha-$COMMIT_SHA-arm64"
+            "$IMAGE:sha-$COMMIT_SHA-amd64"
           docker buildx imagetools inspect "$IMAGE:sha-$COMMIT_SHA"
