@@ -29,6 +29,37 @@ Material 3 Expressive design and custom behavior when integrating upstream work.
   Carry relevant documentation and instruction updates to those branches without
   overwriting independent work or reintroducing archived history.
 
+## Issue-to-PR workflow for repository tasks
+
+Follow this end-to-end workflow for bug fixes, features, and repository changes
+unless the user explicitly requests a read-only investigation or local-only
+experiment:
+
+1. **Create or select a GitHub issue.** Inspect existing issues on
+   `benfayzen/wishlist` first (`gh issue list -R benfayzen/wishlist`). If no
+   matching issue exists, create one (`gh issue create -R benfayzen/wishlist`)
+   using the structure from `.github/ISSUE_TEMPLATE/bug_report.md` (label `bug`)
+   or `.github/ISSUE_TEMPLATE/feature_request.md` (label `enhancement`).
+2. **Work on a dedicated branch.** Base new work on the latest `origin/main` (or
+   the user's specified target branch) using a descriptive feature/fix branch or
+   worktree. Never commit or push task changes directly to `main` or
+   `feat/material-3-expressive`.
+3. **Implement and validate locally.** Resolve the issue while preserving this
+   fork's Material 3 Expressive UI and existing behavior. Run `pnpm format`,
+   `pnpm lint`, `pnpm check`, `pnpm build`, and the relevant automated tests
+   (`pnpm test` or `pnpm test:native`) before opening a pull request.
+4. **Commit and open a pull request.** Commit changes with the repository
+   owner's public GitHub noreply identity
+   (`63108900+benfayzen@users.noreply.github.com`) and a Conventional Commit
+   title (`fix: ...`, `feat: ...`, `docs: ...`, `chore: ...`, `test: ...`). Push
+   the branch to `origin` and open a pull request against `main` via
+   `gh pr create -R benfayzen/wishlist` following
+   `.github/pull_request_template.md`, including `Closes #<issue_number>`,
+   validation results, and the AI disclosure section.
+5. **Hand off for maintainer approval.** Share the issue and pull request URLs
+   with the user and leave the pull request open for review. Do not merge the
+   pull request or trigger deployment unless the user explicitly authorizes it.
+
 ## Integrating updates from the original project
 
 Treat upstream updates as reviewed integration work. Fetching upstream changes
