@@ -288,6 +288,10 @@
             inline-size: 100%;
             justify-content: end;
         }
+        .admin-danger-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
     }
 }
 
@@ -297,13 +301,14 @@
     .admin-toolbar > .m3-label {
         inline-size: auto;
     }
-    @container admin (width < 48rem) {
-        .admin-toolbar > .m3-label,
-        .admin-toolbar > .m3-button,
-        .admin-toolbar > form,
-        .admin-toolbar form .m3-primary,
-        .admin-danger-actions > .m3-button {
-            inline-size: 100%;
-        }
+}
+
+@container admin (width < 48rem) {
+    .admin-toolbar > .m3-label,
+    .admin-toolbar > .m3-button,
+    .admin-toolbar > form,
+    .admin-toolbar form .m3-primary,
+    .admin-danger-actions > .m3-button {
+        inline-size: 100%;
     }
 }
