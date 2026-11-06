@@ -47,9 +47,29 @@ for (const width of [320, 1440]) {
     }
 }
 
-test("sort direction restores from the URL, changes by keyboard and handles invalid filters", async ({ page }) => {
+test("sort direction restores from the URL, changes by keyboard and handles invalid filters", async ({
+    page,
+    additionalPage
+}) => {
     await page.goto("/lists");
     const list = await page.getByTestId("list-card").first().getAttribute("href");
+    await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto(list!);
+    const ownActionsBox = await page.locator(".m3-wishlist-actions").boundingBox();
+    const ownSortBox = await page.locator(".m3-wishlist-sort").boundingBox();
+    const ownViewBox = await page.locator(".m3-wishlist-view").boundingBox();
+    expect(ownSortBox!.y).toBeGreaterThanOrEqual(ownActionsBox!.y + ownActionsBox!.height);
+    expect(Math.abs(ownSortBox!.y - ownViewBox!.y)).toBeLessThanOrEqual(1);
+
+    await additionalPage.setViewportSize({ width: 320, height: 900 });
+    await additionalPage.goto(list!);
+    const otherClaimFilterBox = await additionalPage.locator(".m3-wishlist-claim-filter").boundingBox();
+    const otherSortBox = await additionalPage.locator(".m3-wishlist-sort").boundingBox();
+    const otherViewBox = await additionalPage.locator(".m3-wishlist-view").boundingBox();
+    expect(otherSortBox!.y).toBeGreaterThanOrEqual(otherClaimFilterBox!.y + otherClaimFilterBox!.height);
+    expect(Math.abs(otherSortBox!.y - otherViewBox!.y)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(`${list}?sort=price&dir=desc`);
     const sort = page.getByRole("button", { name: "Sort by: Price: High to Low", exact: true });
     await expect(sort).toBeVisible();
