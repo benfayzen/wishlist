@@ -1,4 +1,11 @@
 {
+    "groups": {
+        "leave": "Gruppe verlassen",
+        "leave-confirmation": "Möchtest du diese Gruppe wirklich verlassen? Deine Listen und bestehenden Reservierungen bleiben erhalten, aber deine Listen werden nicht mehr mit dieser Gruppe geteilt.",
+        "last-manager": "Bestimme einen anderen Gruppenleiter, bevor du diese Gruppe verlässt.",
+        "invalid-name": "Wähle einen Gruppennamen zwischen 3 und 32 Zeichen.",
+        "name-taken": "Eine Gruppe mit diesem Namen existiert bereits."
+    },
     "navigation": {
         "overview": "Übersicht",
         "lists": "Meine Listen",
@@ -153,9 +160,14 @@
         "show-name-publicly": "Namen öffentlich anzeigen",
         "show-name-publicly-tooltip": "Zeigt den Namen der Person, die den Artikel reserviert hat, auf der Detailseite auch bei einer öffentlichen Liste an.",
         "clear-sessions-confirmation": "Bist du sicher, dass du alle Sitzungen dieses Nutzers löschen möchtest? Der Benutzer wird auf allen Geräten ausgeloggt und muss sich neu einloggen.",
+        "clear-sessions-success": "Die Sitzungen dieses Benutzers wurden gelöscht. Der Benutzer muss sich erneut anmelden.",
         "oidc-url-description": "Die URL deines OAuth-Anbieters oder die URL des jeweiligen Realms bzw. der jeweiligen Anwendung innerhalb deines Anbieters. Diese wird häufig auch als „Discovery-URL“ bezeichnet."
     },
     "wishes": {
+        "visible-in-groups": "Sichtbar in Gruppen",
+        "select-groups": "Gruppen auswählen",
+        "shared-groups-description": "Teile diese Liste mit mehreren Gruppen. Wünsche und Reservierungen bleiben synchron. Wähle mindestens eine Gruppe aus.",
+        "cannot-update-lists-of-item": "Die Listen eines Artikels, den du nicht selbst erstellt hast, können nicht geändert werden. Du kannst ihn jedoch über die Schaltfläche „Löschen“ aus einer Liste entfernen, die dir gehört oder die du verwaltest.",
         "view-layout": "Ansicht",
         "filter": "Filter",
         "finish": "Fertig",
@@ -308,6 +320,7 @@
         "cannot-delete-default-group": "Standardgruppe kann nicht gelöscht werden",
         "cannot-delete-yourself": "Sich selbst löschen ist nicht möglich",
         "cannot-edit-item-that-you-did-not-create": "Nicht selbsterstelle Artikel können nicht editiert werden",
+        "user-is-not-allowed-to-edit-this-item": "Benutzer ist nicht berechtigt, diesen Artikel zu bearbeiten",
         "cant-find-your-group": "Deine Gruppe kann nicht gefunden werden!",
         "create-group-unknown-error": "Ein unbekannter Fehler trat beim Erstellen der Gruppe auf",
         "group-does-not-exist": "Gruppe existiert nicht",
