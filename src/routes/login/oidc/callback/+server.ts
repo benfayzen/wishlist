@@ -104,7 +104,7 @@ export const POST: RequestHandler = async (event) => {
     let newUser;
     try {
         const registration = await registrationAttempt(event);
-        newUser = await createUser(userData, role, "", undefined, registration);
+        newUser = await createUser(userData, role, "", undefined, registration, isAdmin);
     } catch (err) {
         return rejectRegistration(err, event);
     }
