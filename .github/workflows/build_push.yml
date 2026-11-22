@@ -122,7 +122,7 @@ jobs:
           images: ${{ steps.image.outputs.name }}
           tags: |
             type=edge,branch=main
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || (github.event_name == 'release' && !github.event.release.prerelease) }}
             type=ref,event=tag
             type=sha,prefix=sha-,format=long
 

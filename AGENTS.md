@@ -112,8 +112,12 @@ that the application still works or that its design is intact.
    image tags before pushing or merging. At the time of writing, `linux/amd64`
    image publication via `.github/workflows/build_push.yml` runs on manual
    `workflow_dispatch` or published GitHub releases (`release: published`), not
-   automatically on pushes to `main`. Require the relevant CI checks and
-   container smoke tests to pass before updating a running installation.
+   automatically on pushes to `main`. Fork GitHub releases use the tag scheme
+   `v<upstream-version>-bf` (for example `v0.69.0-bf`, or `v0.69.0-bf.<n>` for
+   additional fork releases on the same upstream version) and publish the
+   release tag, `:latest` (for non-prereleases), and `:sha-<commit>`. Require
+   the relevant CI checks and container smoke tests to pass before updating a
+   running installation.
 
 ## Deployment and rollback considerations
 
