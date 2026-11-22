@@ -1,4 +1,4 @@
-FROM node:24.22.1-slim@sha256:55fb5f5a527ea2c5c4a95f963e48ef90aa38c7b346054fdc8ee9957a2b55d205 AS base
+FROM node:24.22.3-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54 AS base
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
     COREPACK_HOME=/usr/bin/corepack
 RUN corepack enable pnpm
@@ -35,7 +35,7 @@ ENV SHA=${SHA}
 RUN pnpm build && pnpm prune --prod
 
 # Download Caddy from github
-FROM --platform=$BUILDPLATFORM alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a AS caddy
+FROM --platform=$BUILDPLATFORM alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS caddy
 
 ARG TARGETPLATFORM
 ARG CADDY_VERSION=2.10.0

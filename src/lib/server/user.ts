@@ -16,7 +16,8 @@ export const createUser = async (
     role: Role,
     password: string,
     signupTokenId?: string,
-    registration?: RegistrationContext
+    registration?: RegistrationContext,
+    allowAdditionalAdmin = false
 ) => {
     const config = await getConfig();
     const userCount = await client.user.count();
@@ -65,7 +66,7 @@ export const createUser = async (
                 username: user.username,
                 name: user.name,
                 email: user.email,
-                roleId: role === Role.ADMIN && (await tx.user.count()) > 0 ? Role.USER : role,
+                roleId: role === Role.ADMIN && !allowAdditionalAdmin && (await tx.user.count()) > 0 ? Role.USER : role,
                 hashedPassword,
                 oauthId: user.oauthId
             }
