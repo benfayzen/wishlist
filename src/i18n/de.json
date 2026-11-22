@@ -161,7 +161,12 @@
         "show-name-publicly-tooltip": "Zeigt den Namen der Person, die den Artikel reserviert hat, auf der Detailseite auch bei einer öffentlichen Liste an.",
         "clear-sessions-confirmation": "Bist du sicher, dass du alle Sitzungen dieses Nutzers löschen möchtest? Der Benutzer wird auf allen Geräten ausgeloggt und muss sich neu einloggen.",
         "clear-sessions-success": "Die Sitzungen dieses Benutzers wurden gelöscht. Der Benutzer muss sich erneut anmelden.",
-        "oidc-url-description": "Die URL deines OAuth-Anbieters oder die URL des jeweiligen Realms bzw. der jeweiligen Anwendung innerhalb deines Anbieters. Diese wird häufig auch als „Discovery-URL“ bezeichnet."
+        "oidc-url-description": "Die URL deines OAuth-Anbieters oder die URL des jeweiligen Realms bzw. der jeweiligen Anwendung innerhalb deines Anbieters. Diese wird häufig auch als „Discovery-URL“ bezeichnet.",
+        "oidc-admin-group": "Admin-Gruppe",
+        "oidc-admin-group-description": "Benutzer in dieser Gruppe erhalten bei jeder Anmeldung die Admin-Rolle, und Benutzer außerhalb verlieren sie. Leer lassen, um Administratoren in Wishlist zu verwalten.",
+        "oidc-env-managed": "Einige dieser Einstellungen werden über Umgebungsvariablen festgelegt und können hier nicht geändert werden.",
+        "oidc-groups-claim": "Gruppen-Claim",
+        "oidc-groups-claim-description": "Der Claim, der die Gruppen des Benutzers auflistet. Der Scope „groups“ wird angefordert, wenn eine Admin-Gruppe festgelegt ist."
     },
     "wishes": {
         "visible-in-groups": "Sichtbar in Gruppen",
