@@ -2,7 +2,7 @@
     import type { PageProps } from "./$types";
     import ItemCard from "$lib/components/wishlists/ItemCard/ItemCard.svelte";
     import ClaimFilterChip from "$lib/components/wishlists/chips/ClaimFilter.svelte";
-    import { goto, invalidate } from "$app/navigation";
+    import { goto, invalidate, replaceState } from "$app/navigation";
     import { page } from "$app/state";
     import { onMount } from "svelte";
     import { flip } from "svelte/animate";
@@ -18,6 +18,7 @@
     import { dragHandleZone, type DndZoneAttributes, type Item, type Options } from "svelte-dnd-action";
     import ReorderChip from "$lib/components/wishlists/chips/ReorderChip.svelte";
     import ManageListChip from "$lib/components/wishlists/chips/ManageListChip.svelte";
+    import ImportWishbobChip from "$lib/components/wishlists/chips/ImportWishbobChip.svelte";
     import ListViewModeChip from "$lib/components/wishlists/chips/ListViewModeChip.svelte";
     import type { ItemOnListDTO } from "$lib/dtos/item-dto";
     import { ItemCreateHandler, ItemDeleteHandler, ItemsUpdateHandler, ItemUpdateHandler } from "$lib/events";
@@ -77,6 +78,18 @@
 
     onMount(async () => {
         await updateHash();
+        const importedParam = page.url.searchParams.get("imported");
+        if (importedParam) {
+            const count = Number.parseInt(importedParam, 10);
+            if (Number.isFinite(count) && count > 0) {
+                toaster.info({
+                    description: $t("wishes.wishbob-import-success", { values: { count } })
+                });
+            }
+            const nextUrl = new URL(page.url);
+            nextUrl.searchParams.delete("imported");
+            replaceState(nextUrl, page.state);
+        }
     });
 
     onMount(() => {
@@ -293,6 +306,7 @@
     {#if data.list.owner.isMe || data.list.isManager}
         <div class="m3-wishlist-actions">
             <ManageListChip onclick={() => goto(`${new URL(page.url).pathname}/manage`)} />
+            <ImportWishbobChip onclick={() => goto(`${new URL(page.url).pathname}/import-wishbob`)} />
             <ReorderChip onFinalize={handleReorderFinalize} bind:reordering />
         </div>
     {/if}
