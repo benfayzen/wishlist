@@ -26,12 +26,14 @@
     initListViewPreference(data.initialViewPreference);
     let isTileView = $derived(getListViewPreference() === "tile");
 
+    const PURCHASED_GROUP_KEY = "_purchased";
+
     let groupBy = $state("purchased");
 
     let groupedItems = $derived.by(() => {
         let groupedItems: Record<string, ClaimedItem[]> = { _default: items };
         if (groupBy === "purchased") {
-            groupedItems = Object.groupBy(items, (it) => (it.claims[0].purchased ? "Purchased" : "_default"));
+            groupedItems = Object.groupBy(items, (it) => (it.claims[0].purchased ? PURCHASED_GROUP_KEY : "_default"));
         } else if (groupBy === "user") {
             groupedItems = items.reduce(
                 (accum, item) => {
@@ -77,7 +79,11 @@
                 groupBy !== "purchased" ? items.toSorted((a, b) => isPurchased(a) - isPurchased(b)) : items}
             {#if category !== "_default"}
                 <div class="m3-claims-group-header" transition:fade>
-                    <h2 class="m3-title">{category}</h2>
+                    <h2 class="m3-title">
+                        {groupBy === "purchased" && category === PURCHASED_GROUP_KEY
+                            ? $t("wishes.purchased")
+                            : category}
+                    </h2>
                     <span class="admin-count">{sortedItems.length}</span>
                 </div>
             {/if}
